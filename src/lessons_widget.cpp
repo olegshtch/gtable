@@ -7,10 +7,10 @@ LessonsWidget::LessonsWidget(DB::DataBase &db, const DB::Link_TeachPlan &link)
 {
 	m_ListBox.set_headers_visible(true);
 	m_ListBox.append_column("l_id", DB::g_ModelPlan.l_id);
-	m_ListBox.append_column("l_name", DB::g_ModelPlan.l_id);
-	m_ListBox.append_column("t_id", DB::g_ModelPlan.l_id);
-	m_ListBox.append_column("t_name", DB::g_ModelPlan.l_id);
-	m_ListBox.append_column_editable("hours", DB::g_ModelPlan.l_id);
+	m_ListBox.append_column("l_name", DB::g_ModelPlan.name);
+	m_ListBox.append_column("t_id", DB::g_ModelPlan.t_id);
+	m_ListBox.append_column("t_name", DB::g_ModelPlan.t_name);
+	m_ListBox.append_column_editable("hours", DB::g_ModelPlan.hours);
 
 	m_Buttons[0].set_label(_("Append"));
 	m_ButtonBox.pack_start(m_Buttons[0], Gtk::PACK_SHRINK);
@@ -31,13 +31,14 @@ LessonsWidget::LessonsWidget(DB::DataBase &db, const DB::Link_TeachPlan &link)
 
 void LessonsWidget::Refresh()
 {
+	m_DB.ListLinkedTeachPlan(m_Link, m_ParentId, m_Model);
 	show_all_children();
 }
 
 void LessonsWidget::OnAppend()
 {
 	Glib::RefPtr<Gtk::ListStore> model = Gtk::ListStore::create(DB::g_ModelLessonTeacher);
-	m_DB.ListLink(m_Link.m_Entity2, model);
+	m_DB.ListTeacherLessons(m_Link.m_Entity2, model);
 	ComboboxDialog dialog(model);
 	dialog.PackStart(DB::g_ModelLessonTeacher.name);
 	dialog.PackStart(DB::g_ModelLessonTeacher.t_name);

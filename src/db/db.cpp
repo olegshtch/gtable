@@ -36,6 +36,7 @@ DataBase::DataBase(const Glib::ustring &db, bool create_new)
 		CreateTableLinkN2N(g_TeachersLessons);
 		CreateTableLinkN2N(g_OrderLessons);
 		CreateTableLinkTeachPlan(g_TeachPlan);
+		CreateTableSchedule();
 	}
 }
 
@@ -81,6 +82,12 @@ void DataBase::CreateTableLinkTeachPlan(const Link_TeachPlan& link)
 {
 	SQLExec0(Glib::ustring::compose("DROP TABLE IF EXISTS %1", link.m_TableName));
 	SQLExec0(Glib::ustring::compose("CREATE TABLE %1 (id INTEGER PRIMARY KEY AUTOINCREMENT,	id_entity1 INTEGER NOT NULL REFERENCES %2(id) ON DELETE CASCADE ON UPDATE CASCADE, id_entity2 INTEGER NOT NULL REFERENCES %3(id) ON DELETE CASCADE ON UPDATE CASCADE, hours INTEGER NOT NULL DEFAULT 0)", link.m_TableName, link.m_Entity1.m_TableName, link.m_Entity2.m_TableName));
+}
+
+void DataBase::CreateTableSchedule()
+{
+	SQLExec0(Glib::ustring("DROP TABLE IF EXISTS Schedule"));
+	SQLExec0(Glib::ustring::compose("CREATE TABLE Schedule (id_day INTEGER NOT NULL REFERENCES %1(id) ON DELETE CASCADE ON UPDATE CASCADE, id_hour INTEGER NOT NULL REFERENCES %2(id) ON DELETE CASCADE ON UPDATE CASCADE, id_record INTEGER NOT NULL REFERENCES %3(id) ON DELETE CASCADE ON UPDATE CASCADE, id_auditorium INTEGER NOT NULL REFERENCES %4(id) ON DELETE CASCADE ON UPDATE CASCADE)", g_Days.m_TableName, g_Hours.m_TableName, g_TeachPlan.m_TableName, g_Auditoriums.m_TableName));
 }
 
 void DataBase::SQLExec0(const Glib::ustring& sql)
@@ -171,7 +178,7 @@ void DataBase::ListLink(const Link_N2N& link, Glib::RefPtr<Gtk::ListStore> &list
 
 void DataBase::ListLinkedTeachPlan(const Link_TeachPlan& link, int parent_id, Glib::RefPtr<Gtk::ListStore> &list_store)
 {
-	SQLExec<ModelPlan>(Glib::ustring::compose("SELECT %1.id, Lessons.name, Lessons.id, Teachers.is, Teachers.name, %1.hours FROM %1, %2, Lessons, Teachers WHERE %1.id_entity1 = %3 AND %1.id_entity2 = %2.id AND %2.id_entity1 = Teachers.id AND %2.id_entity2 = Lessons.id", link.m_TableName, link.m_Entity2.m_TableName, parent_id), list_store);
+	SQLExec<ModelPlan>(Glib::ustring::compose("SELECT %1.id, Lessons.name, Lessons.id, Teachers.id, Teachers.name, %1.hours FROM %1, %2, Lessons, Teachers WHERE %1.id_entity1 = %3 AND %1.id_entity2 = %2.id AND %2.id_entity1 = Teachers.id AND %2.id_entity2 = Lessons.id", link.m_TableName, link.m_Entity2.m_TableName, parent_id), list_store);
 }
 
 void DataBase::ListTeacherLessons(const Link_N2N& link, Glib::RefPtr<Gtk::ListStore> &list_store)

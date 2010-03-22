@@ -92,12 +92,15 @@ int DB::ModelLessonTeacher::Callback(void *list_ptr, int argc, char **argv, char
 	Gtk::TreeIter it = list_store->append();
 	std::clog << " [" << col_name[0] << "]=" << argv[0];
 	it->set_value(DB::g_ModelLessonTeacher.id, atol(argv[0]));
+
 	std::clog << " [" << col_name[1] << "]=" << argv[1];
 	it->set_value(DB::g_ModelLessonTeacher.name, Glib::ustring(argv[1]));
 	std::clog << " [" << col_name[2] << "]=" << argv[2];
 	it->set_value(DB::g_ModelLessonTeacher.l_id, atol(argv[2]));
+
 	std::clog << " [" << col_name[3] << "]=" << argv[3];
 	it->set_value(DB::g_ModelLessonTeacher.t_id, atol(argv[3]));
+
 	std::clog << " [" << col_name[4] << "]=" << argv[4];
 	it->set_value(DB::g_ModelLessonTeacher.t_name, Glib::ustring(argv[4]));
 	std::clog << std::endl;
@@ -119,14 +122,19 @@ int DB::ModelPlan::Callback(void *list_ptr, int argc, char **argv, char **col_na
 	Gtk::TreeIter it = list_store->append();
 	std::clog << " [" << col_name[0] << "]=" << argv[0];
 	it->set_value(DB::g_ModelPlan.id, atol(argv[0]));
+
 	std::clog << " [" << col_name[1] << "]=" << argv[1];
 	it->set_value(DB::g_ModelPlan.name, Glib::ustring(argv[1]));
+
 	std::clog << " [" << col_name[2] << "]=" << argv[2];
 	it->set_value(DB::g_ModelPlan.l_id, atol(argv[2]));
+
 	std::clog << " [" << col_name[3] << "]=" << argv[3];
 	it->set_value(DB::g_ModelPlan.t_id, atol(argv[3]));
+
 	std::clog << " [" << col_name[4] << "]=" << argv[4];
 	it->set_value(DB::g_ModelPlan.t_name, Glib::ustring(argv[4]));
+
 	std::clog << " [" << col_name[5] << "]=" << argv[5];
 	it->set_value(DB::g_ModelPlan.hours, atol(argv[5]));
 	std::clog << std::endl;

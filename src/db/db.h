@@ -51,6 +51,7 @@ namespace DB
 		void CreateTableEntity(const Entity& ent);
 		void CreateTableLinkN2N(const Link_N2N& link);
 		void CreateTableLinkTeachPlan(const Link_TeachPlan& link);
+		void CreateTableSchedule();
 		
 		sqlite3 *m_SQLite;
 	};

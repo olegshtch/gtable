@@ -63,9 +63,11 @@ PKG_CHECK_MODULES([SQLITE],[sqlite3],[LDFLAGS="$SQLITE_LIBS $LDFLAGS";CXXFLAGS="
 
 AC_CONFIG_FILES([
     Makefile
+    docs/Makefile
     src/Makefile
     src/db/Makefile
     po/Makefile.in
+    win32/Makefile
 ])
 
 AC_OUTPUT

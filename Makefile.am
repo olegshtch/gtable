@@ -1,4 +1,4 @@
-SUBDIRS = src po
+SUBDIRS = docs po src win32
 
 @INTLTOOL_DESKTOP_RULE@
 
@@ -6,7 +6,8 @@ INTLTOOL_FILES = \
 	intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in
-EXTRA_DIST = $(INTLTOOL_FILES)
+EXTRA_DIST = $(INTLTOOL_FILES) \
+	1.db
 DISTCLEANFILES = \
 	intltool-extract \
 	intltool-merge \
