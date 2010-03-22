@@ -23,6 +23,8 @@ LessonsWidget::LessonsWidget(DB::DataBase &db, const DB::Link_TeachPlan &link)
 	m_Scrolled.add(m_ListBox);
 	m_Scrolled.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);
 
+	m_Model->signal_row_changed().connect(sigc::mem_fun(*this, &LessonsWidget::OnEditRow));
+
 	pack_start(m_Scrolled, Gtk::PACK_EXPAND_WIDGET);
 	pack_end(m_ButtonBox, Gtk::PACK_SHRINK);
 
@@ -61,5 +63,6 @@ void LessonsWidget::OnDelete()
 
 void LessonsWidget::OnEditRow(const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter)
 {
+	m_DB.EditHours(m_Link, iter->get_value(DB::g_ModelPlan.id), iter->get_value(DB::g_ModelPlan.hours));
 }
 

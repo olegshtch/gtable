@@ -156,6 +156,11 @@ void DataBase::EditMultithr(const Entity& ent, int id, bool multithr)
 	SQLExec0(Glib::ustring::compose("UPDATE %1 SET multithr=%2 WHERE id=%3", ent.m_TableName, multithr ? 1 : 0, id));
 }
 
+void DataBase::EditHours(const DB::Link_TeachPlan& link, int id, unsigned int hours)
+{
+	SQLExec0(Glib::ustring::compose("UPDATE %1 SET hours=%2 WHERE id=%3", link.m_TableName, hours, id));
+}
+
 void DataBase::ListLinkedEntity(const Link_N2N& link, int parent_id, Glib::RefPtr<Gtk::ListStore> &list_store)
 {
 	SQLExec<ModelEntity>(Glib::ustring::compose("SELECT %2.id, %2.name FROM %1, %2 WHERE %1.id_entity1 = %3 AND %1.id_entity2 = %2.id", link.m_TableName, link.m_Entity2.m_TableName, parent_id), list_store);

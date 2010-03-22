@@ -30,6 +30,8 @@ namespace DB
 		void ListLink(const Link_N2N& link, Glib::RefPtr<Gtk::ListStore> &list_store);
 		void ListLinkedTeachPlan(const Link_TeachPlan& link, int parent_id, Glib::RefPtr<Gtk::ListStore> &list_store);
 		void ListTeacherLessons(const DB::Link_N2N& link, Glib::RefPtr<Gtk::ListStore>& list_store);
+
+		void EditHours(const DB::Link_TeachPlan& link, int id, unsigned int hours);
 		//void ListCircleLink(const Link_N2N& link, Glib::RefPtr<Gtk::ListStore> &list_store);
 	private:
 		void SQLExec0(const Glib::ustring& sql);
