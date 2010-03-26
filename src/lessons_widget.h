@@ -19,6 +19,7 @@ private:
 	DB::DataBase &m_DB;
 	const DB::Link_TeachPlan &m_Link;
 	int m_ParentId;
+	bool m_Recurse;
 
 	Glib::RefPtr<Gtk::ListStore> m_Model;
 	Gtk::VButtonBox m_ButtonBox;

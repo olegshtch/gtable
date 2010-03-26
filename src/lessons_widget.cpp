@@ -28,13 +28,17 @@ LessonsWidget::LessonsWidget(DB::DataBase &db, const DB::Link_TeachPlan &link)
 	pack_start(m_Scrolled, Gtk::PACK_EXPAND_WIDGET);
 	pack_end(m_ButtonBox, Gtk::PACK_SHRINK);
 
+	m_Recurse = false;
+
 	Refresh();
 }
 
 void LessonsWidget::Refresh()
 {
+	m_Recurse = true;
 	m_DB.ListLinkedTeachPlan(m_Link, m_ParentId, m_Model);
 	show_all_children();
+	m_Recurse = false;
 }
 
 void LessonsWidget::OnAppend()
@@ -63,6 +67,9 @@ void LessonsWidget::OnDelete()
 
 void LessonsWidget::OnEditRow(const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter)
 {
-	m_DB.EditHours(m_Link, iter->get_value(DB::g_ModelPlan.id), iter->get_value(DB::g_ModelPlan.hours));
+	if(! m_Recurse)
+	{
+		m_DB.EditHours(m_Link, iter->get_value(DB::g_ModelPlan.id), iter->get_value(DB::g_ModelPlan.hours));
+	}
 }
 

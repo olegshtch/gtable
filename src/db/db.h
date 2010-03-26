@@ -5,6 +5,7 @@
 #include <gtkmm/liststore.h>
 #include <sqlite3.h>
 #include <iostream>
+#include <sstream>
 #include "entities.h"
 #include "links.h"
 #include "../shared.h"
@@ -33,6 +34,8 @@ namespace DB
 
 		void EditHours(const DB::Link_TeachPlan& link, int id, unsigned int hours);
 		//void ListCircleLink(const Link_N2N& link, Glib::RefPtr<Gtk::ListStore> &list_store);
+		
+		size_t GetEntitiesCount(const DB::Entity& ent);
 	private:
 		void SQLExec0(const Glib::ustring& sql);
 		static int SQLCallBack0(void *self_ptr, int argc, char **argv, char **col_name);
@@ -48,6 +51,36 @@ namespace DB
 				sqlite3_free(err_msg);
 				throw Glib::Error(1, 0, msg);
 			}
+		}
+
+		template <class Type> void SQLExec(const Glib::ustring& sql, Type *result)
+		{
+			char *err_msg = 0;
+			std::clog << sql << std::endl;
+			int sql_answer = sqlite3_exec(m_SQLite, sql.c_str(), Callback<Type>, result, &err_msg);
+			if(sql_answer != SQLITE_OK)
+			{
+				Glib::ustring msg(err_msg);
+				sqlite3_free(err_msg);
+				throw Glib::Error(1, 0, msg);
+			}
+		}
+
+		template <class Type> static int Callback(void *result, int argc, char **argv, char **col_name)
+		{
+			if(! result)
+			{
+				throw Glib::Error(1, 0, "Null poiter to result at DB::Callback<Type>.");
+			}
+			if(argc != 1)
+			{
+				throw Glib::Error(1, 0, "Not 1 columns at DB::Callback<Type>.");
+			}
+			Type &res = *reinterpret_cast<Type*>(result);
+			std::clog << " [" << col_name[0] << "]=" << argv[0] << std::endl;
+			std::stringstream stream(argv[0]);
+			stream >> res;
+			return 0;
 		}
 
 		void CreateTableEntity(const Entity& ent);

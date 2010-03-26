@@ -11,19 +11,22 @@
 #include "groups_frame.h"
 
 MainWindow::MainWindow()
-	:m_DB(0)
+	:m_DB(0), m_Conditions(0)
 {
 	set_title(_("Table"));
 
 	m_refActionGroup = Gtk::ActionGroup::create();
-	m_refActionGroup->add(Gtk::Action::create("MenuFile", _("_File")) );
+	m_refActionGroup->add(Gtk::Action::create("MenuFile", _("File")));
 	m_refActionGroup->add(Gtk::Action::create("FileNew", Gtk::Stock::NEW),
 		sigc::mem_fun(*this, &MainWindow::OnNew));
 	m_refActionGroup->add(Gtk::Action::create("FileOpen", Gtk::Stock::OPEN),
 		sigc::mem_fun(*this, &MainWindow::OnOpen));
 	m_refActionGroup->add(Gtk::Action::create("FileQuit", Gtk::Stock::QUIT),
 		sigc::mem_fun(*this, &MainWindow::OnQuit));
-	m_refActionGroup->add(Gtk::Action::create("MenuHelp", _("_Help")) );
+	m_refActionGroup->add(Gtk::Action::create("MenuRun", _("Run")));
+	m_refActionGroup->add(Gtk::Action::create("RunSolve", Gtk::Stock::GO_FORWARD),
+		sigc::mem_fun(*this, &MainWindow::OnRun));
+	m_refActionGroup->add(Gtk::Action::create("MenuHelp", _("Help")));
 	m_refActionGroup->add(Gtk::Action::create("HelpAbout", Gtk::Stock::ABOUT),
 		sigc::mem_fun(*this, &MainWindow::OnAbout));
 
@@ -41,6 +44,9 @@ MainWindow::MainWindow()
 		   <separator />\
 		   <menuitem action='FileQuit' />\
 		  </menu>\
+		  <menu action='MenuRun'>\
+		   <menuitem action='RunSolve' />\
+		  </menu>\
 		  <menu action='MenuHelp'>\
 		   <menuitem action='HelpAbout' />\
 		  </menu>\
@@ -48,6 +54,7 @@ MainWindow::MainWindow()
 		 <toolbar name='ToolBar'>\
 		  <toolitem action='FileNew' />\
 		  <toolitem action='FileOpen' />\
+		  <toolitem action='RunSolve' />\
 		  <toolitem action='HelpAbout' />\
 		  <toolitem action='FileQuit' />\
 		 </toolbar>\
@@ -95,6 +102,10 @@ MainWindow::~MainWindow()
 	{
 		delete m_DB;
 	}
+	if(m_Conditions)
+	{
+		delete m_Conditions;
+	}
 }
 
 void MainWindow::OnNew()
@@ -109,6 +120,11 @@ void MainWindow::OnNew()
 		{
 			delete m_DB;
 			m_DB = 0;
+		}
+		if(m_Conditions)
+		{
+			delete m_Conditions;
+			m_Conditions = 0;
 		}
 		m_DB = new DB::DataBase(dialog.get_filename(), true);
 		ShowAllEntities();
@@ -128,6 +144,11 @@ void MainWindow::OnOpen()
 			delete m_DB;
 			m_DB = 0;
 		}
+		if(m_Conditions)
+		{
+			delete m_Conditions;
+			m_Conditions = 0;
+		}
 		m_DB = new DB::DataBase(dialog.get_filename(), false);
 		ShowAllEntities();
 	}
@@ -140,6 +161,17 @@ void MainWindow::OnQuit()
 
 void MainWindow::OnAbout()
 {
+}
+
+void MainWindow::OnRun()
+{
+	std::cout << "run" << std::endl;
+	if(m_Conditions)
+	{
+		delete m_Conditions;
+		m_Conditions = 0;
+	}
+	m_Conditions = new Conditions(*m_DB);
 }
 
 void MainWindow::ShowAllEntities()

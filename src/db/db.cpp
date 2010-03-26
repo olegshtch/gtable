@@ -196,3 +196,10 @@ void DataBase::ListTeacherLessons(const Link_N2N& link, Glib::RefPtr<Gtk::ListSt
 	SQLExec4isis(Glib::ustring::compose("SELECT %2.id, %2.name, _T.id, _T.name FROM OrderLessons, %2, Lessons AS _T WHERE OrderLessons.id_entity1 = Lessons.id AND OrderLessons.id_entity2 = _T.id", link.m_TableName, link.m_Entity1.m_TableName), list_store);
 }*/
 
+size_t DataBase::GetEntitiesCount(const DB::Entity& ent)
+{
+	size_t res;
+	SQLExec<size_t>(Glib::ustring::compose("SELECT COUNT(*) FROM %1", ent.m_TableName), &res);
+	return res;
+}
+
