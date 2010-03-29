@@ -10,6 +10,8 @@ public:
 	~Conditions();
 private:
 	DB::DataBase &m_DB;
+	size_t A, D, H, T, G, L;
+	std::vector<size_t> ids_a, ids_d, ids_h, ids_t, ids_g, ids_l;
 };
 
 #endif

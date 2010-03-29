@@ -203,3 +203,8 @@ size_t DataBase::GetEntitiesCount(const DB::Entity& ent)
 	return res;
 }
 
+size_t DataBase::GetEntitiesIDs(const DB::Entity& ent, std::vector<size_t> *array)
+{
+	return SQLExecArray<size_t>(Glib::ustring::compose("SELECT id FROM %1", ent.m_TableName), array);
+}
+

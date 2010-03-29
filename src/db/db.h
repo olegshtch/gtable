@@ -36,6 +36,7 @@ namespace DB
 		//void ListCircleLink(const Link_N2N& link, Glib::RefPtr<Gtk::ListStore> &list_store);
 		
 		size_t GetEntitiesCount(const DB::Entity& ent);
+		size_t GetEntitiesIDs(const DB::Entity& ent, std::vector<size_t> *array);
 	private:
 		void SQLExec0(const Glib::ustring& sql);
 		static int SQLCallBack0(void *self_ptr, int argc, char **argv, char **col_name);
@@ -80,6 +81,41 @@ namespace DB
 			std::clog << " [" << col_name[0] << "]=" << argv[0] << std::endl;
 			std::stringstream stream(argv[0]);
 			stream >> res;
+			return 0;
+		}
+
+		template <class Type> size_t SQLExecArray(const Glib::ustring& sql, std::vector<Type> *array)
+		{
+			std::pair<size_t, std::vector<Type>*> res;
+			res.first = 0;
+			res.second = array;
+			char *err_msg = 0;
+			std::clog << sql << std::endl;
+			int sql_answer = sqlite3_exec(m_SQLite, sql.c_str(), CallbackArray<Type>, &res, &err_msg);
+			if(sql_answer != SQLITE_OK)
+			{
+				Glib::ustring msg(err_msg);
+				sqlite3_free(err_msg);
+				throw Glib::Error(1, 0, msg);
+			}
+			return res.first;
+		}
+
+		template <class Type> static int CallbackArray(void *result, int argc, char **argv, char **col_name)
+		{
+			if(! result)
+			{
+				throw Glib::Error(1, 0, "Null poiter to result at DB::CallbackArray<Type>.");
+			}
+			if(argc != 1)
+			{
+				throw Glib::Error(1, 0, "Not 1 columns at DB::CallbackArray<Type>.");
+			}
+			std::pair<size_t, std::vector<Type> *> *res = reinterpret_cast<std::pair<size_t, std::vector<Type>*> *>(result);
+			std::clog << " [" << col_name[0] << "]=" << argv[0] << std::endl;
+			std::stringstream stream(argv[0]);
+			stream >> res->second->at(res->first);
+			res->first ++;
 			return 0;
 		}
 
