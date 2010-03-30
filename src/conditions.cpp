@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "conditions.h"
 
 Conditions::Conditions(DB::DataBase &db)
@@ -24,6 +25,25 @@ Conditions::Conditions(DB::DataBase &db)
 		m_DB.GetEntitiesIDs(DB::g_Groups, &ids_g);
 		m_DB.GetEntitiesIDs(DB::g_Teachers, &ids_t);
 		m_DB.GetEntitiesIDs(DB::g_Lessons, &ids_l);
+		// get array by auditoriums and lessons
+		std::vector<std::vector<bool> > array_AL;
+		array_AL.resize(A, std::vector<bool>(L));
+		for(size_t a = 0; a < A; a ++)
+		{
+			for(size_t l = 0; l < L; l ++)
+			{
+				array_AL[a][l] = m_DB.IsLinkBetween(DB::g_LessonsAuditoriums, ids_a[a], ids_l[l]);
+			}
+		}
+		std::vector<std::vector<size_t> > array_GL; // store teachers for group and lesson
+		array_GL.resize(G, std::vector<size_t>(L));
+		for(size_t g = 0; g < A; g ++)
+		{
+			for(size_t l = 0; l < L; l ++)
+			{
+				array_GL[g][l] = *std::find(ids_t.begin(), ids_t.end(), m_DB.GetTForGL(ids_g[g], ids_l[l]));
+			}
+		}
 	}
 	else
 	{

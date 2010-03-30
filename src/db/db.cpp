@@ -208,3 +208,17 @@ size_t DataBase::GetEntitiesIDs(const DB::Entity& ent, std::vector<size_t> *arra
 	return SQLExecArray<size_t>(Glib::ustring::compose("SELECT id FROM %1", ent.m_TableName), array);
 }
 
+bool DataBase::IsLinkBetween(const DB::Link_N2N &link, size_t id_a, size_t id_l)
+{
+	size_t res;
+	SQLExec<size_t>(Glib::ustring::compose("SELECT COUNT(*) FROM %1 WHERE id_entity1 = %2 AND id_entity2 = %3", link.m_TableName, id_l, id_a), &res);
+	return res > 0;
+}
+
+size_t DataBase::GetTForGL(size_t id_g, size_t id_l)
+{
+	size_t res;
+	SQLExec<size_t>(Glib::ustring::compose("SELECT %1.id_entity1 FROM %1, %2 WHERE %1.id_entity2 = %4 AND %1.id = %2.id_entity2 AND %2.id_entity1 = %3", DB::g_TeachersLessons.m_TableName, DB::g_TeachPlan.m_TableName, id_g, id_l), &res);
+	return res;
+}
+

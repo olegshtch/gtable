@@ -37,6 +37,8 @@ namespace DB
 		
 		size_t GetEntitiesCount(const DB::Entity& ent);
 		size_t GetEntitiesIDs(const DB::Entity& ent, std::vector<size_t> *array);
+		bool IsLinkBetween(const DB::Link_N2N &link, size_t id_a, size_t id_l);
+		size_t GetTForGL(size_t id_g, size_t id_l); // get teacher id by lesson's id and group's id
 	private:
 		void SQLExec0(const Glib::ustring& sql);
 		static int SQLCallBack0(void *self_ptr, int argc, char **argv, char **col_name);
