@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Table 0.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-03-07 23:16+0300\n"
-"PO-Revision-Date: 2010-02-26 20:22+0300\n"
-"Last-Translator:  <olegshtch@yandex.ru>\n"
+"POT-Creation-Date: 2010-06-04 09:24+0400\n"
+"PO-Revision-Date: 2010-06-04 09:24+0300\n"
+"Last-Translator: Oleg Shchelykal'nov <O01eg@yandex.ru>\n"
 "Language-Team: Russian\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -17,42 +17,65 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%"
 "10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: ../src/entities_list_widget.cpp:17
+#. Glib::RefPtr<Gtk::TreeModel> model = m_ListBox.get_model();
+#. Glib::RefPtr<Gtk::ListStore> list_model = Glib::RefPtr<Gtk::ListStore>::cast_dynamic(model);
+#. list_model->set_column_types(s_Model);
+#: ../src/entities_list_widget.cpp:29
 msgid "Append"
 msgstr "Добавить"
 
-#: ../src/entities_list_widget.cpp:21
+#: ../src/entities_list_widget.cpp:33
 msgid "Delete"
 msgstr "Удалить"
 
-#: ../src/entities_list_widget.cpp:25
+#: ../src/entities_list_widget.cpp:37
 msgid "Edit"
 msgstr "Редактировать"
 
-#: ../src/main_window.cpp:13
+#: ../src/lessons_frame.cpp:8
+msgid "Edit order"
+msgstr "Редактировать порядок"
+
+#: ../src/main_window.cpp:16
 msgid "Table"
 msgstr "Расписание"
 
-#: ../src/main_window.cpp:16
-msgid "_File"
-msgstr "_Файл"
+#: ../src/main_window.cpp:19
+msgid "File"
+msgstr "Файл"
 
-#: ../src/main_window.cpp:23
-msgid "_Help"
-msgstr "_Помощь"
+#: ../src/main_window.cpp:26
+msgid "Run"
+msgstr "Запуск"
 
-#: ../src/main_window.cpp:99
+#: ../src/main_window.cpp:29
+msgid "Help"
+msgstr "Помощь"
+
+#: ../src/main_window.cpp:113
 msgid "Choose file for saving database:"
 msgstr "Выберите файл для хранения базы данных:"
 
-#: ../src/main_window.cpp:117
+#: ../src/main_window.cpp:136
 msgid "Choose file for opening database:"
 msgstr "Выберите файл содержащий базу данных:"
 
-#: ../src/main_window.cpp:144
+#: ../src/main_window.cpp:179
 msgid "Time"
 msgstr "Время"
 
-#: ../src/main_window.cpp:145
+#: ../src/main_window.cpp:180
 msgid "Auditoruiums"
 msgstr "Аудитории"
+
+#: ../src/main_window.cpp:181
+msgid "Teachers"
+msgstr "Преподаватели"
+
+#: ../src/main_window.cpp:182
+msgid "Lessons"
+msgstr "Занятия"
+
+#: ../src/main_window.cpp:183
+msgid "Groups"
+msgstr "Группы"

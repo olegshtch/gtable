@@ -66,6 +66,7 @@ AC_CONFIG_FILES([
     docs/Makefile
     src/Makefile
     src/db/Makefile
+    src/orm/Makefile
     po/Makefile.in
     win32/Makefile
 ])
