@@ -9,6 +9,7 @@
 #include "entities.h"
 #include "links.h"
 #include "../shared.h"
+#include "../orm/connection.h"
 
 namespace DB
 {
@@ -16,21 +17,23 @@ namespace DB
 	{
 	public:
 		DataBase(const Glib::ustring &db, bool create_new);
-		~DataBase();
+		~DataBase()
+		{
+		}
 		void AppendEntity(const Entity& ent, const Glib::ustring &name);
-		void ListEntity(const Entity& ent, Glib::RefPtr<Gtk::ListStore> &list_store);
+		void ListEntity(const Entity& ent, Glib::RefPtr<ORM::Table> &list_store);
 		void DeleteEntity(const Entity& ent, int id);
 		void EditEntityName(const Entity& ent, int id, const Glib::ustring &new_name);
 
 		void EditMultithr(const Entity& ent, int id, bool multithr);
-		void ListEntityAud(const Entity& ent, Glib::RefPtr<Gtk::ListStore> &list_store);
+		void ListEntityAud(const Entity& ent, Glib::RefPtr<ORM::Table> &list_store);
 
-		void ListLinkedEntity(const Link_N2N& link, int parent_id, Glib::RefPtr<Gtk::ListStore> &list_store);
+		void ListLinkedEntity(const Link_N2N& link, int parent_id, Glib::RefPtr<ORM::Table> &list_store);
 		void AppendLinkedEntity(const Link_N2N& link, int parent_id, int child_id);
 		void DeleteLinkedEntity(const Link_N2N& link, int parent_id, int child_id);
-		void ListLink(const Link_N2N& link, Glib::RefPtr<Gtk::ListStore> &list_store);
-		void ListLinkedTeachPlan(const Link_TeachPlan& link, int parent_id, Glib::RefPtr<Gtk::ListStore> &list_store);
-		void ListTeacherLessons(const DB::Link_N2N& link, Glib::RefPtr<Gtk::ListStore>& list_store);
+		void ListLink(const Link_N2N& link, Glib::RefPtr<ORM::Table> &list_store);
+		void ListLinkedTeachPlan(const Link_TeachPlan& link, int parent_id, Glib::RefPtr<ORM::Table> &list_store);
+		void ListTeacherLessons(const DB::Link_N2N& link, Glib::RefPtr<ORM::Table>& list_store);
 
 		void EditHours(const DB::Link_TeachPlan& link, int id, unsigned int hours);
 		//void ListCircleLink(const Link_N2N& link, Glib::RefPtr<Gtk::ListStore> &list_store);
@@ -40,33 +43,21 @@ namespace DB
 		bool IsLinkBetween(const DB::Link_N2N &link, size_t id_a, size_t id_l);
 		size_t GetTForGL(size_t id_g, size_t id_l); // get teacher id by lesson's id and group's id
 	private:
+#if 0
 		void SQLExec0(const Glib::ustring& sql);
 		static int SQLCallBack0(void *self_ptr, int argc, char **argv, char **col_name);
+
 		template <class Model> void SQLExec(const Glib::ustring& sql, Glib::RefPtr<Gtk::ListStore> &list_store)
 		{
-			char *err_msg = 0;
-			std::clog << sql << std::endl;
 			list_store->clear();
 			int sql_answer = sqlite3_exec(m_SQLite, sql.c_str(), Model::Callback, DeRef(list_store), &err_msg);
-			if(sql_answer != SQLITE_OK)
-			{
-				Glib::ustring msg(err_msg);
-				sqlite3_free(err_msg);
-				throw Glib::Error(1, 0, msg);
-			}
 		}
+#endif
 
+#if 1
 		template <class Type> void SQLExec(const Glib::ustring& sql, Type *result)
 		{
-			char *err_msg = 0;
-			std::clog << sql << std::endl;
-			int sql_answer = sqlite3_exec(m_SQLite, sql.c_str(), Callback<Type>, result, &err_msg);
-			if(sql_answer != SQLITE_OK)
-			{
-				Glib::ustring msg(err_msg);
-				sqlite3_free(err_msg);
-				throw Glib::Error(1, 0, msg);
-			}
+			m_Connection.SQLExecOwn(sql, Callback<Type>, reinterpret_cast<void*>(result));
 		}
 
 		template <class Type> static int Callback(void *result, int argc, char **argv, char **col_name)
@@ -91,15 +82,7 @@ namespace DB
 			std::pair<size_t, std::vector<Type>*> res;
 			res.first = 0;
 			res.second = array;
-			char *err_msg = 0;
-			std::clog << sql << std::endl;
-			int sql_answer = sqlite3_exec(m_SQLite, sql.c_str(), CallbackArray<Type>, &res, &err_msg);
-			if(sql_answer != SQLITE_OK)
-			{
-				Glib::ustring msg(err_msg);
-				sqlite3_free(err_msg);
-				throw Glib::Error(1, 0, msg);
-			}
+			m_Connection.SQLExecOwn(sql, CallbackArray<Type>, reinterpret_cast<void*>(&res));
 			return res.first;
 		}
 
@@ -120,13 +103,14 @@ namespace DB
 			res->first ++;
 			return 0;
 		}
+#endif
 
 		void CreateTableEntity(const Entity& ent);
 		void CreateTableLinkN2N(const Link_N2N& link);
 		void CreateTableLinkTeachPlan(const Link_TeachPlan& link);
 		void CreateTableSchedule();
 		
-		sqlite3 *m_SQLite;
+		ORM::Connection m_Connection;
 	};
 }
 

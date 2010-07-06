@@ -1,7 +1,7 @@
 #include <gtkmm/stock.h>
 #include "combobox_dialog.h"
 
-ComboboxDialog::ComboboxDialog(Glib::RefPtr<Gtk::ListStore> &model)
+ComboboxDialog::ComboboxDialog(Glib::RefPtr<Gtk::ListStore> model)
 	:m_Model(model), m_ComboBox(m_Model)
 {
 	get_vbox()->pack_start(m_ComboBox, Gtk::PACK_EXPAND_WIDGET);

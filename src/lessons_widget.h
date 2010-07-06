@@ -21,7 +21,7 @@ private:
 	int m_ParentId;
 	bool m_Recurse;
 
-	Glib::RefPtr<Gtk::ListStore> m_Model;
+	Glib::RefPtr<ORM::Table> m_Model;
 	Gtk::VButtonBox m_ButtonBox;
 	Gtk::TreeView m_ListBox;
 	Gtk::Button m_Buttons[2];

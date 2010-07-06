@@ -1,18 +1,19 @@
 #ifndef _DB_MODELS_H_
 #define _DB_MODELS_H_
 
-#include <gtkmm/treemodel.h>
+//#include <gtkmm/treemodel.h>
+#include "../orm/scheme.h"
 
 namespace DB
 {
 
 	// id - идентификатор сущности
 	// name - название
-	class ModelEntity : public Gtk::TreeModel::ColumnRecord
+	class ModelEntity : public ORM::Scheme
 	{
 	public:
-		Gtk::TreeModelColumn<long> id;
-		Gtk::TreeModelColumn<Glib::ustring> name;
+		ORM::Field<long> id;
+		ORM::Field<Glib::ustring> name;
 
 		ModelEntity()
 		{
@@ -20,7 +21,7 @@ namespace DB
 			add(name);
 		}
 
-		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
+//		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
 
 	};
 
@@ -30,14 +31,14 @@ namespace DB
 	class ModelAud : public ModelEntity
 	{
 	public:
-		Gtk::TreeModelColumn<bool> multithread;
+		ORM::Field<bool> multithread;
 			
 		ModelAud()
 		{
 			add(multithread);
 		}
 
-		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
+//		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
 
 	};
 
@@ -48,8 +49,8 @@ namespace DB
 	class ModelOrder : public ModelEntity
 	{
 	public:
-		Gtk::TreeModelColumn<long> l_id;
-		Gtk::TreeModelColumn<Glib::ustring> l_name;
+		ORM::Field<long> l_id;
+		ORM::Field<Glib::ustring> l_name;
 
 		ModelOrder()
 		{
@@ -57,7 +58,7 @@ namespace DB
 			add(l_name);
 		}
 
-		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
+//		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
 
 	};
 
@@ -69,9 +70,9 @@ namespace DB
 	class ModelLessonTeacher : public ModelEntity
 	{
 	public:
-		Gtk::TreeModelColumn<long> l_id;
-		Gtk::TreeModelColumn<long> t_id;
-		Gtk::TreeModelColumn<Glib::ustring> t_name;
+		ORM::Field<long> l_id;
+		ORM::Field<long> t_id;
+		ORM::Field<Glib::ustring> t_name;
 
 		ModelLessonTeacher()
 		{
@@ -80,7 +81,7 @@ namespace DB
 			add(t_name);
 		}
 
-		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
+//		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
 
 
 	};
@@ -94,14 +95,14 @@ namespace DB
 	class ModelPlan : public ModelLessonTeacher
 	{
 	public:
-		Gtk::TreeModelColumn<long> hours;
+		ORM::Field<long> hours;
 
 		ModelPlan()
 		{
 			add(hours);
 		}
 
-		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
+//		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
 
 	};
 

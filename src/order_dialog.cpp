@@ -5,7 +5,7 @@
 #include "combobox_dialog.h"
 
 OrderDialog::OrderDialog(DB::DataBase &db, const DB::Link_N2N &link)
-	:m_DB(db), m_Link(link), m_Model(Gtk::ListStore::create(DB::g_ModelOrder)), m_ButtonBox(Gtk::BUTTONBOX_SPREAD), m_List(m_Model)
+	:m_DB(db), m_Link(link), m_Model(ORM::Table::create(DB::g_ModelOrder)), m_ButtonBox(Gtk::BUTTONBOX_SPREAD), m_List(m_Model)
 {
 	m_Buttons[0].set_label(_("Append"));
 	m_Buttons[0].signal_clicked().connect(sigc::mem_fun(*this, &OrderDialog::OnAppend));
@@ -33,7 +33,7 @@ OrderDialog::~OrderDialog()
 
 void OrderDialog::OnAppend()
 {
-	Glib::RefPtr<Gtk::ListStore> model = Gtk::ListStore::create(DB::g_ModelEntity);
+	Glib::RefPtr<ORM::Table> model = ORM::Table::create(DB::g_ModelEntity);
 	m_DB.ListEntity(m_Link.m_Entity1, model);
 	ComboboxDialog dialog(model);
 	dialog.PackStart(DB::g_ModelEntity.name);

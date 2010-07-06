@@ -19,10 +19,10 @@ namespace ORM
 			return *(m_Fields[i]);
 		}
 
-		template <class T> void add(const Field<T>& field)
+		template <class T> void add(Field<T>& field)
 		{
 			Gtk::TreeModelColumnRecord::add(field);
-			m_Fields.push_back(field);
+			m_Fields.push_back(&field);
 		}
 	private:
 		std::vector<const FieldBase*> m_Fields;

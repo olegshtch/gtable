@@ -8,6 +8,8 @@ const DB::ModelOrder DB::g_ModelOrder;
 const DB::ModelPlan DB::g_ModelPlan;
 const DB::ModelLessonTeacher DB::g_ModelLessonTeacher;
 
+#if 0
+
 int DB::ModelEntity::Callback(void *list_ptr, int argc, char **argv, char **col_name)
 {
 	if(! list_ptr)
@@ -140,4 +142,6 @@ int DB::ModelPlan::Callback(void *list_ptr, int argc, char **argv, char **col_na
 	std::clog << std::endl;
 	return 0;
 }
+
+#endif
 

@@ -3,7 +3,7 @@
 #include "db/models.h"
 
 LessonsWidget::LessonsWidget(DB::DataBase &db, const DB::Link_TeachPlan &link)
-	:m_DB(db), m_Link(link), m_ParentId(-1), m_Model(Gtk::ListStore::create(DB::g_ModelPlan)), m_ButtonBox(Gtk::BUTTONBOX_SPREAD), m_ListBox(m_Model)
+	:m_DB(db), m_Link(link), m_ParentId(-1), m_Model(ORM::Table::create(DB::g_ModelPlan)), m_ButtonBox(Gtk::BUTTONBOX_SPREAD), m_ListBox(m_Model)
 {
 	m_ListBox.set_headers_visible(true);
 	m_ListBox.append_column("l_id", DB::g_ModelPlan.l_id);
@@ -43,9 +43,9 @@ void LessonsWidget::Refresh()
 
 void LessonsWidget::OnAppend()
 {
-	Glib::RefPtr<Gtk::ListStore> model = Gtk::ListStore::create(DB::g_ModelLessonTeacher);
+	Glib::RefPtr<ORM::Table> model = ORM::Table::create(DB::g_ModelLessonTeacher);
 	m_DB.ListTeacherLessons(m_Link.m_Entity2, model);
-	ComboboxDialog dialog(model);
+	ComboboxDialog dialog(Glib::RefPtr<Gtk::ListStore>::cast_static(model));
 	dialog.PackStart(DB::g_ModelLessonTeacher.name);
 	dialog.PackStart(DB::g_ModelLessonTeacher.t_name);
 	if(dialog.run() == Gtk::RESPONSE_OK)

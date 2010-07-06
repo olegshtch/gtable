@@ -20,7 +20,7 @@ namespace ORM
 	private:
 	};
 
-	template<class T> class Field : public FieldBase
+	template<class T> class Field : public Gtk::TreeModelColumn<T>, public FieldBase
 	{
 	public:
 		Field()
@@ -35,18 +35,33 @@ namespace ORM
 			std::stringstream stream;
 			stream << str;
 			stream >> value;
-			it->set_value(m_Column, value);
+			it->set_value(*this, value);
 		}
 		Glib::ustring GetStrValue(Gtk::TreeIter &it) const
 		{
-			return Glib::ustring::format(it->get_value(m_Column));
+			return Glib::ustring::format(it->get_value(*this));
 		}
+#if 0
 		operator const Gtk::TreeModelColumn<T>&() const
 		{
 			return m_Column;
 		}
+		const Gtk::TreeModelColumn<T>& GetColumn() const
+		{
+			return m_Column;
+		}
+		operator Gtk::TreeModelColumnBase&()
+		{
+			return m_Column;
+		}
+
+		Gtk::TreeModelColumn<T>& GetColumn()
+		{
+			return m_Column;
+		}
+#endif
 	private:
-		Gtk::TreeModelColumn<T> m_Column;
+//		Gtk::TreeModelColumn<T> m_Column;
 	};
 #if 0
 	class Field<long> : public FieldBase

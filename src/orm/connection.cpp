@@ -1,6 +1,7 @@
 #include <glibmm/error.h>
 #include <iostream>
 #include "connection.h"
+#include "../shared.h"
 
 ORM::Connection::Connection(const Glib::ustring &file, bool create_new)
 	:m_SQLite(0)
@@ -59,12 +60,12 @@ int ORM::Connection::CallBack0(void *self_ptr, int argc, char **argv, char **col
 	return 0;
 }
 
-void ORM::Connection::SQLExec(const Glib::ustring& sql, Glib::RefPtr<Table> data)
+void ORM::Connection::SQLExec(const Glib::ustring& sql, Glib::RefPtr<Table> &data)
 {
 	char *err_msg = 0;
 	std::clog << sql << std::endl;
 	data->clear();
-	int sql_answer = sqlite3_exec(m_SQLite, sql.c_str(), ORM::Connection::CallBack, reinterpret_cast<void*>(&data), &err_msg);
+	int sql_answer = sqlite3_exec(m_SQLite, sql.c_str(), ORM::Connection::CallBack, reinterpret_cast<void*>(DeRef(data)), &err_msg);
 	if(sql_answer != SQLITE_OK)
 	{
 		Glib::ustring msg(err_msg);
@@ -79,7 +80,7 @@ int ORM::Connection::CallBack(void *self_ptr, int argc, char **argv, char **col_
 	{
 		throw Glib::Error(1, 0, "Null this at callback.");
 	}
-	Glib::RefPtr<Table> data = *reinterpret_cast<Glib::RefPtr<Table>*>(self_ptr);
+	Table *data = reinterpret_cast<Table*>(self_ptr);
 	if(data->get_n_columns() != argc)
 	{
 		throw Glib::Error(1, 0, "Different size of data");
@@ -94,4 +95,16 @@ int ORM::Connection::CallBack(void *self_ptr, int argc, char **argv, char **col_
 	return 0;
 }
 
+void ORM::Connection::SQLExecOwn(const Glib::ustring &sql, int (*callback)(void*,int,char**,char**), void* data)
+{
+	char *err_msg = 0;
+	std::clog << sql << std::endl;
+	int sql_answer = sqlite3_exec(m_SQLite, sql.c_str(), callback, data, &err_msg);
+	if(sql_answer != SQLITE_OK)
+	{
+		Glib::ustring msg(err_msg);
+		sqlite3_free(err_msg);
+		throw Glib::Error(1, 0, msg);
+	}
+}
 
