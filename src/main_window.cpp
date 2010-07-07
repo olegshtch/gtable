@@ -9,6 +9,7 @@
 #include "teachers_frame.h"
 #include "lessons_frame.h"
 #include "groups_frame.h"
+#include "table_frame.h"
 
 MainWindow::MainWindow()
 	:m_DB(0), m_Conditions(0)
@@ -26,6 +27,8 @@ MainWindow::MainWindow()
 	m_refActionGroup->add(Gtk::Action::create("MenuRun", _("Run")));
 	m_refActionGroup->add(Gtk::Action::create("RunSolve", Gtk::Stock::GO_FORWARD),
 		sigc::mem_fun(*this, &MainWindow::OnRun));
+	m_refActionGroup->add(Gtk::Action::create("RunEdit", Gtk::Stock::EDIT),
+		sigc::mem_fun(*this, &MainWindow::OnEdit));
 	m_refActionGroup->add(Gtk::Action::create("MenuHelp", _("Help")));
 	m_refActionGroup->add(Gtk::Action::create("HelpAbout", Gtk::Stock::ABOUT),
 		sigc::mem_fun(*this, &MainWindow::OnAbout));
@@ -46,6 +49,7 @@ MainWindow::MainWindow()
 		  </menu>\
 		  <menu action='MenuRun'>\
 		   <menuitem action='RunSolve' />\
+		   <menuitem action='RunEdit' />\
 		  </menu>\
 		  <menu action='MenuHelp'>\
 		   <menuitem action='HelpAbout' />\
@@ -54,7 +58,7 @@ MainWindow::MainWindow()
 		 <toolbar name='ToolBar'>\
 		  <toolitem action='FileNew' />\
 		  <toolitem action='FileOpen' />\
-		  <toolitem action='RunSolve' />\
+		  <toolitem action='RunEdit' />\
 		  <toolitem action='HelpAbout' />\
 		  <toolitem action='FileQuit' />\
 		 </toolbar>\
@@ -172,6 +176,11 @@ void MainWindow::OnRun()
 		m_Conditions = 0;
 	}
 	m_Conditions = new Conditions(*m_DB);
+}
+
+void MainWindow::OnEdit()
+{
+	m_Notebook.append_page(*Gtk::manage(new TableFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Table"))));
 }
 
 void MainWindow::ShowAllEntities()

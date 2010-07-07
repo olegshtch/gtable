@@ -22,6 +22,7 @@ private:
 	void OnAbout();
 
 	void OnRun();
+	void OnEdit();
 
 	void ShowAllEntities();
 
