@@ -15,12 +15,13 @@ public:
 private:
 	DB::DataBase &m_DB;
 	Gtk::Table m_Table;
-	Gtk::Table m_UnsetLessons;
+	Gtk::VBox m_UnsetLessons;
 	Glib::RefPtr<ORM::Table> m_Auditoriums;
 	Glib::RefPtr<ORM::Table> m_Days;
 	Glib::RefPtr<ORM::Table> m_Hours;
 	Gtk::ScrolledWindow m_SWTable, m_SWUnsetLessons;
 	TableCell m_TableCell;
+	Glib::RefPtr<ORM::Table> m_LessonRecords;
 };
 
 #endif

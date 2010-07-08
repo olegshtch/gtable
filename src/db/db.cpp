@@ -227,3 +227,8 @@ size_t DataBase::GetTForGL(size_t id_g, size_t id_l)
 	return res;
 }
 
+void DataBase::ListLessonRecords(Glib::RefPtr<ORM::Table> &list_store)
+{
+	m_Connection.SQLExec("SELECT GroupLessons.id, Teachers.id, Teachers.name, Lessons.id, Lessons.name, Groups.id, Groups.name, GroupLessons.hours FROM GroupLessons, Teachers, Lessons, Groups, TeachLes WHERE GroupLessons.id_entity1 = Groups.id AND GroupLessons.id_entity2 = TeachLes.id AND TeachLes.id_entity1 = Teachers.id AND TeachLes.id_entity2 = Lessons.id", list_store);
+}
+

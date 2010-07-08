@@ -1,10 +1,10 @@
 #include "table_cell.h"
 
-TableCell::TableCell(const Glib::ustring& teacher, const Glib::ustring& lesson, const Glib::ustring& groups)
+TableCell::TableCell(const Glib::ustring& teacher, const Glib::ustring& lesson, const Glib::ustring& groups, size_t hours)
 	:m_Teacher(teacher),
 	m_Lesson(lesson),
 	m_Groups(groups),
-	m_Set(true)
+	m_Hours(hours)
 {
 	signal_expose_event().connect(sigc::mem_fun(*this, &TableCell::OnExpose));
 	set_size_request(CELL_WIDTH, CELL_HEIGHT);
@@ -27,29 +27,34 @@ bool TableCell::OnExpose(GdkEventExpose* event)
 			context->rectangle(0, 0, CELL_WIDTH, CELL_HEIGHT);
 			context->set_source_rgb(0.0, 0.0, 0.0);
 			context->stroke();
-			if(m_Set)
+			if(m_Hours)
 			{
 				// draw data
 
 				context->set_source_rgb(1.0, 0.0, 0.0);
-				context->move_to(5, 10);
+				context->move_to(2, 10);
 				context->show_text(m_Teacher);
 				context->stroke();
 
 				context->set_source_rgb(0.0, 1.0, 0.0);
-				context->move_to(5, 30);
+				context->move_to(2, 30);
 				context->show_text(m_Lesson);
 				context->stroke();
 
 				context->set_source_rgb(0.0, 0.0, 1.0);
-				context->move_to(5, 50);
+				context->move_to(2, 50);
 				context->show_text(m_Groups);
+				context->stroke();
+
+				context->set_source_rgb(0.0, 0.0, 0.0);
+				context->move_to(105, 50);
+				context->show_text(Glib::ustring::format(m_Hours));
 				context->stroke();
 			}
 			else
 			{
 				context->move_to(10, 30);
-				context->line_to(50, 30);
+				context->line_to(110, 30);
 				context->stroke();
 			}
 		}

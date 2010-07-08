@@ -1,7 +1,6 @@
 #ifndef _DB_MODELS_H_
 #define _DB_MODELS_H_
 
-//#include <gtkmm/treemodel.h>
 #include "../orm/scheme.h"
 
 namespace DB
@@ -20,9 +19,6 @@ namespace DB
 			add(id);
 			add(name);
 		}
-
-//		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
-
 	};
 
 	// id - идентификатор аудитории
@@ -37,9 +33,6 @@ namespace DB
 		{
 			add(multithread);
 		}
-
-//		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
-
 	};
 
 	// id - идентификатор первой сущности
@@ -57,9 +50,6 @@ namespace DB
 			add(l_id);
 			add(l_name);
 		}
-
-//		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
-
 	};
 
 	// id - идентификатор записи
@@ -80,10 +70,6 @@ namespace DB
 			add(t_id);
 			add(t_name);
 		}
-
-//		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
-
-
 	};
 
 	// id - идентификатор записи
@@ -101,9 +87,39 @@ namespace DB
 		{
 			add(hours);
 		}
+	};
 
-//		static int Callback(void *list_ptr, int argc, char **argv, char **col_name);
-
+	// id - идентификатор записи в TeachPlan
+	// t_id - идентификатор преподавателя
+	// t_name - имя преподавателя
+	// l_id - идентификатор занятия
+	// l_name - название занятия
+	// g_id - идентификатор группы
+	// g_name - название группы
+	// hours - количество часов
+	class ModelLessonRecords : public ORM::Scheme
+	{
+	public:
+		ORM::Field<long> id;
+		ORM::Field<long> t_id;
+		ORM::Field<Glib::ustring> t_name;
+		ORM::Field<long> l_id;
+		ORM::Field<Glib::ustring> l_name;
+		ORM::Field<long> g_id;
+		ORM::Field<Glib::ustring> g_name;
+		ORM::Field<long> hours;
+		
+		ModelLessonRecords()
+		{
+			add(id);
+			add(t_id);
+			add(t_name);
+			add(l_id);
+			add(l_name);
+			add(g_id);
+			add(g_name);
+			add(hours);
+		}
 	};
 
 	extern const ModelEntity g_ModelEntity;
@@ -111,6 +127,7 @@ namespace DB
 	extern const ModelOrder g_ModelOrder;
 	extern const ModelPlan g_ModelPlan;
 	extern const ModelLessonTeacher g_ModelLessonTeacher;
+	extern const ModelLessonRecords g_ModelLessonRecords;
 	
 }
 

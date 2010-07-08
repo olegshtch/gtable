@@ -5,10 +5,10 @@
 TableFrame::TableFrame(DB::DataBase &db)
 	:m_DB(db),
 	m_Table(1, 1),
-	m_UnsetLessons(1, 1),
 	m_Auditoriums(ORM::Table::create(DB::g_ModelAud)),
 	m_Days(ORM::Table::create(DB::g_ModelEntity)),
-	m_Hours(ORM::Table::create(DB::g_ModelEntity))/*,
+	m_Hours(ORM::Table::create(DB::g_ModelEntity)),
+	m_LessonRecords(ORM::Table::create(DB::g_ModelLessonRecords))/*,
 	m_TableCell("A", "B", "C")*/
 {
 	pack_start(m_SWTable, true, true);
@@ -42,11 +42,21 @@ TableFrame::TableFrame(DB::DataBase &db)
 
 	/*m_Table.attach(m_TableCell, 2, aud_size + 2, 1, days_size * hours_size + 1);*/
 
-	m_UnsetLessons.resize(1, 4);
-	m_UnsetLessons.attach(*Gtk::manage(new TableCell("D", "E", "F")), 0, 1, 0, 1);
-	m_UnsetLessons.attach(*Gtk::manage(new TableCell("D", "E", "F")), 0, 1, 1, 2);
-	m_UnsetLessons.attach(*Gtk::manage(new TableCell("D", "E", "F")), 0, 1, 2, 3);
-	m_UnsetLessons.attach(*Gtk::manage(new TableCell("D", "E", "F")), 0, 1, 3, 4);
+	m_DB.ListLessonRecords(m_LessonRecords);
+	for(Gtk::TreeIter record = m_LessonRecords->children().begin(); record != m_LessonRecords->children().end(); record ++)
+	{
+		m_UnsetLessons.pack_start(*Gtk::manage(new TableCell(
+			record->get_value(DB::g_ModelLessonRecords.t_name),
+			record->get_value(DB::g_ModelLessonRecords.l_name),
+			record->get_value(DB::g_ModelLessonRecords.g_name),
+			record->get_value(DB::g_ModelLessonRecords.hours))),
+			false, true);
+	}
+
+/*	m_UnsetLessons.pack_start(*Gtk::manage(new TableCell("D", "E", "F", 1)));
+	m_UnsetLessons.pack_start(*Gtk::manage(new TableCell("D", "E", "F", 1)));
+	m_UnsetLessons.pack_start(*Gtk::manage(new TableCell("D", "E", "F", 1)));
+	m_UnsetLessons.pack_start(*Gtk::manage(new TableCell("фыфавы", "ыпрварвар", "вролддпд", 3)));*/
 
 	m_SWTable.add(m_Table);
 	m_SWTable.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC);

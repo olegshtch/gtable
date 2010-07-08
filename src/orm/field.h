@@ -63,24 +63,23 @@ namespace ORM
 	private:
 //		Gtk::TreeModelColumn<T> m_Column;
 	};
-#if 0
-	class Field<long> : public FieldBase
+#if 1
+	template<> class Field<Glib::ustring> : public Gtk::TreeModelColumn<Glib::ustring>, public FieldBase
 	{
 	public:
-		Field(Gtk::TreeModelColumn<long> &column)
-			:m_Column(column)
+		Field()
 		{
 		}
 		~Field()
 		{
 		}
-		void SetStrValue(Gtk::TreeIter &it, const Glib::ustring& str)
+		void SetStrValue(Gtk::TreeIter &it, const Glib::ustring& str) const
 		{
-			it->set_value(m_Column, atol(str));
+			it->set_value(*this, str);
 		}
-		Glib::ustring GetStrValue(Gtk::TreeIter &it)
+		Glib::ustring GetStrValue(Gtk::TreeIter &it) const
 		{
-			return 
+			return it->get_value(*this);
 		}
 	private:
 	};

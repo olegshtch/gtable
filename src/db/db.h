@@ -42,6 +42,8 @@ namespace DB
 		size_t GetEntitiesIDs(const DB::Entity& ent, std::vector<size_t> *array);
 		bool IsLinkBetween(const DB::Link_N2N &link, size_t id_a, size_t id_l);
 		size_t GetTForGL(size_t id_g, size_t id_l); // get teacher id by lesson's id and group's id
+
+		void ListLessonRecords(Glib::RefPtr<ORM::Table> &list_store);
 	private:
 #if 0
 		void SQLExec0(const Glib::ustring& sql);
