@@ -181,6 +181,7 @@ void MainWindow::OnRun()
 void MainWindow::OnEdit()
 {
 	m_Notebook.append_page(*Gtk::manage(new TableFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Table"))));
+	show_all_children();
 }
 
 void MainWindow::ShowAllEntities()
