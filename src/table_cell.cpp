@@ -45,11 +45,14 @@ bool TableCell::OnExpose(GdkEventExpose* event)
 				context->move_to(2, 50);
 				context->show_text(m_Groups);
 				context->stroke();
-
-				context->set_source_rgb(0.0, 0.0, 0.0);
-				context->move_to(105, 50);
-				context->show_text(Glib::ustring::format(m_Hours));
-				context->stroke();
+				
+				if(m_Hours > 1)
+				{
+					context->set_source_rgb(0.0, 0.0, 0.0);
+					context->move_to(105, 50);
+					context->show_text(Glib::ustring::format(m_Hours));
+					context->stroke();
+				}
 			}
 			else
 			{
