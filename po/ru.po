@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Table 0.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-06-04 09:24+0400\n"
+"POT-Creation-Date: 2010-07-12 08:56+0400\n"
 "PO-Revision-Date: 2010-06-04 09:24+0300\n"
 "Last-Translator: Oleg Shchelykal'nov <O01eg@yandex.ru>\n"
 "Language-Team: Russian\n"
@@ -36,46 +36,58 @@ msgstr "Редактировать"
 msgid "Edit order"
 msgstr "Редактировать порядок"
 
-#: ../src/main_window.cpp:16
+#: ../src/main_window.cpp:17 ../src/main_window.cpp:183
 msgid "Table"
 msgstr "Расписание"
 
-#: ../src/main_window.cpp:19
+#: ../src/main_window.cpp:20
 msgid "File"
 msgstr "Файл"
 
-#: ../src/main_window.cpp:26
+#: ../src/main_window.cpp:27
 msgid "Run"
 msgstr "Запуск"
 
-#: ../src/main_window.cpp:29
+#: ../src/main_window.cpp:32
 msgid "Help"
 msgstr "Помощь"
 
-#: ../src/main_window.cpp:113
+#: ../src/main_window.cpp:117
 msgid "Choose file for saving database:"
 msgstr "Выберите файл для хранения базы данных:"
 
-#: ../src/main_window.cpp:136
+#: ../src/main_window.cpp:140
 msgid "Choose file for opening database:"
 msgstr "Выберите файл содержащий базу данных:"
 
-#: ../src/main_window.cpp:179
+#: ../src/main_window.cpp:189
 msgid "Time"
 msgstr "Время"
 
-#: ../src/main_window.cpp:180
+#: ../src/main_window.cpp:190
 msgid "Auditoruiums"
 msgstr "Аудитории"
 
-#: ../src/main_window.cpp:181
+#: ../src/main_window.cpp:191
 msgid "Teachers"
 msgstr "Преподаватели"
 
-#: ../src/main_window.cpp:182
+#: ../src/main_window.cpp:192
 msgid "Lessons"
 msgstr "Занятия"
 
-#: ../src/main_window.cpp:183
+#: ../src/main_window.cpp:193
 msgid "Groups"
 msgstr "Группы"
+
+#: ../src/table_frame.cpp:12
+msgid "Choose"
+msgstr "Выбрать"
+
+#: ../src/table_frame.cpp:13
+msgid "Set"
+msgstr "Разместить"
+
+#: ../src/table_frame.cpp:14
+msgid "Drop"
+msgstr "Убрать"

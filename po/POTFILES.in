@@ -11,6 +11,7 @@ src/logbuf.cpp
 src/main_window.cpp
 src/main.cpp
 src/notebook_label_widget.cpp
+src/table_frame.cpp
 src/teachers_frame.cpp
 src/time_frame.cpp
 

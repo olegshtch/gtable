@@ -1,12 +1,18 @@
 #include "table_cell.h"
+#include "table_frame.h"
 
-TableCell::TableCell(const Glib::ustring& teacher, const Glib::ustring& lesson, const Glib::ustring& groups, size_t hours)
+TableCell::TableCell(TableFrame &table_frame, size_t x, size_t y, const Glib::ustring& teacher, const Glib::ustring& lesson, const Glib::ustring& groups, size_t hours)
 	:m_Teacher(teacher),
 	m_Lesson(lesson),
 	m_Groups(groups),
-	m_Hours(hours)
+	m_Hours(hours),
+	m_TableFrame(table_frame),
+	m_PosX(x),
+	m_PosY(y)
 {
 	signal_expose_event().connect(sigc::mem_fun(*this, &TableCell::OnExpose));
+	signal_button_press_event().connect(sigc::mem_fun(*this, &TableCell::OnButtonEvent));
+	set_events(Gdk::BUTTON_PRESS_MASK);
 	set_size_request(CELL_WIDTH, CELL_HEIGHT);
 }
 
@@ -63,5 +69,29 @@ bool TableCell::OnExpose(GdkEventExpose* event)
 		}
 	}
 	return true;
+}
+
+bool TableCell::OnButtonEvent(GdkEventButton* event)
+{
+	if((event->type == GDK_BUTTON_PRESS) && (event->button == 3))
+	{
+		m_TableFrame.SetCell(this);
+		m_TableFrame.GetPopupMenu().popup(event->button, event->time);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void TableCell::ReDraw()
+{
+	Glib::RefPtr<Gdk::Window> window = get_window();
+	if(window)
+	{
+		Gdk::Rectangle rect(0, 0, get_allocation().get_width(), get_allocation().get_height());
+		window->invalidate_rect(rect, false);
+	}
 }
 

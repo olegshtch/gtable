@@ -27,7 +27,7 @@ namespace ORM
 	private:
 		std::vector<const FieldBase*> m_Fields;
 	};
-};
+}
 
 #endif
 
