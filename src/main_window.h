@@ -8,7 +8,6 @@
 #include <gtkmm/actiongroup.h>
 #include <gtkmm/uimanager.h>
 #include "db/db.h"
-#include "conditions.h"
 
 class MainWindow : public Gtk::Window
 {
@@ -33,7 +32,6 @@ private:
 	Glib::RefPtr<Gtk::UIManager> m_refUIManager;
 
 	DB::DataBase *m_DB;
-	Conditions *m_Conditions;
 };
 
 #endif

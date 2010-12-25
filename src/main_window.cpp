@@ -12,7 +12,7 @@
 #include "table_frame.h"
 
 MainWindow::MainWindow()
-	:m_DB(0), m_Conditions(0)
+	:m_DB(0)
 {
 	set_title(_("Table"));
 
@@ -106,10 +106,6 @@ MainWindow::~MainWindow()
 	{
 		delete m_DB;
 	}
-	if(m_Conditions)
-	{
-		delete m_Conditions;
-	}
 }
 
 void MainWindow::OnNew()
@@ -124,11 +120,6 @@ void MainWindow::OnNew()
 		{
 			delete m_DB;
 			m_DB = 0;
-		}
-		if(m_Conditions)
-		{
-			delete m_Conditions;
-			m_Conditions = 0;
 		}
 		m_DB = new DB::DataBase(dialog.get_filename(), true);
 		ShowAllEntities();
@@ -148,11 +139,6 @@ void MainWindow::OnOpen()
 			delete m_DB;
 			m_DB = 0;
 		}
-		if(m_Conditions)
-		{
-			delete m_Conditions;
-			m_Conditions = 0;
-		}
 		m_DB = new DB::DataBase(dialog.get_filename(), false);
 		ShowAllEntities();
 	}
@@ -170,12 +156,6 @@ void MainWindow::OnAbout()
 void MainWindow::OnRun()
 {
 	std::cout << "run" << std::endl;
-	if(m_Conditions)
-	{
-		delete m_Conditions;
-		m_Conditions = 0;
-	}
-	m_Conditions = new Conditions(*m_DB);
 }
 
 void MainWindow::OnEdit()
