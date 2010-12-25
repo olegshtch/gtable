@@ -12,7 +12,7 @@ namespace ORM
 		FieldBase()
 		{
 		}
-		~FieldBase()
+		virtual ~FieldBase()
 		{
 		}
 		virtual void SetStrValue(Gtk::TreeIter &it, const Glib::ustring& str) const = 0;

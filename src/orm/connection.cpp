@@ -86,7 +86,7 @@ int ORM::Connection::CallBack(void *self_ptr, int argc, char **argv, char **col_
 		throw Glib::Error(1, 0, "Different size of data");
 	}
 	Gtk::TreeIter it = data->append();
-	for(size_t index = 0; index < argc; index ++)
+	for(int index = 0; index < argc; index ++)
 	{
 		data->GetField(index).SetStrValue(it, argv[index]);
 		std::clog << " [" << col_name[index] << "]=" << argv[index];

@@ -10,6 +10,7 @@
 #include "lessons_frame.h"
 #include "groups_frame.h"
 #include "table_frame.h"
+#include "ga/ga.h"
 
 MainWindow::MainWindow()
 	:m_DB(0)
@@ -156,6 +157,10 @@ void MainWindow::OnAbout()
 void MainWindow::OnRun()
 {
 	std::cout << "run" << std::endl;
+	if(m_DB)
+	{
+		GA::Solve(*m_DB);
+	}
 }
 
 void MainWindow::OnEdit()

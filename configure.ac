@@ -21,7 +21,7 @@ AC_LANG(C++)
 
 AC_PROG_RANLIB
 
-CXXFLAGS="-Wall -O0 -ggdb3"
+CXXFLAGS="-Wall -Wextra -pedantic -O0 -ggdb3"
 
 # ====== internationalization i18n ======
 
@@ -66,6 +66,7 @@ AC_CONFIG_FILES([
     docs/Makefile
     src/Makefile
     src/db/Makefile
+    src/ga/Makefile
     src/orm/Makefile
     po/Makefile.in
     win32/Makefile
