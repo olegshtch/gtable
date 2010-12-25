@@ -1,0 +1,6 @@
+Makefile
+Makefile.in
+configure
+*.o
+*.a
+src/table
