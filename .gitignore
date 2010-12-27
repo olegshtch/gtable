@@ -4,3 +4,5 @@ configure
 *.o
 *.a
 src/table
+.*.swp
+.*.swo

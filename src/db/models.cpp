@@ -9,4 +9,3 @@ const DB::ModelPlan DB::g_ModelPlan;
 const DB::ModelLessonTeacher DB::g_ModelLessonTeacher;
 const DB::ModelLessonRecords DB::g_ModelLessonRecords;
 
-

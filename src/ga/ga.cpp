@@ -1,50 +1,142 @@
 #include "ga.h"
 #include "../db/models.h"
-#include "individual.h"
+#include "fitness.h"
 
-// Занятие
-struct Task
+// База расписания (занятие в количестве проводимых часов для размещения времени и аудитории
+struct TableBase
 {
-	long g; //группа
-	long t; //преподаватель
-	long l; //занятие
+	const Task &task; //занятие
 
-	Task(long g_, long t_, long l_)
-		:g(g_), t(t_), l(l_)
-	{
-	}
 };
 
-// размещаемое условие
-struct Place
+long inline db2index(const std::vector<size_t>& ids, long db_index)
 {
-	long a; // аудитория
-	long d; // дни
-	long h; // час
-	Place(long a_, long d_, long h_)
-		:a(a_), d(d_), h(h_)
-	{
-	}
-};
+	return std::lower_bound(ids.begin(), ids.end(), db_index) - ids.begin();
+}
 
 void GA::Solve(DB::DataBase &db)
 {
-	Glib::RefPtr<ORM::Table> base_table = ORM::Table::create(DB::g_ModelLessonRecords);
-	db.ListLessonRecords(base_table);
+	// создаём список идентификаторов БД:
 	
-	std::vector<Task> base;
-	//заполняем список занятий
-	for(Gtk::TreeIter it = base_table->children().begin(); it !=  base_table->children().end(); it ++)
+	std::vector<size_t> ids_a, ids_d, ids_h, ids_g, ids_t, ids_l;
+	ids_a.resize(db.GetEntitiesCount(DB::g_Auditoriums));
+	db.GetEntitiesIDs(DB::g_Auditoriums, &ids_a);
+	ids_d.resize(db.GetEntitiesCount(DB::g_Days));
+	db.GetEntitiesIDs(DB::g_Days, &ids_d);
+	ids_h.resize(db.GetEntitiesCount(DB::g_Hours));
+	db.GetEntitiesIDs(DB::g_Hours, &ids_h);
+
+	ids_g.resize(db.GetEntitiesCount(DB::g_Groups));
+	db.GetEntitiesIDs(DB::g_Groups, &ids_g);
+	ids_t.resize(db.GetEntitiesCount(DB::g_Teachers));
+	db.GetEntitiesIDs(DB::g_Teachers, &ids_t);
+	ids_l.resize(db.GetEntitiesCount(DB::g_Lessons));
+	db.GetEntitiesIDs(DB::g_Lessons, &ids_l);
+/*
+	// получаем список G*T
+	
+	std::vector<ItemGT> gt_base;
+	ORM::Tuple<long, long> scheme_gt;
+	Glib::RefPtr<ORM::Table> table_gt = ORM::Table::create(scheme_gt);
+	db.GetGTList(table_gt);
+*/
+	// получаем соответствие между занятиями и аудиториями
+	std::vector<bool> less_aud(ids_a.size() * ids_l.size(), false); //адресация [l*ids_a.size() + a]
 	{
-		for(long i = 0; i < it->get_value(DB::g_ModelLessonRecords.hours); i ++)
+		ORM::Tuple<long, long> scheme_la;
+		Glib::RefPtr<ORM::Table> table_la = ORM::Table::create(scheme_la);
+		db.GetALList(table_la);
+
+		for(Gtk::TreeIter it = table_la->children().begin(); it != table_la->children().end(); it ++)
 		{
-			base.push_back(Task(
-				it->get_value(DB::g_ModelLessonRecords.g_id),
-				it->get_value(DB::g_ModelLessonRecords.t_id),
-				it->get_value(DB::g_ModelLessonRecords.l_id)));
+			less_aud[db2index(ids_l, it->get_value(scheme_la.f1)) * ids_a.size() + db2index(ids_a, it->get_value(scheme_la.f2))] = true;
 		}
 	}
-	std::cout << "Size of g*t*l = " << base.size() << std::endl;
-	std::cout << "Size of a*d*h = " << db.GetEntitiesCount(DB::g_Auditoriums) * db.GetEntitiesCount(DB::g_Days) * db.GetEntitiesCount(DB::g_Hours) << std::endl;
+	
+	// получаем массив занятий Task
+	std::vector<Task> tasks;
+	{
+		Glib::RefPtr<ORM::Table> table_tasks = ORM::Table::create(DB::g_ModelLessonRecords);
+		db.ListLessonRecords(table_tasks);
+
+		for(Gtk::TreeIter it = table_tasks->children().begin(); it != table_tasks->children().end(); it ++)
+		{
+			tasks.push_back(Task(
+				db2index(ids_g, it->get_value(DB::g_ModelLessonRecords.g_id)),
+				db2index(ids_t, it->get_value(DB::g_ModelLessonRecords.t_id)),
+				db2index(ids_l, it->get_value(DB::g_ModelLessonRecords.l_id)),
+				it->get_value(DB::g_ModelLessonRecords.hours)));
+		}
+	}
+
+	std::vector<std::vector<Task>::const_iterator> table_base;
+	for(std::vector<Task>::const_iterator it = tasks.begin(); it != tasks.end(); it ++)
+	{
+		for(size_t i = 0; i < it->hours; i ++)
+		{
+			table_base.push_back(it);
+		}
+	}
+
+	// получаем список многопоточных аудиторий
+	std::vector<bool> multi_aud;
+	multi_aud.resize(ids_a.size(), false);
+	for(size_t i = 0; i < ids_a.size(); i ++)
+	{
+		multi_aud[i] = db.GetAudMultithr(DB::g_Auditoriums, ids_a[i]);
+	}
+
+	Run(less_aud, table_base, multi_aud, ids_a.size(), ids_d.size(), ids_h.size());
+
+}
+
+void GA::Run(const std::vector<bool> &less_aud, const std::vector<std::vector<Task>::const_iterator> &table_base, const std::vector<bool> &multi_aud, size_t A, size_t D, size_t H)
+{
+	ADH::SetSizes(A, D, H);
+	Individual::SetMultiAud(multi_aud);
+
+	// генерируем случайную популяцию
+	const size_t POPULATION_SIZE = 20;
+	std::vector<Individual> population;
+	for(size_t i = 0; i < POPULATION_SIZE; i ++)
+	{
+		population.push_back(Individual(table_base.size(), A * D * H));
+		for(size_t j = 0; j < table_base.size(); j ++)
+		{
+			long adh_index = -1;
+			do
+			{
+				adh_index = rand() % (A * D * H);
+			}
+			while(! population[i].SetTable(j, adh_index));
+		}
+	}
+	std::cout << "Generated" << std::endl;
+
+	const size_t MAX_STABLE_LOOPS = 100;
+	size_t loops = MAX_STABLE_LOOPS;
+	size_t gen = 0;
+	//цикл ГА
+	while(loops)
+	{
+		bool best_changed = false;
+		// next gen
+		best_changed = Loop(&population);
+		if(best_changed)
+		{
+			loops = MAX_STABLE_LOOPS;
+		}
+		else
+		{
+			loops --;
+		}
+		gen ++;
+	}
+}
+
+bool GA::Loop(std::vector<Individual> *population)
+{
+	std::vector<Fitness> fitnesses;
+	return false;
 }
 

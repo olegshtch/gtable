@@ -27,6 +27,7 @@ namespace DB
 
 		void EditMultithr(const Entity& ent, int id, bool multithr);
 		void ListEntityAud(const Entity& ent, Glib::RefPtr<ORM::Table> &list_store);
+		bool GetAudMultithr(const Entity& ent, long id);
 
 		void ListLinkedEntity(const Link_N2N& link, int parent_id, Glib::RefPtr<ORM::Table> &list_store);
 		void AppendLinkedEntity(const Link_N2N& link, int parent_id, int child_id);
@@ -42,6 +43,9 @@ namespace DB
 		size_t GetEntitiesIDs(const DB::Entity& ent, std::vector<size_t> *array);
 		bool IsLinkBetween(const DB::Link_N2N &link, size_t id_a, size_t id_l);
 		size_t GetTForGL(size_t id_g, size_t id_l); // get teacher id by lesson's id and group's id
+
+		void GetGTList(Glib::RefPtr<ORM::Table> &list_store);
+		void GetALList(Glib::RefPtr<ORM::Table> &list_store);
 
 		void ListLessonRecords(Glib::RefPtr<ORM::Table> &list_store);
 	private:

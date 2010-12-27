@@ -146,6 +146,13 @@ void DataBase::ListEntityAud(const Entity& ent, Glib::RefPtr<ORM::Table> &list_s
 	}
 }
 
+bool DataBase::GetAudMultithr(const Entity& ent, long id)
+{
+	bool res;
+	SQLExec<bool>(Glib::ustring::compose("SELECT multithr FROM %1 WHERE id = %2", ent.m_TableName, id), &res);
+	return res;
+}
+
 void DataBase::DeleteEntity(const Entity& ent, int id)
 {
 	m_Connection.SQLExec0(Glib::ustring::compose("DELETE FROM %1 WHERE id=%2", ent.m_TableName, id));
@@ -210,7 +217,7 @@ size_t DataBase::GetEntitiesCount(const DB::Entity& ent)
 
 size_t DataBase::GetEntitiesIDs(const DB::Entity& ent, std::vector<size_t> *array)
 {
-	return SQLExecArray<size_t>(Glib::ustring::compose("SELECT id FROM %1", ent.m_TableName), array);
+	return SQLExecArray<size_t>(Glib::ustring::compose("SELECT id FROM %1 ORDER BY id", ent.m_TableName), array);
 }
 
 bool DataBase::IsLinkBetween(const DB::Link_N2N &link, size_t id_a, size_t id_l)
@@ -229,6 +236,16 @@ size_t DataBase::GetTForGL(size_t id_g, size_t id_l)
 
 void DataBase::ListLessonRecords(Glib::RefPtr<ORM::Table> &list_store)
 {
-	m_Connection.SQLExec("SELECT GroupLessons.id, Teachers.id, Teachers.name, Lessons.id, Lessons.name, Groups.id, Groups.name, GroupLessons.hours FROM GroupLessons, Teachers, Lessons, Groups, TeachLes WHERE GroupLessons.id_entity1 = Groups.id AND GroupLessons.id_entity2 = TeachLes.id AND TeachLes.id_entity1 = Teachers.id AND TeachLes.id_entity2 = Lessons.id", list_store);
+	m_Connection.SQLExec("SELECT GroupLessons.id, Teachers.id, Teachers.name, Lessons.id, Lessons.name, Groups.id, Groups.name, GroupLessons.hours FROM GroupLessons, Teachers, Lessons, Groups, TeachLes WHERE GroupLessons.id_entity1 = Groups.id AND GroupLessons.id_entity2 = TeachLes.id AND TeachLes.id_entity1 = Teachers.id AND TeachLes.id_entity2 = Lessons.id ORDER BY Groups.id, Teachers.id, Lessons.id", list_store);
+}
+
+void DataBase::GetGTList(Glib::RefPtr<ORM::Table> &list_store)
+{
+	m_Connection.SQLExec("SELECT DISTINCT Groups.id, Teachers.id FROM Groups, Teachers, GroupLessons, TeachLes WHERE GroupLessons.id_entity1 = Groups.id AND GroupLessons.id_entity2 = TeachLes.id AND TeachLes.id_entity1 = Teachers.id ORDER BY Groups.id, Teachers.id", list_store);
+}
+
+void DataBase::GetALList(Glib::RefPtr<ORM::Table> &list_store)
+{
+	m_Connection.SQLExec(Glib::ustring::compose("SELECT DISTINCT %1.id_entity1, %1.id_entity2 FROM %1 ORDER BY %1.id_entity1, %1.id_entity2", DB::g_LessonsAuditoriums.m_TableName), list_store);
 }
 

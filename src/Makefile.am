@@ -2,6 +2,7 @@ SUBDIRS = db ga orm
 bin_PROGRAMS = table
 table_SOURCES = auditorium_frame.cpp \
 		combobox_dialog.cpp entities_list_widget.cpp entry_text_dialog.cpp \
+		ga/fitness.cpp \
 		ga/ga.cpp \
 		ga/individual.cpp \
 		groups_frame.cpp lessons_widget.cpp lessons_frame.cpp link_list_widget.cpp logbuf.cpp main.cpp main_window.cpp notebook_label_widget.cpp order_dialog.cpp table_frame.cpp teachers_frame.cpp time_frame.cpp
