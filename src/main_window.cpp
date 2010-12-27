@@ -159,7 +159,8 @@ void MainWindow::OnRun()
 	std::cout << "run" << std::endl;
 	if(m_DB)
 	{
-		GA::Solve(*m_DB);
+		GA ga(*m_DB);
+		ga.Run();
 	}
 }
 

@@ -14,17 +14,21 @@ long inline db2index(const std::vector<size_t>& ids, long db_index)
 	return std::lower_bound(ids.begin(), ids.end(), db_index) - ids.begin();
 }
 
-void GA::Solve(DB::DataBase &db)
+GA::GA(DB::DataBase &db)
 {
 	// создаём список идентификаторов БД:
 	
-	std::vector<size_t> ids_a, ids_d, ids_h, ids_g, ids_t, ids_l;
+	
 	ids_a.resize(db.GetEntitiesCount(DB::g_Auditoriums));
 	db.GetEntitiesIDs(DB::g_Auditoriums, &ids_a);
 	ids_d.resize(db.GetEntitiesCount(DB::g_Days));
 	db.GetEntitiesIDs(DB::g_Days, &ids_d);
 	ids_h.resize(db.GetEntitiesCount(DB::g_Hours));
 	db.GetEntitiesIDs(DB::g_Hours, &ids_h);
+
+	A = ids_a.size();
+	D = ids_d.size();
+	H = ids_h.size();
 
 	ids_g.resize(db.GetEntitiesCount(DB::g_Groups));
 	db.GetEntitiesIDs(DB::g_Groups, &ids_g);
@@ -41,7 +45,7 @@ void GA::Solve(DB::DataBase &db)
 	db.GetGTList(table_gt);
 */
 	// получаем соответствие между занятиями и аудиториями
-	std::vector<bool> less_aud(ids_a.size() * ids_l.size(), false); //адресация [l*ids_a.size() + a]
+	less_aud.resize(ids_a.size() * ids_l.size(), false); //адресация [l*ids_a.size() + a]
 	{
 		ORM::Tuple<long, long> scheme_la;
 		Glib::RefPtr<ORM::Table> table_la = ORM::Table::create(scheme_la);
@@ -54,7 +58,6 @@ void GA::Solve(DB::DataBase &db)
 	}
 	
 	// получаем массив занятий Task
-	std::vector<Task> tasks;
 	{
 		Glib::RefPtr<ORM::Table> table_tasks = ORM::Table::create(DB::g_ModelLessonRecords);
 		db.ListLessonRecords(table_tasks);
@@ -69,7 +72,6 @@ void GA::Solve(DB::DataBase &db)
 		}
 	}
 
-	std::vector<std::vector<Task>::const_iterator> table_base;
 	for(std::vector<Task>::const_iterator it = tasks.begin(); it != tasks.end(); it ++)
 	{
 		for(size_t i = 0; i < it->hours; i ++)
@@ -79,18 +81,17 @@ void GA::Solve(DB::DataBase &db)
 	}
 
 	// получаем список многопоточных аудиторий
-	std::vector<bool> multi_aud;
 	multi_aud.resize(ids_a.size(), false);
 	for(size_t i = 0; i < ids_a.size(); i ++)
 	{
 		multi_aud[i] = db.GetAudMultithr(DB::g_Auditoriums, ids_a[i]);
 	}
 
-	Run(less_aud, table_base, multi_aud, ids_a.size(), ids_d.size(), ids_h.size());
+	//Run(less_aud, table_base, multi_aud, ids_a.size(), ids_d.size(), ids_h.size());
 
 }
 
-void GA::Run(const std::vector<bool> &less_aud, const std::vector<std::vector<Task>::const_iterator> &table_base, const std::vector<bool> &multi_aud, size_t A, size_t D, size_t H)
+void GA::Run()
 {
 	ADH::SetSizes(A, D, H);
 	Individual::SetMultiAud(multi_aud);
@@ -137,6 +138,14 @@ void GA::Run(const std::vector<bool> &less_aud, const std::vector<std::vector<Ta
 bool GA::Loop(std::vector<Individual> *population)
 {
 	std::vector<Fitness> fitnesses;
+	for(std::vector<Individual>::iterator it = population->begin(); it != population->end(); it ++)
+	{
+		size_t errors;
+		size_t quality;
+		
+		// ошибки соответсвия аудиторий и занятий
+		
+	}
 	return false;
 }
 

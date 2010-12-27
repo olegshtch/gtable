@@ -19,12 +19,27 @@ struct Task
 	}
 };
 
-namespace GA
+class GA
 {
-	void Solve(DB::DataBase &db);
-	void Run(const std::vector<bool> &less_aud, const std::vector<std::vector<Task>::const_iterator> &table_base, const std::vector<bool> &multi_aud, size_t A, size_t D, size_t H);
+public:
+	GA(DB::DataBase &db);
+	~GA()
+	{
+	}
+
+	//void Solve(DB::DataBase &db);
+	void Run();
 	bool Loop(std::vector<Individual> *population);
-}
+private:
+	std::vector<bool> less_aud;
+	std::vector<Task> tasks;
+	std::vector<std::vector<Task>::const_iterator> table_base;
+	std::vector<bool> multi_aud;
+	size_t A;
+	size_t D;
+	size_t H;
+	std::vector<size_t> ids_a, ids_d, ids_h, ids_g, ids_t, ids_l;
+};
 
 #endif
 
