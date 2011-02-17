@@ -4,7 +4,7 @@
 #include "combobox_dialog.h"
 
 LinkListWidget::LinkListWidget(DB::DataBase &db, const DB::Link_N2N &link)
-	:m_DB(db), m_Link(link), m_ParentId(-1), m_Model(ORM::Table::create(DB::g_ModelEntity)), m_ButtonBox(Gtk::BUTTONBOX_SPREAD), m_ListBox(m_Model)
+	:m_DB(db), m_Link(link), m_ParentId(-1), m_Model(ORM::Data::create(DB::g_ModelEntity)), m_ButtonBox(Gtk::BUTTONBOX_SPREAD), m_ListBox(m_Model)
 {
 	m_ListBox.set_headers_visible(true);
 	m_ListBox.append_column("id", DB::g_ModelEntity.id);
@@ -45,7 +45,7 @@ void LinkListWidget::Refresh()
 
 void LinkListWidget::OnAppend()
 {
-	Glib::RefPtr<ORM::Table> model = ORM::Table::create(DB::g_ModelEntity);
+	Glib::RefPtr<ORM::Data> model = ORM::Data::create(DB::g_ModelEntity);
 	m_DB.ListEntity(m_Link.m_Entity2, model);
 	ComboboxDialog dialog(model);
 	dialog.PackStart(DB::g_ModelEntity.name);

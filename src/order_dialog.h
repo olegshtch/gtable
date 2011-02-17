@@ -16,7 +16,7 @@ public:
 private:
 	DB::DataBase &m_DB;
 	const DB::Link_N2N &m_Link;
-	Glib::RefPtr<ORM::Table> m_Model;
+	Glib::RefPtr<ORM::Data> m_Model;
 
 	Gtk::HButtonBox m_ButtonBox;
 	Gtk::Button m_Buttons[2];

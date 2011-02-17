@@ -60,7 +60,7 @@ int ORM::Connection::CallBack0(void *self_ptr, int argc, char **argv, char **col
 	return 0;
 }
 
-void ORM::Connection::SQLExec(const Glib::ustring& sql, Glib::RefPtr<Table> &data)
+void ORM::Connection::SQLExec(const Glib::ustring& sql, Glib::RefPtr<Data> &data)
 {
 	char *err_msg = 0;
 	std::clog << sql << std::endl;
@@ -80,7 +80,7 @@ int ORM::Connection::CallBack(void *self_ptr, int argc, char **argv, char **col_
 	{
 		throw Glib::Error(1, 0, "Null this at callback.");
 	}
-	Table *data = reinterpret_cast<Table*>(self_ptr);
+	Data *data = reinterpret_cast<Data*>(self_ptr);
 	if(data->get_n_columns() != argc)
 	{
 		throw Glib::Error(1, 0, "Different size of data");

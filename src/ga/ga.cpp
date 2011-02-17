@@ -57,14 +57,14 @@ GA::GA(DB::DataBase &db_)
 	
 	std::vector<ItemGT> gt_base;
 	ORM::Tuple<long, long> scheme_gt;
-	Glib::RefPtr<ORM::Table> table_gt = ORM::Table::create(scheme_gt);
+	Glib::RefPtr<ORM::Data> table_gt = ORM::Data::create(scheme_gt);
 	db.GetGTList(table_gt);
 */
 	// получаем соответствие между занятиями и аудиториями
 	less_aud.resize(ids_a.size() * ids_l.size(), false); //адресация [l*ids_a.size() + a]
 	{
 		ORM::Tuple<long, long> scheme_la;
-		Glib::RefPtr<ORM::Table> table_la = ORM::Table::create(scheme_la);
+		Glib::RefPtr<ORM::Data> table_la = ORM::Data::create(scheme_la);
 		db.GetALList(table_la);
 
 		for(Gtk::TreeIter it = table_la->children().begin(); it != table_la->children().end(); it ++)
@@ -75,7 +75,7 @@ GA::GA(DB::DataBase &db_)
 	
 	// получаем массив занятий Task
 	{
-		Glib::RefPtr<ORM::Table> table_tasks = ORM::Table::create(DB::g_ModelLessonRecords);
+		Glib::RefPtr<ORM::Data> table_tasks = ORM::Data::create(DB::g_ModelLessonRecords);
 		db.ListLessonRecords(table_tasks);
 
 		for(Gtk::TreeIter it = table_tasks->children().begin(); it != table_tasks->children().end(); it ++)

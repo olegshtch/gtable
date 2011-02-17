@@ -5,12 +5,12 @@
 #include "entry_text_dialog.h"
 
 EntitiesListWidget::EntitiesListWidget(DB::DataBase &db, const DB::Entity &ent)
-	:m_DB(db), m_Entity(ent), m_Model(ORM::Table::create(DB::g_ModelEntity)), m_ButtonBox(Gtk::BUTTONBOX_SPREAD), m_ListBox(m_Model)
+	:m_DB(db), m_Entity(ent), m_Model(ORM::Data::create(DB::g_ModelEntity)), m_ButtonBox(Gtk::BUTTONBOX_SPREAD), m_ListBox(m_Model)
 {
 	m_ListBox.set_headers_visible(true);
 	if(&ent == &DB::g_Auditoriums)
 	{
-		m_Model = ORM::Table::create(DB::g_ModelAud);
+		m_Model = ORM::Data::create(DB::g_ModelAud);
 		m_ListBox.set_model(m_Model);
 		m_ListBox.append_column("id", DB::g_ModelAud.id);
 		m_ListBox.append_column_editable("name", DB::g_ModelAud.name);

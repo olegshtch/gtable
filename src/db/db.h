@@ -21,21 +21,21 @@ namespace DB
 		{
 		}
 		void AppendEntity(const Entity& ent, const Glib::ustring &name);
-		void ListEntity(const Entity& ent, Glib::RefPtr<ORM::Table> &list_store);
+		void ListEntity(const Entity& ent, Glib::RefPtr<ORM::Data> &list_store);
 		void DeleteEntity(const Entity& ent, int id);
 		void EditEntityName(const Entity& ent, int id, const Glib::ustring &new_name);
 		Glib::ustring GetEntityName(const Entity& ent, int id);
 
 		void EditMultithr(const Entity& ent, int id, bool multithr);
-		void ListEntityAud(const Entity& ent, Glib::RefPtr<ORM::Table> &list_store);
+		void ListEntityAud(const Entity& ent, Glib::RefPtr<ORM::Data> &list_store);
 		bool GetAudMultithr(const Entity& ent, long id);
 
-		void ListLinkedEntity(const Link_N2N& link, int parent_id, Glib::RefPtr<ORM::Table> &list_store);
+		void ListLinkedEntity(const Link_N2N& link, int parent_id, Glib::RefPtr<ORM::Data> &list_store);
 		void AppendLinkedEntity(const Link_N2N& link, int parent_id, int child_id);
 		void DeleteLinkedEntity(const Link_N2N& link, int parent_id, int child_id);
-		void ListLink(const Link_N2N& link, Glib::RefPtr<ORM::Table> &list_store);
-		void ListLinkedTeachPlan(const Link_TeachPlan& link, int parent_id, Glib::RefPtr<ORM::Table> &list_store);
-		void ListTeacherLessons(const DB::Link_N2N& link, Glib::RefPtr<ORM::Table>& list_store);
+		void ListLink(const Link_N2N& link, Glib::RefPtr<ORM::Data> &list_store);
+		void ListLinkedTeachPlan(const Link_TeachPlan& link, int parent_id, Glib::RefPtr<ORM::Data> &list_store);
+		void ListTeacherLessons(const DB::Link_N2N& link, Glib::RefPtr<ORM::Data>& list_store);
 
 		void EditHours(const DB::Link_TeachPlan& link, int id, unsigned int hours);
 		//void ListCircleLink(const Link_N2N& link, Glib::RefPtr<Gtk::ListStore> &list_store);
@@ -45,10 +45,10 @@ namespace DB
 		bool IsLinkBetween(const DB::Link_N2N &link, size_t id_a, size_t id_l);
 		size_t GetTForGL(size_t id_g, size_t id_l); // get teacher id by lesson's id and group's id
 
-		void GetGTList(Glib::RefPtr<ORM::Table> &list_store);
-		void GetALList(Glib::RefPtr<ORM::Table> &list_store);
+		void GetGTList(Glib::RefPtr<ORM::Data> &list_store);
+		void GetALList(Glib::RefPtr<ORM::Data> &list_store);
 
-		void ListLessonRecords(Glib::RefPtr<ORM::Table> &list_store);
+		void ListLessonRecords(Glib::RefPtr<ORM::Data> &list_store);
 	private:
 #if 0
 		void SQLExec0(const Glib::ustring& sql);

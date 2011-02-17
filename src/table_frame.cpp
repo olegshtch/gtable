@@ -4,10 +4,10 @@
 
 TableFrame::TableFrame(DB::DataBase &db)
 	:m_DB(db),
-	m_Auditoriums(ORM::Table::create(DB::g_ModelAud)),
-	m_Days(ORM::Table::create(DB::g_ModelEntity)),
-	m_Hours(ORM::Table::create(DB::g_ModelEntity)),
-	m_LessonRecords(ORM::Table::create(DB::g_ModelLessonRecords))
+	m_Auditoriums(ORM::Data::create(DB::g_ModelAud)),
+	m_Days(ORM::Data::create(DB::g_ModelEntity)),
+	m_Hours(ORM::Data::create(DB::g_ModelEntity)),
+	m_LessonRecords(ORM::Data::create(DB::g_ModelLessonRecords))
 {
 	pack_start(m_SWTable, true, true);
 	pack_end(m_SWUnsetLessons, false, true);

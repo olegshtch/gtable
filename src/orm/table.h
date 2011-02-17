@@ -6,12 +6,12 @@
 
 namespace ORM
 {
-	class Table : public Gtk::ListStore
+	class Data : public Gtk::ListStore
 	{
 	public:
-		static Glib::RefPtr<Table> create(const Scheme& columns)
+		static Glib::RefPtr<Data> create(const Scheme& columns)
 		{
-			return Glib::RefPtr<Table>(new Table(columns));
+			return Glib::RefPtr<Data>(new Data(columns));
 		}
 
 		const FieldBase& GetField(size_t i) const
@@ -19,12 +19,12 @@ namespace ORM
 			return m_Scheme.GetField(i);
 		}
 	private:
-		Table(const Scheme& columns)
+		Data(const Scheme& columns)
 			:Gtk::ListStore(columns),
 			m_Scheme(columns)
 		{
 		}
-		~Table()
+		~Data()
 		{
 		}
 

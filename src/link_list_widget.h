@@ -22,7 +22,7 @@ private:
 	const DB::Link_N2N &m_Link;
 	int m_ParentId;
 	
-	Glib::RefPtr<ORM::Table> m_Model;
+	Glib::RefPtr<ORM::Data> m_Model;
 	Gtk::VButtonBox m_ButtonBox;
 	Gtk::TreeView m_ListBox;
 	Gtk::Button m_Buttons[2];
