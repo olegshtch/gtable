@@ -2,7 +2,7 @@
 #define _ORM_CONNECTION_H_
 
 #include <sqlite3.h>
-#include "table.h"
+#include "data.h"
 
 namespace ORM
 {

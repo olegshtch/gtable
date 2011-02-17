@@ -1,5 +1,5 @@
-#ifndef _ORM_TABLE_H_
-#define _ORM_TABLE_H_
+#ifndef _ORM_DATA_H_
+#define _ORM_DATA_H_
 
 #include <gtkmm/liststore.h>
 #include "scheme.h"
