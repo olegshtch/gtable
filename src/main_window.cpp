@@ -12,12 +12,39 @@
 #include "table_frame.h"
 #include "ga/ga.h"
 
-MainWindow::MainWindow()
-	:m_DB(0)
+MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& builder)
+	:Gtk::Window(cobject),
+	m_refBuilder(builder),
+	m_DB(0)
 {
-	set_title(_("Table"));
+#if 0
+	try
+	{
+		m_refBuilder = Gtk::Builder::create_from_file(UIDIR "main_window.glade");
+	}
+	catch(const Glib::Error &e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
+#endif
 
-	m_refActionGroup = Gtk::ActionGroup::create();
+
+	//set_title(_("Table"));
+
+	m_refActionGroup = Glib::RefPtr<Gtk::ActionGroup>::cast_dynamic(m_refBuilder->get_object("ActionGroup"));
+
+	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("FileNew")),sigc::mem_fun(*this, &MainWindow::OnNew));
+	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("FileOpen")),sigc::mem_fun(*this, &MainWindow::OnOpen));
+	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("FileQuit")),sigc::mem_fun(*this, &MainWindow::OnQuit));
+	
+	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("RunSolve")),sigc::mem_fun(*this, &MainWindow::OnRun));
+	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("RunEdit")),sigc::mem_fun(*this, &MainWindow::OnEdit));
+
+	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("HelpAbout")),sigc::mem_fun(*this, &MainWindow::OnQuit));
+	
+	//m_refNotebook = Glib::RefPtr<Gtk::Notebook>::cast_dynamic(m_refBuilder->get_object("Notebook"));
+
+#if 0
 	m_refActionGroup->add(Gtk::Action::create("MenuFile", _("File")));
 	m_refActionGroup->add(Gtk::Action::create("FileNew", Gtk::Stock::NEW),
 		sigc::mem_fun(*this, &MainWindow::OnNew));
@@ -33,7 +60,6 @@ MainWindow::MainWindow()
 	m_refActionGroup->add(Gtk::Action::create("MenuHelp", _("Help")));
 	m_refActionGroup->add(Gtk::Action::create("HelpAbout", Gtk::Stock::ABOUT),
 		sigc::mem_fun(*this, &MainWindow::OnAbout));
-
 
 	m_refUIManager = Gtk::UIManager::create();
 	m_refUIManager->insert_action_group(m_refActionGroup);
@@ -98,6 +124,7 @@ MainWindow::MainWindow()
 	m_Box.pack_start(m_Statusbar, Gtk::PACK_SHRINK);
 
 	add(m_Box);
+#endif
 	show_all_children();
 }
 
@@ -166,17 +193,19 @@ void MainWindow::OnRun()
 
 void MainWindow::OnEdit()
 {
-	m_Notebook.append_page(*Gtk::manage(new TableFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Table"))));
+//	m_refNotebook->append_page(*Gtk::manage(new TableFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Table"))));
 	show_all_children();
 }
 
 void MainWindow::ShowAllEntities()
 {
-	m_Notebook.append_page(*Gtk::manage(new TimeFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Time"))));
-	m_Notebook.append_page(*Gtk::manage(new AuditoriumFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Auditoruiums"))));
-	m_Notebook.append_page(*Gtk::manage(new TeachersFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Teachers"))));
-	m_Notebook.append_page(*Gtk::manage(new LessonsFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Lessons"))));
-	m_Notebook.append_page(*Gtk::manage(new GroupsFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Groups"))));
+#if 0
+	m_refNotebook->append_page(*Gtk::manage(new TimeFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Time"))));
+	m_refNotebook->append_page(*Gtk::manage(new AuditoriumFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Auditoruiums"))));
+	m_refNotebook->append_page(*Gtk::manage(new TeachersFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Teachers"))));
+	m_refNotebook->append_page(*Gtk::manage(new LessonsFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Lessons"))));
+	m_refNotebook->append_page(*Gtk::manage(new GroupsFrame(*m_DB)), *Gtk::manage(new NotebookLabelWidget(_("Groups"))));
+#endif
 	show_all_children();
 }
 

@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include "../db/db.h"
-#include "individual.h"
 
 // Занятие
 struct Task
@@ -19,10 +18,15 @@ struct Task
 	}
 };
 
+class Individual;
+class ADH;
+
 class GA
 {
+	friend class Individual;
+	friend class ADH;
 public:
-	GA(DB::DataBase &db);
+	GA(DB::DataBase &db_);
 	~GA()
 	{
 	}
@@ -31,13 +35,13 @@ public:
 	void Run();
 	bool Loop(std::vector<Individual> *population);
 private:
-	std::vector<bool> less_aud;
+	DB::DataBase &db;
+
+	std::vector<bool> less_aud; // адресация [l * A + a]
 	std::vector<Task> tasks;
 	std::vector<std::vector<Task>::const_iterator> table_base;
 	std::vector<bool> multi_aud;
-	size_t A;
-	size_t D;
-	size_t H;
+	static size_t A, D, H, G, T, L;
 	std::vector<size_t> ids_a, ids_d, ids_h, ids_g, ids_t, ids_l;
 };
 

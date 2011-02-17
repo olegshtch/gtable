@@ -1,4 +1,4 @@
-SUBDIRS = docs po src win32
+SUBDIRS = docs po src ui win32
 
 @INTLTOOL_DESKTOP_RULE@
 

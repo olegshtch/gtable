@@ -4,22 +4,6 @@
 #include "main_window.h"
 #include "shared.h"
 
-// ToDo:
-// 	редактирование условий
-// 	* Связать сущности и модели
-// 	* ScrolledWindow для OrderDialog
-// 	* Запрет на отрицательные и нулевые индексы в зависимых полях
-// 	* Объединение виджетов для отображения моделей в шаблонный класс
-// 	решение
-// 	* построение списков соответствия идентификаторов и индексов в математической модели
-// 	* создание входных массивов данных
-// 	* построение оптимизированной нейросети
-// 	* алгоритм
-// 	редактирование расписания
-// 	* таблица хранения расписания
-// 	* виджет ячейки с элементов расписания
-//
-
 int main(int argc, char **argv)
 {
 	Gtk::Main prog(argc, argv);
@@ -28,18 +12,40 @@ int main(int argc, char **argv)
 	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
 	Glib::thread_init();
+	MainWindow *p_main_window = 0;
 	try
 	{
-		MainWindow main_window;
-		prog.run(main_window);
+		Glib::RefPtr<Gtk::Builder> refBuilder = Gtk::Builder::create();
+		refBuilder->add_from_file(UIDIR "main_window.glade");
+
+		refBuilder->get_widget_derived("MainWindow", p_main_window);
+		if(p_main_window)
+		{
+			prog.run(*p_main_window);
+		}
+	}
+	catch(Gtk::BuilderError &err)
+	{
+		std::cerr << "Gtk::BuilderError: " << err.what() << std::endl;
+		Gtk::MessageDialog dialog(err.what(), false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, true);
+		dialog.run();
 	}
 	catch(Glib::Error &err)
 	{
-		Gtk::MessageDialog(err.what(), false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, true);
+		std::cerr << "Glib::Error: " << err.what() << std::endl;
+		Gtk::MessageDialog dialog(err.what(), false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, true);
+		dialog.run();
 	}
 	catch(std::exception &err)
 	{
-		Gtk::MessageDialog(err.what(), false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, true);
+		std::cerr << "std::exception: " << err.what() << std::endl;
+		Gtk::MessageDialog dialog(err.what(), false, Gtk::MESSAGE_ERROR, Gtk::BUTTONS_OK, true);
+		dialog.run();
+	}
+
+	if(p_main_window)
+	{
+		delete p_main_window;
 	}
 
 	return 0;

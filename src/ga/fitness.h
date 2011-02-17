@@ -9,8 +9,34 @@ struct Fitness
 		:ind(ind_), errors(errors_), quality(quality_)
 	{
 	}
+
+	bool operator<(const Fitness& other) const
+	{
+		if(errors < other.errors)
+		{
+			return true;
+		}
+		else
+		{
+			if(errors > other.errors)
+			{
+				return false;
+			}
+		}
+		return quality < other.quality;
+	}
+
+	const Individual& GetIndividual() const
+	{
+		return *ind;
+	}
+	std::vector<Individual>::const_iterator GetIter() const
+	{
+		return ind;
+	}
 private:
 	std::vector<Individual>::const_iterator ind;
+public:
 	size_t errors;
 	size_t quality;
 };

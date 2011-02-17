@@ -24,6 +24,7 @@ namespace DB
 		void ListEntity(const Entity& ent, Glib::RefPtr<ORM::Table> &list_store);
 		void DeleteEntity(const Entity& ent, int id);
 		void EditEntityName(const Entity& ent, int id, const Glib::ustring &new_name);
+		Glib::ustring GetEntityName(const Entity& ent, int id);
 
 		void EditMultithr(const Entity& ent, int id, bool multithr);
 		void ListEntityAud(const Entity& ent, Glib::RefPtr<ORM::Table> &list_store);
@@ -82,6 +83,28 @@ namespace DB
 			stream >> res;
 			return 0;
 		}
+
+		void SQLExecString(const Glib::ustring& sql, Glib::ustring *result)
+		{
+			m_Connection.SQLExecOwn(sql, CallbackString, reinterpret_cast<void*>(result));
+		}
+
+		static int CallbackString(void *result, int argc, char **argv, char **col_name)
+		{
+			if(! result)
+			{
+				throw Glib::Error(1, 0, "Null poiter to result at DB::Callback<Type>.");
+			}
+			if(argc != 1)
+			{
+				throw Glib::Error(1, 0, "Not 1 columns at DB::Callback<Type>.");
+			}
+			Glib::ustring &res = *reinterpret_cast<Glib::ustring*>(result);
+			std::clog << " [" << col_name[0] << "]=" << argv[0] << std::endl;
+			res = argv[0];
+			return 0;
+		}
+
 
 		template <class Type> size_t SQLExecArray(const Glib::ustring& sql, std::vector<Type> *array)
 		{

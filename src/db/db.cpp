@@ -220,6 +220,13 @@ size_t DataBase::GetEntitiesIDs(const DB::Entity& ent, std::vector<size_t> *arra
 	return SQLExecArray<size_t>(Glib::ustring::compose("SELECT id FROM %1 ORDER BY id", ent.m_TableName), array);
 }
 
+Glib::ustring DataBase::GetEntityName(const Entity& ent, int id)
+{
+	Glib::ustring res;
+	SQLExecString(Glib::ustring::compose("SELECT name FROM %1 WHERE id = %2", ent.m_TableName, id), &res);
+	return res;
+}
+
 bool DataBase::IsLinkBetween(const DB::Link_N2N &link, size_t id_a, size_t id_l)
 {
 	size_t res;

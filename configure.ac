@@ -70,6 +70,7 @@ AC_CONFIG_FILES([
     src/orm/Makefile
     po/Makefile.in
     win32/Makefile
+    ui/Makefile
 ])
 
 AC_OUTPUT
