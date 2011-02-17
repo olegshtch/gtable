@@ -2,6 +2,8 @@
 #define _ORM_FIELD_H_
 
 #include <gtkmm/treemodelcolumn.h>
+#include <gtkmm/treeiter.h>
+#include <glibmm/ustring.h>
 #include <sstream>
 
 namespace ORM
@@ -9,7 +11,8 @@ namespace ORM
 	class FieldBase
 	{
 	public:
-		FieldBase()
+		FieldBase(const Glib::ustring& name)
+			:m_FieldName(name)
 		{
 		}
 		virtual ~FieldBase()
@@ -17,13 +20,16 @@ namespace ORM
 		}
 		virtual void SetStrValue(Gtk::TreeIter &it, const Glib::ustring& str) const = 0;
 		virtual Glib::ustring GetStrValue(Gtk::TreeIter &it) const = 0;
-	private:
+		virtual Glib::ustring GetDefinition() const = 0;
+	protected:
+		Glib::ustring m_FieldName;
 	};
 
 	template<class T> class Field : public Gtk::TreeModelColumn<T>, public FieldBase
 	{
 	public:
-		Field()
+		Field(const Glib::ustring& name)
+			:FieldBase(name)
 		{
 		}
 		~Field()
@@ -41,33 +47,13 @@ namespace ORM
 		{
 			return Glib::ustring::format(it->get_value(*this));
 		}
-#if 0
-		operator const Gtk::TreeModelColumn<T>&() const
-		{
-			return m_Column;
-		}
-		const Gtk::TreeModelColumn<T>& GetColumn() const
-		{
-			return m_Column;
-		}
-		operator Gtk::TreeModelColumnBase&()
-		{
-			return m_Column;
-		}
-
-		Gtk::TreeModelColumn<T>& GetColumn()
-		{
-			return m_Column;
-		}
-#endif
-	private:
-//		Gtk::TreeModelColumn<T> m_Column;
 	};
-#if 1
+
 	template<> class Field<Glib::ustring> : public Gtk::TreeModelColumn<Glib::ustring>, public FieldBase
 	{
 	public:
-		Field()
+		Field(const Glib::ustring& name)
+			:FieldBase(name)
 		{
 		}
 		~Field()
@@ -81,9 +67,68 @@ namespace ORM
 		{
 			return it->get_value(*this);
 		}
-	private:
+		Glib::ustring GetDefinition() const
+		{
+			return m_FieldName + " TEXT NOT NULL"; 
+		}
 	};
-#endif
+
+	template<> class Field<long int> : public Gtk::TreeModelColumn<long int>, public FieldBase
+	{
+	public:
+		Field(const Glib::ustring& name)
+			:FieldBase(name)
+		{
+		}
+		~Field()
+		{
+		}
+		void SetStrValue(Gtk::TreeIter &it, const Glib::ustring& str) const
+		{
+			long int value;
+			std::stringstream stream;
+			stream << str;
+			stream >> value;
+			it->set_value(*this, value);
+		}
+		Glib::ustring GetStrValue(Gtk::TreeIter &it) const
+		{
+			return Glib::ustring::format(it->get_value(*this));
+		}
+		Glib::ustring GetDefinition() const
+		{
+			return m_FieldName + " INT NOT NULL"; 
+		}
+	};
+
+	template<> class Field<bool> : public Gtk::TreeModelColumn<bool>, public FieldBase
+	{
+	public:
+		Field(const Glib::ustring& name)
+			:FieldBase(name)
+		{
+		}
+		~Field()
+		{
+		}
+		void SetStrValue(Gtk::TreeIter &it, const Glib::ustring& str) const
+		{
+			int value;
+			std::stringstream stream;
+			stream << str;
+			stream >> value;
+			it->set_value(*this, (bool)value);
+		}
+		Glib::ustring GetStrValue(Gtk::TreeIter &it) const
+		{
+			return Glib::ustring::format(static_cast<int>(it->get_value(*this)));
+		}
+		Glib::ustring GetDefinition() const
+		{
+			return m_FieldName + " TINYINT(1) NOT NULL"; 
+		}
+	};
+
 }
 
 #endif

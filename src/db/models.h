@@ -15,6 +15,8 @@ namespace DB
 		ORM::Field<Glib::ustring> name;
 
 		ModelEntity()
+			:id("id"),
+			name("name")
 		{
 			add(id);
 			add(name);
@@ -30,6 +32,7 @@ namespace DB
 		ORM::Field<bool> multithread;
 			
 		ModelAud()
+			:multithread("multithread")
 		{
 			add(multithread);
 		}
@@ -46,6 +49,8 @@ namespace DB
 		ORM::Field<Glib::ustring> l_name;
 
 		ModelOrder()
+			:l_id("l_id"),
+			l_name("l_name")
 		{
 			add(l_id);
 			add(l_name);
@@ -65,6 +70,9 @@ namespace DB
 		ORM::Field<Glib::ustring> t_name;
 
 		ModelLessonTeacher()
+			:l_id("l_id"),
+			t_id("t_id"),
+			t_name("t_name")
 		{
 			add(l_id);
 			add(t_id);
@@ -84,6 +92,7 @@ namespace DB
 		ORM::Field<long> hours;
 
 		ModelPlan()
+			:hours("hours")
 		{
 			add(hours);
 		}
@@ -110,6 +119,14 @@ namespace DB
 		ORM::Field<long> hours;
 		
 		ModelLessonRecords()
+			:id("id"),
+			t_id("t_id"),
+			t_name("t_name"),
+			l_id("l_id"),
+			l_name("l_name"),
+			g_id("g_id"),
+			g_name("g_name"),
+			hours("hours")
 		{
 			add(id);
 			add(t_id);

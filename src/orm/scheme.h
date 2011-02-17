@@ -24,7 +24,7 @@ namespace ORM
 			Gtk::TreeModelColumnRecord::add(field);
 			m_Fields.push_back(&field);
 		}
-	private:
+	protected:
 		std::vector<const FieldBase*> m_Fields;
 	};
 
@@ -32,6 +32,9 @@ namespace ORM
 	{
 	public:
 		Tuple()
+			:f1("f1"),
+			f2("f2"),
+			f3("f3")
 		{
 			add<T1>(f1);
 			add<T2>(f2);
@@ -49,6 +52,8 @@ namespace ORM
 	{
 	public:
 		Tuple()
+			:f1("f1"),
+			f2("f2")
 		{
 			add<T1>(f1);
 			add<T2>(f2);
@@ -64,6 +69,7 @@ namespace ORM
 	{
 	public:
 		Tuple()
+			:f1("f1")
 		{
 			add<T1>(f1);
 		}
