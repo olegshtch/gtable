@@ -2,10 +2,14 @@
 #include <iostream>
 #include "models.h"
 
-const DB::ModelEntity DB::g_ModelEntity;
-const DB::ModelAud DB::g_ModelAud;
-const DB::ModelOrder DB::g_ModelOrder;
-const DB::ModelPlan DB::g_ModelPlan;
-const DB::ModelLessonTeacher DB::g_ModelLessonTeacher;
+const DB::ModelAud DB::g_ModelAud("Auditoriums");
+const DB::ModelEntity DB::g_ModelDays("Days");
+const DB::ModelEntity DB::g_ModelHours("Hours");
+const DB::ModelEntity DB::g_ModelGroups("Groups");
+const DB::ModelEntity DB::g_ModelTeachers("Teachers");
+const DB::ModelEntity DB::g_ModelLessons("Lessons");
+const DB::ModelOrder DB::g_ModelOrder("LessonsOrder");
+const DB::ModelPlan DB::g_ModelPlan("TeachPlan");
+const DB::ModelLessonTeacher DB::g_ModelLessonTeacher("LessonTeacher");
 const DB::ModelLessonRecords DB::g_ModelLessonRecords;
 

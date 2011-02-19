@@ -28,17 +28,19 @@ DataBase::DataBase(const Glib::ustring &db, bool create_new)
 	if(create_new)
 	{
 		// create tables
-		CreateTableEntity(g_Auditoriums);
-		CreateTableEntity(g_Days);
-		CreateTableEntity(g_Hours);
-		CreateTableEntity(g_Groups);
-		CreateTableEntity(g_Teachers);
-		CreateTableEntity(g_Lessons);
+		m_Connection.CreateTable(g_ModelAud);
+		m_Connection.CreateTable(g_ModelDays);
+		m_Connection.CreateTable(g_ModelHours);
+		m_Connection.CreateTable(g_ModelGroups);
+		m_Connection.CreateTable(g_ModelTeachers);
+		m_Connection.CreateTable(g_ModelLessons);
+#if 0
 		CreateTableLinkN2N(g_LessonsAuditoriums);
 		CreateTableLinkN2N(g_TeachersLessons);
 		CreateTableLinkN2N(g_OrderLessons);
 		CreateTableLinkTeachPlan(g_TeachPlan);
 		CreateTableSchedule();
+#endif
 	}
 }
 
@@ -61,9 +63,8 @@ DataBase::~DataBase()
 		sqlite3_close(m_SQLite);
 	}
 }
-#endif
 
-void DataBase::CreateTableEntity(const Entity& ent)
+void DataBase::CreateTableEntity(const ModelEntity& ent)
 {
 	m_Connection.SQLExec0(Glib::ustring::compose("DROP TABLE IF EXISTS %1", ent.m_TableName));
 	if(&ent == &g_Auditoriums)
@@ -93,7 +94,7 @@ void DataBase::CreateTableSchedule()
 	m_Connection.SQLExec0(Glib::ustring("DROP TABLE IF EXISTS Schedule"));
 	m_Connection.SQLExec0(Glib::ustring::compose("CREATE TABLE Schedule (id_day INTEGER NOT NULL REFERENCES %1(id) ON DELETE CASCADE ON UPDATE CASCADE, id_hour INTEGER NOT NULL REFERENCES %2(id) ON DELETE CASCADE ON UPDATE CASCADE, id_record INTEGER NOT NULL REFERENCES %3(id) ON DELETE CASCADE ON UPDATE CASCADE, id_auditorium INTEGER NOT NULL REFERENCES %4(id) ON DELETE CASCADE ON UPDATE CASCADE)", g_Days.m_TableName, g_Hours.m_TableName, g_TeachPlan.m_TableName, g_Auditoriums.m_TableName));
 }
-#if 0
+
 void DataBase::SQLExec0(const Glib::ustring& sql)
 {
 	char *err_msg = 0;
@@ -117,57 +118,50 @@ int DataBase::SQLCallBack0(void *self_ptr, int argc, char **argv, char **col_nam
 }
 #endif
 
-void DataBase::AppendEntity(const Entity& ent, const Glib::ustring &name)
+void DataBase::AppendEntity(const ModelEntity& ent, const Glib::ustring &name)
 {
-	m_Connection.SQLExec0(Glib::ustring::compose("INSERT INTO %1 (name) VALUES (\"%2\")", ent.m_TableName, name));
+	m_Connection.SQLExec0(Glib::ustring::compose("INSERT INTO %1 (name) VALUES (\"%2\")", ent.GetTableName(), name));
 }
 
-void DataBase::ListEntity(const Entity& ent, Glib::RefPtr<ORM::Data> &list_store)
+void DataBase::ListEntity(const ModelEntity& ent, Glib::RefPtr<ORM::Data> &list_store, bool sort_by_name)
 {
-	if(ent.m_SortByName)
+	if(sort_by_name)
 	{
-		m_Connection.SQLExec(Glib::ustring::compose("SELECT id, name FROM %1 ORDER BY name", ent.m_TableName), list_store);
+		m_Connection.SQLExec(Glib::ustring::compose("SELECT id, name FROM %1 ORDER BY name", ent.GetTableName()), list_store);
 	}
 	else
 	{
-		m_Connection.SQLExec(Glib::ustring::compose("SELECT id, name FROM %1 ORDER BY id", ent.m_TableName), list_store);
+		m_Connection.SQLExec(Glib::ustring::compose("SELECT id, name FROM %1 ORDER BY id", ent.GetTableName()), list_store);
 	}
 }
 
-void DataBase::ListEntityAud(const Entity& ent, Glib::RefPtr<ORM::Data> &list_store)
+void DataBase::ListEntityAud(const ModelEntity& ent, Glib::RefPtr<ORM::Data> &list_store)
 {
-	if(ent.m_SortByName)
-	{
-		m_Connection.SQLExec(Glib::ustring::compose("SELECT id, name, multithr FROM %1 ORDER BY name", ent.m_TableName), list_store);
-	}
-	else
-	{
-		m_Connection.SQLExec(Glib::ustring::compose("SELECT id, name, multithr FROM %1 ORDER BY id", ent.m_TableName), list_store);
-	}
+	m_Connection.SQLExec(Glib::ustring::compose("SELECT id, name, multithr FROM %1 ORDER BY name", ent.GetTableName()), list_store);
 }
 
-bool DataBase::GetAudMultithr(const Entity& ent, long id)
+bool DataBase::GetAudMultithr(const ModelEntity& ent, long id)
 {
 	bool res;
-	SQLExec<bool>(Glib::ustring::compose("SELECT multithr FROM %1 WHERE id = %2", ent.m_TableName, id), &res);
+	SQLExec<bool>(Glib::ustring::compose("SELECT multithr FROM %1 WHERE id = %2", ent.GetTableName(), id), &res);
 	return res;
 }
 
-void DataBase::DeleteEntity(const Entity& ent, int id)
+void DataBase::DeleteEntity(const ModelEntity& ent, int id)
 {
-	m_Connection.SQLExec0(Glib::ustring::compose("DELETE FROM %1 WHERE id=%2", ent.m_TableName, id));
+	m_Connection.SQLExec0(Glib::ustring::compose("DELETE FROM %1 WHERE id=%2", ent.GetTableName(), id));
 }
 
-void DataBase::EditEntityName(const Entity& ent, int id, const Glib::ustring &new_name)
+void DataBase::EditEntityName(const ModelEntity& ent, int id, const Glib::ustring &new_name)
 {
-	m_Connection.SQLExec0(Glib::ustring::compose("UPDATE %1 SET name=\"%2\" WHERE id=%3", ent.m_TableName, new_name, id));
+	m_Connection.SQLExec0(Glib::ustring::compose("UPDATE %1 SET name=\"%2\" WHERE id=%3", ent.GetTableName(), new_name, id));
 }
 
-void DataBase::EditMultithr(const Entity& ent, int id, bool multithr)
+void DataBase::EditMultithr(const ModelEntity& ent, int id, bool multithr)
 {
-	m_Connection.SQLExec0(Glib::ustring::compose("UPDATE %1 SET multithr=%2 WHERE id=%3", ent.m_TableName, multithr ? 1 : 0, id));
+	m_Connection.SQLExec0(Glib::ustring::compose("UPDATE %1 SET multithr=%2 WHERE id=%3", ent.GetTableName(), multithr ? 1 : 0, id));
 }
-
+#if 0
 void DataBase::EditHours(const DB::Link_TeachPlan& link, int id, unsigned int hours)
 {
 	m_Connection.SQLExec0(Glib::ustring::compose("UPDATE %1 SET hours=%2 WHERE id=%3", link.m_TableName, hours, id));
@@ -203,30 +197,32 @@ void DataBase::ListTeacherLessons(const Link_N2N& link, Glib::RefPtr<ORM::Data> 
 	m_Connection.SQLExec(Glib::ustring::compose("SELECT %1.id, Lessons.name, Lessons.id, Teachers.id, Teachers.name FROM %1, Lessons, Teachers WHERE %1.id_entity1 = Teachers.id AND %1.id_entity2 = Lessons.id", link.m_TableName), list_store);
 }
 
-/*void DataBase::ListCircleLink(const Link_N2N& link, Glib::RefPtr<Gtk::ListStore> &list_store)
+void DataBase::ListCircleLink(const Link_N2N& link, Glib::RefPtr<Gtk::ListStore> &list_store)
 {
 	SQLExec4isis(Glib::ustring::compose("SELECT %2.id, %2.name, _T.id, _T.name FROM OrderLessons, %2, Lessons AS _T WHERE OrderLessons.id_entity1 = Lessons.id AND OrderLessons.id_entity2 = _T.id", link.m_TableName, link.m_Entity1.m_TableName), list_store);
-}*/
+}
+#endif
 
-size_t DataBase::GetEntitiesCount(const DB::Entity& ent)
+size_t DataBase::GetEntitiesCount(const DB::ModelEntity& ent)
 {
 	size_t res;
-	SQLExec<size_t>(Glib::ustring::compose("SELECT COUNT(*) FROM %1", ent.m_TableName), &res);
+	SQLExec<size_t>(Glib::ustring::compose("SELECT COUNT(*) FROM %1", ent.GetTableName()), &res);
 	return res;
 }
 
-size_t DataBase::GetEntitiesIDs(const DB::Entity& ent, std::vector<size_t> *array)
+size_t DataBase::GetEntitiesIDs(const DB::ModelEntity& ent, std::vector<size_t> *array)
 {
-	return SQLExecArray<size_t>(Glib::ustring::compose("SELECT id FROM %1 ORDER BY id", ent.m_TableName), array);
+	return SQLExecArray<size_t>(Glib::ustring::compose("SELECT id FROM %1 ORDER BY id", ent.GetTableName()), array);
 }
 
-Glib::ustring DataBase::GetEntityName(const Entity& ent, int id)
+Glib::ustring DataBase::GetEntityName(const ModelEntity& ent, int id)
 {
 	Glib::ustring res;
-	SQLExecString(Glib::ustring::compose("SELECT name FROM %1 WHERE id = %2", ent.m_TableName, id), &res);
+	SQLExecString(Glib::ustring::compose("SELECT name FROM %1 WHERE id = %2", ent.GetTableName(), id), &res);
 	return res;
 }
 
+#if 0
 bool DataBase::IsLinkBetween(const DB::Link_N2N &link, size_t id_a, size_t id_l)
 {
 	size_t res;
@@ -237,9 +233,10 @@ bool DataBase::IsLinkBetween(const DB::Link_N2N &link, size_t id_a, size_t id_l)
 size_t DataBase::GetTForGL(size_t id_g, size_t id_l)
 {
 	size_t res;
-	SQLExec<size_t>(Glib::ustring::compose("SELECT %1.id_entity1 FROM %1, %2 WHERE %1.id_entity2 = %4 AND %1.id = %2.id_entity2 AND %2.id_entity1 = %3", DB::g_TeachersLessons.m_TableName, DB::g_TeachPlan.m_TableName, id_g, id_l), &res);
+	SQLExec<size_t>(Glib::ustring::compose("SELECT %1.id_entity1 FROM %1, %2 WHERE %1.id_entity2 = %4 AND %1.id = %2.id_entity2 AND %2.id_entity1 = %3", DB::g_TeachersLessons.GetTableName(), DB::g_TeachPlan.GetTableName(), id_g, id_l), &res);
 	return res;
 }
+#endif
 
 void DataBase::ListLessonRecords(Glib::RefPtr<ORM::Data> &list_store)
 {
@@ -251,8 +248,10 @@ void DataBase::GetGTList(Glib::RefPtr<ORM::Data> &list_store)
 	m_Connection.SQLExec("SELECT DISTINCT Groups.id, Teachers.id FROM Groups, Teachers, GroupLessons, TeachLes WHERE GroupLessons.id_entity1 = Groups.id AND GroupLessons.id_entity2 = TeachLes.id AND TeachLes.id_entity1 = Teachers.id ORDER BY Groups.id, Teachers.id", list_store);
 }
 
+#if 0
 void DataBase::GetALList(Glib::RefPtr<ORM::Data> &list_store)
 {
 	m_Connection.SQLExec(Glib::ustring::compose("SELECT DISTINCT %1.id_entity1, %1.id_entity2 FROM %1 ORDER BY %1.id_entity1, %1.id_entity2", DB::g_LessonsAuditoriums.m_TableName), list_store);
 }
+#endif
 

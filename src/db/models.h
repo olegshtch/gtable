@@ -1,24 +1,22 @@
 #ifndef _DB_MODELS_H_
 #define _DB_MODELS_H_
 
-#include "../orm/scheme.h"
+#include "../orm/table.h"
 
 namespace DB
 {
 
 	// id - идентификатор сущности
 	// name - название
-	class ModelEntity : public ORM::Scheme
+	class ModelEntity : public ORM::Table
 	{
 	public:
-		ORM::Field<long> id;
 		ORM::Field<Glib::ustring> name;
 
-		ModelEntity()
-			:id("id"),
+		ModelEntity(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
 			name("name")
 		{
-			add(id);
 			add(name);
 		}
 	};
@@ -31,8 +29,9 @@ namespace DB
 	public:
 		ORM::Field<bool> multithread;
 			
-		ModelAud()
-			:multithread("multithread")
+		ModelAud(const Glib::ustring& table_name)
+			:ModelEntity(table_name),
+			multithread("multithread")
 		{
 			add(multithread);
 		}
@@ -48,8 +47,9 @@ namespace DB
 		ORM::Field<long> l_id;
 		ORM::Field<Glib::ustring> l_name;
 
-		ModelOrder()
-			:l_id("l_id"),
+		ModelOrder(const Glib::ustring& table_name)
+			:ModelEntity(table_name),
+			l_id("l_id"),
 			l_name("l_name")
 		{
 			add(l_id);
@@ -69,8 +69,9 @@ namespace DB
 		ORM::Field<long> t_id;
 		ORM::Field<Glib::ustring> t_name;
 
-		ModelLessonTeacher()
-			:l_id("l_id"),
+		ModelLessonTeacher(const Glib::ustring& table_name)
+			:ModelEntity(table_name),
+			l_id("l_id"),
 			t_id("t_id"),
 			t_name("t_name")
 		{
@@ -91,8 +92,9 @@ namespace DB
 	public:
 		ORM::Field<long> hours;
 
-		ModelPlan()
-			:hours("hours")
+		ModelPlan(const Glib::ustring& table_name)
+			:ModelLessonTeacher(table_name),
+			hours("hours")
 		{
 			add(hours);
 		}
@@ -139,8 +141,13 @@ namespace DB
 		}
 	};
 
-	extern const ModelEntity g_ModelEntity;
 	extern const ModelAud g_ModelAud;
+	extern const ModelEntity g_ModelDays;
+	extern const ModelEntity g_ModelHours;
+	extern const ModelEntity g_ModelGroups;
+	extern const ModelEntity g_ModelTeachers;
+	extern const ModelEntity g_ModelLessons;
+
 	extern const ModelOrder g_ModelOrder;
 	extern const ModelPlan g_ModelPlan;
 	extern const ModelLessonTeacher g_ModelLessonTeacher;

@@ -1,3 +1,4 @@
+#if 0
 #ifndef _DB_ENTITES_H_
 #define _DB_ENTITES_H_
 
@@ -20,5 +21,6 @@ namespace DB
 
 }
 
+#endif
 #endif
 

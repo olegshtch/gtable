@@ -24,9 +24,9 @@ int LogBuf::overflow(int c)
 	{
 		char ch = c;
 		//std::cout << "Overflow ";
-		/*std::cout.write("\x1b[32m", 5);
+		std::cout.write("\x1b[32m", 5);
 		std::cout.write(&ch, 1);
-		std::cout.write("\x1b[0m", 4);*/
+		std::cout.write("\x1b[0m", 4);
 	}
 	return traits_type::not_eof(c);
 }
@@ -34,16 +34,16 @@ int LogBuf::overflow(int c)
 int LogBuf::sync()
 {
 	//std::cout << "Flush" << std::endl;
-	/*std::cout.flush();*/
+	std::cout.flush();
 	return 0;
 }
 
 std::streamsize LogBuf::xsputn(const char *s, std::streamsize n)
 {
 	//std::cout << "Out n=" << n << " s=\"";
-	/*std::cout.write("\x1b[32m", 5);
+	std::cout.write("\x1b[32m", 5);
 	std::cout.write(s, n);
-	std::cout.write("\x1b[0m", 4);*/
+	std::cout.write("\x1b[0m", 4);
 	//std::cout << "\"" << std::endl;
 	return n;
 }

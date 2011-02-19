@@ -121,7 +121,7 @@ namespace ORM
 		}
 		Glib::ustring GetStrValue(Gtk::TreeIter &it) const
 		{
-			return Glib::ustring::format(static_cast<int>(it->get_value(*this)));
+			return it->get_value(*this) ? "1" : "0";
 		}
 		Glib::ustring GetDefinition() const
 		{

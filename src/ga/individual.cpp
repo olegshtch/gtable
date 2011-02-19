@@ -15,12 +15,12 @@ void Individual::Output(std::ostream &os) const
 		const size_t h = ga->ids_h[ADH(table[i]).h];
 
 		os << "(" << 
-			ga->db.GetEntityName(DB::g_Groups, g) << "," <<
-			ga->db.GetEntityName(DB::g_Teachers, t) << "," <<
-			ga->db.GetEntityName(DB::g_Lessons, l) << ") -> (" <<
-			ga->db.GetEntityName(DB::g_Auditoriums, a) << "," <<
-			ga->db.GetEntityName(DB::g_Days, d) << "," <<
-			ga->db.GetEntityName(DB::g_Hours, h) << ")" << std::endl;
+			ga->db.GetEntityName(DB::g_ModelGroups, g) << "," <<
+			ga->db.GetEntityName(DB::g_ModelTeachers, t) << "," <<
+			ga->db.GetEntityName(DB::g_ModelLessons, l) << ") -> (" <<
+			ga->db.GetEntityName(DB::g_ModelAud, a) << "," <<
+			ga->db.GetEntityName(DB::g_ModelDays, d) << "," <<
+			ga->db.GetEntityName(DB::g_ModelHours, h) << ")" << std::endl;
 	}
 }
 

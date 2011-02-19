@@ -10,6 +10,7 @@
 #include "links.h"
 #include "../shared.h"
 #include "../orm/connection.h"
+#include "models.h"
 
 namespace DB
 {
@@ -20,16 +21,17 @@ namespace DB
 		~DataBase()
 		{
 		}
-		void AppendEntity(const Entity& ent, const Glib::ustring &name);
-		void ListEntity(const Entity& ent, Glib::RefPtr<ORM::Data> &list_store);
-		void DeleteEntity(const Entity& ent, int id);
-		void EditEntityName(const Entity& ent, int id, const Glib::ustring &new_name);
-		Glib::ustring GetEntityName(const Entity& ent, int id);
+		void AppendEntity(const ModelEntity& ent, const Glib::ustring &name);
+		void ListEntity(const ModelEntity& ent, Glib::RefPtr<ORM::Data> &list_store, bool sort_by_name);
+		void DeleteEntity(const ModelEntity& ent, int id);
+		void EditEntityName(const ModelEntity& ent, int id, const Glib::ustring &new_name);
+		Glib::ustring GetEntityName(const ModelEntity& ent, int id);
 
-		void EditMultithr(const Entity& ent, int id, bool multithr);
-		void ListEntityAud(const Entity& ent, Glib::RefPtr<ORM::Data> &list_store);
-		bool GetAudMultithr(const Entity& ent, long id);
+		void EditMultithr(const ModelEntity& ent, int id, bool multithr);
+		void ListEntityAud(const ModelEntity& ent, Glib::RefPtr<ORM::Data> &list_store);
+		bool GetAudMultithr(const ModelEntity& ent, long id);
 
+#if 0
 		void ListLinkedEntity(const Link_N2N& link, int parent_id, Glib::RefPtr<ORM::Data> &list_store);
 		void AppendLinkedEntity(const Link_N2N& link, int parent_id, int child_id);
 		void DeleteLinkedEntity(const Link_N2N& link, int parent_id, int child_id);
@@ -39,14 +41,15 @@ namespace DB
 
 		void EditHours(const DB::Link_TeachPlan& link, int id, unsigned int hours);
 		//void ListCircleLink(const Link_N2N& link, Glib::RefPtr<Gtk::ListStore> &list_store);
-		
-		size_t GetEntitiesCount(const DB::Entity& ent);
-		size_t GetEntitiesIDs(const DB::Entity& ent, std::vector<size_t> *array);
-		bool IsLinkBetween(const DB::Link_N2N &link, size_t id_a, size_t id_l);
-		size_t GetTForGL(size_t id_g, size_t id_l); // get teacher id by lesson's id and group's id
+#endif
+		size_t GetEntitiesCount(const DB::ModelEntity& ent);
+		size_t GetEntitiesIDs(const DB::ModelEntity& ent, std::vector<size_t> *array);
+
+		//bool IsLinkBetween(const DB::Link_N2N &link, size_t id_a, size_t id_l);
+		//size_t GetTForGL(size_t id_g, size_t id_l); // get teacher id by lesson's id and group's id
 
 		void GetGTList(Glib::RefPtr<ORM::Data> &list_store);
-		void GetALList(Glib::RefPtr<ORM::Data> &list_store);
+		//void GetALList(Glib::RefPtr<ORM::Data> &list_store);
 
 		void ListLessonRecords(Glib::RefPtr<ORM::Data> &list_store);
 	private:
@@ -134,10 +137,10 @@ namespace DB
 		}
 #endif
 
-		void CreateTableEntity(const Entity& ent);
-		void CreateTableLinkN2N(const Link_N2N& link);
-		void CreateTableLinkTeachPlan(const Link_TeachPlan& link);
-		void CreateTableSchedule();
+		//void CreateTableEntity(const ModelEntity& ent);
+		//void CreateTableLinkN2N(const Link_N2N& link);
+		//void CreateTableLinkTeachPlan(const Link_TeachPlan& link);
+		//void CreateTableSchedule();
 		
 		ORM::Connection m_Connection;
 	};

@@ -3,13 +3,6 @@
 #include <iostream>
 #include "main_window.h"
 #include "shared.h"
-#include "notebook_label_widget.h"
-#include "time_frame.h"
-#include "auditorium_frame.h"
-#include "teachers_frame.h"
-#include "lessons_frame.h"
-#include "groups_frame.h"
-#include "table_frame.h"
 #include "ga/ga.h"
 
 MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& builder)

@@ -1,3 +1,4 @@
+#if 0
 #ifndef _DB_LINKS_H_
 #define _DB_LINKS_H_
 
@@ -25,4 +26,5 @@ namespace DB
 	extern const Link_TeachPlan g_TeachPlan;
 }
 
+#endif
 #endif

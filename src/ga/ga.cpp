@@ -30,23 +30,23 @@ GA::GA(DB::DataBase &db_)
 	// создаём список идентификаторов БД:
 	
 	
-	ids_a.resize(db.GetEntitiesCount(DB::g_Auditoriums));
-	db.GetEntitiesIDs(DB::g_Auditoriums, &ids_a);
-	ids_d.resize(db.GetEntitiesCount(DB::g_Days));
-	db.GetEntitiesIDs(DB::g_Days, &ids_d);
-	ids_h.resize(db.GetEntitiesCount(DB::g_Hours));
-	db.GetEntitiesIDs(DB::g_Hours, &ids_h);
+	ids_a.resize(db.GetEntitiesCount(DB::g_ModelAud));
+	db.GetEntitiesIDs(DB::g_ModelAud, &ids_a);
+	ids_d.resize(db.GetEntitiesCount(DB::g_ModelDays));
+	db.GetEntitiesIDs(DB::g_ModelDays, &ids_d);
+	ids_h.resize(db.GetEntitiesCount(DB::g_ModelHours));
+	db.GetEntitiesIDs(DB::g_ModelHours, &ids_h);
 
 	A = ids_a.size();
 	D = ids_d.size();
 	H = ids_h.size();
 
-	ids_g.resize(db.GetEntitiesCount(DB::g_Groups));
-	db.GetEntitiesIDs(DB::g_Groups, &ids_g);
-	ids_t.resize(db.GetEntitiesCount(DB::g_Teachers));
-	db.GetEntitiesIDs(DB::g_Teachers, &ids_t);
-	ids_l.resize(db.GetEntitiesCount(DB::g_Lessons));
-	db.GetEntitiesIDs(DB::g_Lessons, &ids_l);
+	ids_g.resize(db.GetEntitiesCount(DB::g_ModelGroups));
+	db.GetEntitiesIDs(DB::g_ModelGroups, &ids_g);
+	ids_t.resize(db.GetEntitiesCount(DB::g_ModelTeachers));
+	db.GetEntitiesIDs(DB::g_ModelTeachers, &ids_t);
+	ids_l.resize(db.GetEntitiesCount(DB::g_ModelLessons));
+	db.GetEntitiesIDs(DB::g_ModelLessons, &ids_l);
 
 	G = ids_g.size();
 	T = ids_t.size();
@@ -61,6 +61,7 @@ GA::GA(DB::DataBase &db_)
 	db.GetGTList(table_gt);
 */
 	// получаем соответствие между занятиями и аудиториями
+#if 0
 	less_aud.resize(ids_a.size() * ids_l.size(), false); //адресация [l*ids_a.size() + a]
 	{
 		ORM::Tuple<long, long> scheme_la;
@@ -72,6 +73,7 @@ GA::GA(DB::DataBase &db_)
 			less_aud[db2index(ids_l, it->get_value(scheme_la.f1)) * A + db2index(ids_a, it->get_value(scheme_la.f2))] = true;
 		}
 	}
+#endif
 	
 	// получаем массив занятий Task
 	{
@@ -100,7 +102,7 @@ GA::GA(DB::DataBase &db_)
 	multi_aud.resize(ids_a.size(), false);
 	for(size_t i = 0; i < ids_a.size(); i ++)
 	{
-		multi_aud[i] = db.GetAudMultithr(DB::g_Auditoriums, ids_a[i]);
+		multi_aud[i] = db.GetAudMultithr(DB::g_ModelAud, ids_a[i]);
 	}
 
 	//Run(less_aud, table_base, multi_aud, ids_a.size(), ids_d.size(), ids_h.size());

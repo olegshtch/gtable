@@ -1,3 +1,4 @@
+#if 0
 #include "entities.h"
 
 namespace DB
@@ -9,4 +10,5 @@ namespace DB
 	const Entity g_Teachers("Teachers", true);
 	const Entity g_Lessons("Lessons", true);
 }
+#endif
 
