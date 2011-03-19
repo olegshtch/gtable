@@ -8,6 +8,7 @@
 #include <gtkmm/actiongroup.h>
 //#include <gtkmm/uimanager.h>
 #include <gtkmm/builder.h>
+#include <gtkmm/treeview.h>
 #include "db/db.h"
 
 class MainWindow : public Gtk::Window
@@ -24,7 +25,11 @@ private:
 	void OnRun();
 	void OnEdit();
 
+	void OnAppend();
+
 	void ShowAllEntities();
+
+	Glib::RefPtr<ORM::Data> m_refModelHours;
 
 	//Gtk::VBox m_Box;
 	//Gtk::Statusbar m_Statusbar;
@@ -32,7 +37,7 @@ private:
 	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 	//Glib::RefPtr<Gtk::UIManager> m_refUIManager;
 
-	const Glib::RefPtr<Gtk::Builder>& m_refBuilder;
+	Glib::RefPtr<Gtk::Builder> m_refBuilder;
 
 	DB::DataBase *m_DB;
 };

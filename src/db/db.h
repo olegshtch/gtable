@@ -6,8 +6,6 @@
 #include <sqlite3.h>
 #include <iostream>
 #include <sstream>
-#include "entities.h"
-#include "links.h"
 #include "../shared.h"
 #include "../orm/connection.h"
 #include "models.h"

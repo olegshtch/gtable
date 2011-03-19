@@ -21,6 +21,10 @@ namespace ORM
 		virtual void SetStrValue(Gtk::TreeIter &it, const Glib::ustring& str) const = 0;
 		virtual Glib::ustring GetStrValue(Gtk::TreeIter &it) const = 0;
 		virtual Glib::ustring GetDefinition() const = 0;
+		const Glib::ustring& GetFieldName() const
+		{
+			return m_FieldName;
+		}
 	protected:
 		Glib::ustring m_FieldName;
 	};

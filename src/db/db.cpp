@@ -123,16 +123,9 @@ void DataBase::AppendEntity(const ModelEntity& ent, const Glib::ustring &name)
 	m_Connection.SQLExec0(Glib::ustring::compose("INSERT INTO %1 (name) VALUES (\"%2\")", ent.GetTableName(), name));
 }
 
-void DataBase::ListEntity(const ModelEntity& ent, Glib::RefPtr<ORM::Data> &list_store, bool sort_by_name)
+void DataBase::ListEntity(const ModelEntity& ent,Glib::RefPtr<ORM::Data> &list_store, bool sort_by_name)
 {
-	if(sort_by_name)
-	{
-		m_Connection.SQLExec(Glib::ustring::compose("SELECT id, name FROM %1 ORDER BY name", ent.GetTableName()), list_store);
-	}
-	else
-	{
-		m_Connection.SQLExec(Glib::ustring::compose("SELECT id, name FROM %1 ORDER BY id", ent.GetTableName()), list_store);
-	}
+	m_Connection.Select(list_store)->From(ent);
 }
 
 void DataBase::ListEntityAud(const ModelEntity& ent, Glib::RefPtr<ORM::Data> &list_store)
