@@ -2,7 +2,7 @@
 #define _GA_H_
 
 #include <stdint.h>
-#include "../db/db.h"
+#include <vector>
 
 // Занятие
 struct Task
@@ -26,17 +26,14 @@ class GA
 	friend class Individual;
 	friend class ADH;
 public:
-	GA(DB::DataBase &db_);
+	GA();
 	~GA()
 	{
 	}
 
 	//void Solve(DB::DataBase &db);
-	void Run();
 	bool Loop(std::vector<Individual> *population);
 private:
-	DB::DataBase &db;
-
 	std::vector<bool> less_aud; // адресация [l * A + a]
 	std::vector<Task> tasks;
 	std::vector<std::vector<Task>::const_iterator> table_base;

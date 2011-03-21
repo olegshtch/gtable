@@ -17,12 +17,13 @@ namespace ORM
 	public:
 		Connection(const Glib::ustring &file, bool create_new);
 		~Connection();
+		void MoveTo(const Glib::ustring& dbname);
 
 		void CreateTable(const Table &table, bool is_exist = IF_EXIST)
 		{
 			if(is_exist)
 			{
-				SQLExec0("DROP TABLE " + table.GetTableName());
+				SQLExec0("DROP TABLE IF EXISTS " + table.GetTableName());
 			}
 			SQLExec0(table.GetSqlCreateString());
 		}

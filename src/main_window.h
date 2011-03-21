@@ -8,7 +8,7 @@
 #include <gtkmm/actiongroup.h>
 //#include <gtkmm/uimanager.h>
 #include <gtkmm/builder.h>
-#include <gtkmm/treeview.h>
+#include "listview.h"
 #include "db/db.h"
 
 class MainWindow : public Gtk::Window
@@ -19,6 +19,7 @@ public:
 private:
 	void OnNew();
 	void OnOpen();
+	void OnSave();
 	void OnQuit();
 	void OnAbout();
 
@@ -26,10 +27,11 @@ private:
 	void OnEdit();
 
 	void OnAppend();
+	void OnDelete();
 
 	void ShowAllEntities();
 
-	Glib::RefPtr<ORM::Data> m_refModelHours;
+	bool OnFocusIn(GdkEventFocus* event, ListView *list_view);
 
 	//Gtk::VBox m_Box;
 	//Gtk::Statusbar m_Statusbar;
@@ -39,7 +41,7 @@ private:
 
 	Glib::RefPtr<Gtk::Builder> m_refBuilder;
 
-	DB::DataBase *m_DB;
+	ListView *m_pCurrentListView;
 };
 
 #endif

@@ -22,19 +22,30 @@
                     <child>
                       <object class="GtkImageMenuItem" id="imagemenuitem1">
                         <property name="visible">True</property>
-                        <property name="use_action_appearance">True</property>
                         <property name="related_action">FileNew</property>
+                        <property name="use_action_appearance">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <property name="always_show_image">True</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="imagemenuitem2">
                         <property name="visible">True</property>
-                        <property name="use_action_appearance">True</property>
                         <property name="related_action">FileOpen</property>
+                        <property name="use_action_appearance">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <property name="always_show_image">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem2">
+                        <property name="visible">True</property>
+                        <property name="related_action">FileSave</property>
+                        <property name="use_action_appearance">True</property>
+                        <property name="use_stock">True</property>
+                        <property name="always_show_image">True</property>
                       </object>
                     </child>
                     <child>
@@ -45,8 +56,8 @@
                     <child>
                       <object class="GtkImageMenuItem" id="imagemenuitem5">
                         <property name="visible">True</property>
-                        <property name="use_action_appearance">True</property>
                         <property name="related_action">FileQuit</property>
+                        <property name="use_action_appearance">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <property name="always_show_image">True</property>
@@ -74,8 +85,8 @@
                     <child>
                       <object class="GtkImageMenuItem" id="imagemenuitem10">
                         <property name="visible">True</property>
-                        <property name="use_action_appearance">True</property>
                         <property name="related_action">HelpAbout</property>
+                        <property name="use_action_appearance">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                       </object>
@@ -96,8 +107,8 @@
             <child>
               <object class="GtkToolButton" id="toolbutton1">
                 <property name="visible">True</property>
-                <property name="use_action_appearance">True</property>
                 <property name="related_action">FileNew</property>
+                <property name="use_action_appearance">True</property>
                 <property name="label" translatable="yes">toolbutton1</property>
                 <property name="use_underline">True</property>
               </object>
@@ -109,8 +120,8 @@
             <child>
               <object class="GtkToolButton" id="toolbutton2">
                 <property name="visible">True</property>
-                <property name="use_action_appearance">True</property>
                 <property name="related_action">FileOpen</property>
+                <property name="use_action_appearance">True</property>
                 <property name="label" translatable="yes">toolbutton2</property>
                 <property name="use_underline">True</property>
               </object>
@@ -122,8 +133,8 @@
             <child>
               <object class="GtkToolButton" id="toolbutton3">
                 <property name="visible">True</property>
-                <property name="use_action_appearance">True</property>
                 <property name="related_action">FileQuit</property>
+                <property name="use_action_appearance">True</property>
                 <property name="label" translatable="yes">toolbutton3</property>
                 <property name="use_underline">True</property>
               </object>
@@ -144,9 +155,22 @@
             <child>
               <object class="GtkToolButton" id="toolbutton5">
                 <property name="visible">True</property>
-                <property name="use_action_appearance">True</property>
                 <property name="related_action">ActionAppend</property>
+                <property name="use_action_appearance">True</property>
                 <property name="label" translatable="yes">toolbutton5</property>
+                <property name="use_underline">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkToolButton" id="toolbutton6">
+                <property name="visible">True</property>
+                <property name="related_action">ActionDelete</property>
+                <property name="use_action_appearance">True</property>
+                <property name="label" translatable="yes">toolbutton6</property>
                 <property name="use_underline">True</property>
               </object>
               <packing>
@@ -225,6 +249,25 @@
                   </object>
                   <packing>
                     <property name="position">1</property>
+                    <property name="tab_fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkTreeView" id="TreeViewFaculty">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child type="tab">
+                  <object class="GtkLabel" id="label6">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Faculty</property>
+                  </object>
+                  <packing>
+                    <property name="position">2</property>
                     <property name="tab_fill">False</property>
                   </packing>
                 </child>
@@ -337,5 +380,11 @@
         </child>
       </object>
     </child>
+  </object>
+  <object class="GtkAction" id="ActionDelete">
+    <property name="stock_id">gtk-remove</property>
+  </object>
+  <object class="GtkAction" id="FileSave">
+    <property name="stock_id">gtk-save</property>
   </object>
 </interface>

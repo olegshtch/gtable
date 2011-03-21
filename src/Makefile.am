@@ -3,10 +3,12 @@ bin_PROGRAMS = table
 table_SOURCES = ga/fitness.cpp \
 		ga/ga.cpp \
 		ga/individual.cpp \
+		listview.cpp \
 		logbuf.cpp \
 		main.cpp \
 		main_window.cpp
-noinst_HEADERS = logbuf.h \
+noinst_HEADERS = listview.h \
+		 logbuf.h \
 		 main_window.h \
 		 shared.h
 

@@ -38,6 +38,33 @@ ORM::Connection::~Connection()
 	}
 }
 
+void ORM::Connection::MoveTo(const Glib::ustring& dbname)
+{
+	sqlite3 *new_handle;
+	int sqlite_answer = sqlite3_open(dbname.c_str(), &new_handle);
+	if(sqlite_answer != SQLITE_OK)
+	{
+		sqlite3_close(new_handle);
+		throw Glib::Error(1, 0, sqlite3_errmsg(new_handle));
+	}
+	sqlite3_backup *backup_handle = sqlite3_backup_init(new_handle, "main", m_SQLite, "main");
+	if(! backup_handle)
+	{
+		sqlite3_close(new_handle);
+		throw Glib::Error(1, 0, sqlite3_errmsg(new_handle));
+	}
+	sqlite3_backup_step(backup_handle, -1);
+	sqlite3_backup_finish(backup_handle);
+	sqlite_answer = sqlite3_errcode(new_handle);
+	if(sqlite_answer != SQLITE_OK)
+	{
+		sqlite3_close(new_handle);
+		throw Glib::Error(1, 0, sqlite3_errmsg(new_handle));
+	}
+	this->~Connection();
+	new (this) Connection(dbname, false);
+}
+
 void ORM::Connection::SQLExec0(const Glib::ustring& sql)
 {
 	char *err_msg = 0;

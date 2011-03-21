@@ -14,11 +14,34 @@ namespace DB
 {
 	class DataBase
 	{
-	public:
+	private:
 		DataBase(const Glib::ustring &db, bool create_new);
 		~DataBase()
 		{
 		}
+		static DataBase* s_Ptr;
+		static void Free();
+	public:
+		static DataBase& Instance()
+		{
+			return *s_Ptr;
+		}
+
+		void New()
+		{
+			m_Connection.~Connection();
+			new (&m_Connection) ORM::Connection(":memory:", true);	
+		}
+		void Open(const Glib::ustring &dbname)
+		{
+			m_Connection.~Connection();
+			new (&m_Connection) ORM::Connection(dbname, false);	
+		}
+		void Save(const Glib::ustring &dbname)
+		{
+			m_Connection.MoveTo(dbname);
+		}
+
 		void AppendEntity(const ModelEntity& ent, const Glib::ustring &name);
 		void ListEntity(const ModelEntity& ent, Glib::RefPtr<ORM::Data> &list_store, bool sort_by_name);
 		void DeleteEntity(const ModelEntity& ent, int id);

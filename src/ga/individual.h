@@ -2,6 +2,8 @@
 #define _GA_INDIVIDUAL_H_
 
 #include <vector>
+#include <iostream>
+#include <cstdlib>
 #include "ga.h"
 
 struct ADH

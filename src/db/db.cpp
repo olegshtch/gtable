@@ -6,25 +6,17 @@
 
 using namespace DB;
 
+DataBase* DataBase::s_Ptr = new DataBase(":memory:", true);
+
+void DataBase::Free()
+{
+	delete s_Ptr;
+}
+
 DataBase::DataBase(const Glib::ustring &db, bool create_new)
 	:m_Connection(db, create_new)
 {
-#if 0
-	int sql_answer;
-	if(create_new)
-	{
-		sql_answer = sqlite3_open_v2(db.c_str(), &m_SQLite, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, 0);
-	}
-	else
-	{
-		sql_answer = sqlite3_open_v2(db.c_str(), &m_SQLite, SQLITE_OPEN_READWRITE, 0);
-	}
-	if(sql_answer != SQLITE_OK)
-	{
-		sqlite3_close(m_SQLite);
-		throw Glib::Error(1, 0, sqlite3_errmsg(m_SQLite));
-	}
-#endif
+	atexit(Free);
 	if(create_new)
 	{
 		// create tables
@@ -34,89 +26,8 @@ DataBase::DataBase(const Glib::ustring &db, bool create_new)
 		m_Connection.CreateTable(g_ModelGroups);
 		m_Connection.CreateTable(g_ModelTeachers);
 		m_Connection.CreateTable(g_ModelLessons);
-#if 0
-		CreateTableLinkN2N(g_LessonsAuditoriums);
-		CreateTableLinkN2N(g_TeachersLessons);
-		CreateTableLinkN2N(g_OrderLessons);
-		CreateTableLinkTeachPlan(g_TeachPlan);
-		CreateTableSchedule();
-#endif
 	}
 }
-
-#if 0
-DataBase::~DataBase()
-{
-	if(m_SQLite)
-	{
-		sqlite3_stmt *sql_stmt;
-		do
-		{
-			sql_stmt = sqlite3_next_stmt(m_SQLite, 0);
-			if(!sql_stmt)
-			{
-				break;
-			}
-			sqlite3_finalize(sql_stmt);
-		}
-		while(sql_stmt);
-		sqlite3_close(m_SQLite);
-	}
-}
-
-void DataBase::CreateTableEntity(const ModelEntity& ent)
-{
-	m_Connection.SQLExec0(Glib::ustring::compose("DROP TABLE IF EXISTS %1", ent.m_TableName));
-	if(&ent == &g_Auditoriums)
-	{
-		m_Connection.SQLExec0(Glib::ustring::compose("CREATE TABLE %1 (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(32) UNIQUE, multithr BOOL DEFAULT 0 )", ent.m_TableName));
-	}
-	else
-	{
-		m_Connection.SQLExec0(Glib::ustring::compose("CREATE TABLE %1 (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(32) UNIQUE)", ent.m_TableName));
-	}
-}
-
-void DataBase::CreateTableLinkN2N(const Link_N2N& link)
-{
-	m_Connection.SQLExec0(Glib::ustring::compose("DROP TABLE IF EXISTS %1", link.m_TableName));
-	m_Connection.SQLExec0(Glib::ustring::compose("CREATE TABLE %1 (id INTEGER PRIMARY KEY AUTOINCREMENT,	id_entity1 INTEGER NOT NULL REFERENCES %2(id) ON DELETE CASCADE ON UPDATE CASCADE, id_entity2 INTEGER NOT NULL REFERENCES %3(id) ON DELETE CASCADE ON UPDATE CASCADE)", link.m_TableName, link.m_Entity1.m_TableName, link.m_Entity2.m_TableName));
-}
-
-void DataBase::CreateTableLinkTeachPlan(const Link_TeachPlan& link)
-{
-	m_Connection.SQLExec0(Glib::ustring::compose("DROP TABLE IF EXISTS %1", link.m_TableName));
-	m_Connection.SQLExec0(Glib::ustring::compose("CREATE TABLE %1 (id INTEGER PRIMARY KEY AUTOINCREMENT,	id_entity1 INTEGER NOT NULL REFERENCES %2(id) ON DELETE CASCADE ON UPDATE CASCADE, id_entity2 INTEGER NOT NULL REFERENCES %3(id) ON DELETE CASCADE ON UPDATE CASCADE, hours INTEGER NOT NULL DEFAULT 0)", link.m_TableName, link.m_Entity1.m_TableName, link.m_Entity2.m_TableName));
-}
-
-void DataBase::CreateTableSchedule()
-{
-	m_Connection.SQLExec0(Glib::ustring("DROP TABLE IF EXISTS Schedule"));
-	m_Connection.SQLExec0(Glib::ustring::compose("CREATE TABLE Schedule (id_day INTEGER NOT NULL REFERENCES %1(id) ON DELETE CASCADE ON UPDATE CASCADE, id_hour INTEGER NOT NULL REFERENCES %2(id) ON DELETE CASCADE ON UPDATE CASCADE, id_record INTEGER NOT NULL REFERENCES %3(id) ON DELETE CASCADE ON UPDATE CASCADE, id_auditorium INTEGER NOT NULL REFERENCES %4(id) ON DELETE CASCADE ON UPDATE CASCADE)", g_Days.m_TableName, g_Hours.m_TableName, g_TeachPlan.m_TableName, g_Auditoriums.m_TableName));
-}
-
-void DataBase::SQLExec0(const Glib::ustring& sql)
-{
-	char *err_msg = 0;
-	std::clog << sql << std::endl;
-	int sql_answer = sqlite3_exec(m_SQLite, sql.c_str(), DataBase::SQLCallBack0, this, &err_msg);
-	if(sql_answer != SQLITE_OK)
-	{
-		Glib::ustring msg(err_msg);
-		sqlite3_free(err_msg);
-		throw Glib::Error(1, 0, msg);
-	}
-}
-
-int DataBase::SQLCallBack0(void *self_ptr, int argc, char **argv, char **col_name)
-{
-	if(! self_ptr)
-	{
-		throw Glib::Error(1, 0, "Null this at callback.");
-	}
-	return 0;
-}
-#endif
 
 void DataBase::AppendEntity(const ModelEntity& ent, const Glib::ustring &name)
 {
