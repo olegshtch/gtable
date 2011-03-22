@@ -32,6 +32,7 @@ private:
 	void ShowAllEntities();
 
 	bool OnFocusIn(GdkEventFocus* event, ListView *list_view);
+	bool OnFocusOut(GdkEventFocus* event);
 
 	//Gtk::VBox m_Box;
 	//Gtk::Statusbar m_Statusbar;

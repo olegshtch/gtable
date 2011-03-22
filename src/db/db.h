@@ -8,6 +8,7 @@
 #include <sstream>
 #include "../shared.h"
 #include "../orm/connection.h"
+#include "../orm/table.h"
 #include "models.h"
 
 namespace DB
@@ -15,10 +16,12 @@ namespace DB
 	class DataBase
 	{
 	private:
-		DataBase(const Glib::ustring &db, bool create_new);
+		DataBase(const Glib::ustring &db);
 		~DataBase()
 		{
 		}
+		DataBase(const DataBase&);
+		DataBase& operator=(const DataBase&);
 		static DataBase* s_Ptr;
 		static void Free();
 	public:
@@ -31,6 +34,7 @@ namespace DB
 		{
 			m_Connection.~Connection();
 			new (&m_Connection) ORM::Connection(":memory:", true);	
+			InitTable();
 		}
 		void Open(const Glib::ustring &dbname)
 		{
@@ -43,13 +47,12 @@ namespace DB
 		}
 
 		void AppendEntity(const ModelEntity& ent, const Glib::ustring &name);
-		void ListEntity(const ModelEntity& ent, Glib::RefPtr<ORM::Data> &list_store, bool sort_by_name);
+		void ListEntity(const ORM::Table& ent, Glib::RefPtr<ORM::Data> &list_store, bool sort_by_name = false);
 		void DeleteEntity(const ModelEntity& ent, int id);
 		void EditEntityName(const ModelEntity& ent, int id, const Glib::ustring &new_name);
 		Glib::ustring GetEntityName(const ModelEntity& ent, int id);
 
 		void EditMultithr(const ModelEntity& ent, int id, bool multithr);
-		void ListEntityAud(const ModelEntity& ent, Glib::RefPtr<ORM::Data> &list_store);
 		bool GetAudMultithr(const ModelEntity& ent, long id);
 
 #if 0
@@ -74,17 +77,7 @@ namespace DB
 
 		void ListLessonRecords(Glib::RefPtr<ORM::Data> &list_store);
 	private:
-#if 0
-		void SQLExec0(const Glib::ustring& sql);
-		static int SQLCallBack0(void *self_ptr, int argc, char **argv, char **col_name);
-
-		template <class Model> void SQLExec(const Glib::ustring& sql, Glib::RefPtr<Gtk::ListStore> &list_store)
-		{
-			list_store->clear();
-			int sql_answer = sqlite3_exec(m_SQLite, sql.c_str(), Model::Callback, DeRef(list_store), &err_msg);
-		}
-#endif
-
+		void InitTable();
 #if 1
 		template <class Type> void SQLExec(const Glib::ustring& sql, Type *result)
 		{

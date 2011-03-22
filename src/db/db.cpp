@@ -6,27 +6,28 @@
 
 using namespace DB;
 
-DataBase* DataBase::s_Ptr = new DataBase(":memory:", true);
+DataBase* DataBase::s_Ptr = new DataBase(":memory:");
 
 void DataBase::Free()
 {
 	delete s_Ptr;
 }
 
-DataBase::DataBase(const Glib::ustring &db, bool create_new)
-	:m_Connection(db, create_new)
+DataBase::DataBase(const Glib::ustring &db)
+	:m_Connection(db, true)
 {
 	atexit(Free);
-	if(create_new)
-	{
-		// create tables
-		m_Connection.CreateTable(g_ModelAud);
-		m_Connection.CreateTable(g_ModelDays);
-		m_Connection.CreateTable(g_ModelHours);
-		m_Connection.CreateTable(g_ModelGroups);
-		m_Connection.CreateTable(g_ModelTeachers);
-		m_Connection.CreateTable(g_ModelLessons);
-	}
+	InitTable();
+}
+
+void DataBase::InitTable()
+{
+	m_Connection.CreateTable(g_ModelAud);
+	m_Connection.CreateTable(g_ModelDays);
+	m_Connection.CreateTable(g_ModelHours);
+	m_Connection.CreateTable(g_ModelGroups);
+	m_Connection.CreateTable(g_ModelTeachers);
+	m_Connection.CreateTable(g_ModelLessons);
 }
 
 void DataBase::AppendEntity(const ModelEntity& ent, const Glib::ustring &name)
@@ -34,14 +35,9 @@ void DataBase::AppendEntity(const ModelEntity& ent, const Glib::ustring &name)
 	m_Connection.SQLExec0(Glib::ustring::compose("INSERT INTO %1 (name) VALUES (\"%2\")", ent.GetTableName(), name));
 }
 
-void DataBase::ListEntity(const ModelEntity& ent,Glib::RefPtr<ORM::Data> &list_store, bool sort_by_name)
+void DataBase::ListEntity(const ORM::Table& ent,Glib::RefPtr<ORM::Data> &list_store, bool sort_by_name)
 {
 	m_Connection.Select(list_store)->From(ent);
-}
-
-void DataBase::ListEntityAud(const ModelEntity& ent, Glib::RefPtr<ORM::Data> &list_store)
-{
-	m_Connection.SQLExec(Glib::ustring::compose("SELECT id, name, multithr FROM %1 ORDER BY name", ent.GetTableName()), list_store);
 }
 
 bool DataBase::GetAudMultithr(const ModelEntity& ent, long id)

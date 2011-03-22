@@ -39,7 +39,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column(_("id"), DB::g_ModelHours.fId);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelHours.name);
 	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
-	//m_pTreeView->signal_focus_out_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocus), m_pTreeView));
+	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 
 	m_refBuilder->get_widget_derived("TreeViewDays", m_pTreeView);
 	if(! m_pTreeView)
@@ -50,7 +50,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column(_("id"), DB::g_ModelDays.fId);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelDays.name);
 	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
-	//m_pTreeView->signal_focus_out_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocus), m_pTreeView));
+	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 
 	show_all_children();
 
@@ -115,6 +115,7 @@ void MainWindow::OnAppend()
 {
 	if(m_pCurrentListView)
 	{
+		m_pCurrentListView->add_empty_line();
 		show_all_children();
 	}
 }
@@ -134,10 +135,9 @@ bool MainWindow::OnFocusIn(GdkEventFocus* event, ListView *list_view)
 	return false;
 }
 
-void MainWindow::ShowAllEntities()
+bool MainWindow::OnFocusOut(GdkEventFocus* event)
 {
-	show_all_children();
+	m_pCurrentListView = 0;
+	return false;
 }
-
-
 
