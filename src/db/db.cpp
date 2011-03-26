@@ -17,18 +17,15 @@ DataBase::DataBase(const Glib::ustring &db)
 	:m_Connection(db, true)
 {
 	atexit(Free);
-	InitTable();
+	InitTables();
 }
 
-void DataBase::InitTable()
+void DataBase::InitTables()
 {
-	m_Connection.CreateTable(g_ModelAud);
-	m_Connection.CreateTable(g_ModelDays);
-	m_Connection.CreateTable(g_ModelHours);
-	m_Connection.CreateTable(g_ModelGroups);
-	m_Connection.CreateTable(g_ModelTeachers);
-	m_Connection.CreateTable(g_ModelLessons);
-	m_Connection.CreateTable(g_ModelFaculties);
+	for(ORM::Table::const_iterator it = ORM::Table::begin(); it != ORM::Table::end(); ++it)
+	{
+		m_Connection.CreateTable(**it, true);
+	}
 }
 
 void DataBase::AppendEntity(const ORM::Table& ent, const Gtk::TreeIter& row)

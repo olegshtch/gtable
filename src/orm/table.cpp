@@ -1,5 +1,7 @@
 #include "table.h"
 
+std::set<const ORM::Table*> ORM::Table::s_Tables;
+
 Glib::ustring ORM::Table::GetSqlCreateString() const
 {
 	Glib::ustring query = "CREATE TABLE ";
