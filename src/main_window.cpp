@@ -63,6 +63,20 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelFaculties.abbr);
 	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
 	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
+	Glib::RefPtr<Gtk::TreeModel> faculties_model = m_pTreeView->get_model();
+
+	m_refBuilder->get_widget_derived("TreeViewChairs", m_pTreeView);
+	if(! m_pTreeView)
+	{
+		throw Glib::Error(1, 0, "Cann't load TreeViewChairs");
+	}
+	m_pTreeView->set_scheme(DB::g_ModelChairs);
+	m_pTreeView->append_column(_("id"), DB::g_ModelChairs.fId);
+	m_pTreeView->append_column_editable(_("name"), DB::g_ModelChairs.name);
+	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelChairs.abbr);
+	m_pTreeView->append_column_foreign_editable(_("faculty"), DB::g_ModelChairs.faculty, faculties_model, DB::g_ModelFaculties.abbr);
+	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
+	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 
 	show_all_children();
 

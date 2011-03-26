@@ -40,7 +40,10 @@ void DataBase::ListEntity(const ORM::Table& ent,Glib::RefPtr<ORM::Data> &list_st
 
 void DataBase::EditEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
 {
-	m_Connection.Update(ent)->Set(ent.GetField(1), row).Where(ORM::Eq(ent.fId, row));
+	for(size_t i = 1; i < ent.size(); ++ i)
+	{
+		m_Connection.Update(ent)->Set(ent.GetField(i), row).Where(ORM::Eq(ent.fId, row));
+	}
 }
 
 bool DataBase::GetAudMultithr(const ModelEntity& ent, long id)

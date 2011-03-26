@@ -1,6 +1,7 @@
 noinst_LIBRARIES = liborm.a
 liborm_a_SOURCES = connection.cpp \
 	data.cpp \
+	foreign_key.cpp \
 	insert.cpp \
 	primary_key.cpp \
 	query.cpp \
@@ -8,6 +9,7 @@ liborm_a_SOURCES = connection.cpp \
 noinst_HEADERS = connection.h \
 	data.h \
 	field.h \
+	foreign_key.h
 	insert.h \
 	primary_key.h \
 	query.h \

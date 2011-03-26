@@ -17,6 +17,8 @@ ORM::Connection::Connection(const Glib::ustring &file, bool create_new)
 		sqlite3_close(m_SQLite);
 		throw Glib::Error(1, 0, sqlite3_errmsg(m_SQLite));
 	}
+
+	SQLExec0("PRAGMA foreign_key = ON");
 }
 
 ORM::Connection::~Connection()

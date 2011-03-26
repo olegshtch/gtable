@@ -70,7 +70,7 @@ namespace ORM
 		Glib::ustring GetStrValue(const Gtk::TreeIter &it) const
 		{
 			Glib::ustring res = "\"";
-			res += Glib::strescape(it->get_value(*this));
+			res += Glib::strescape(it->get_value(*this), "\\");
 			res += "\"";
 			return res;
 		}

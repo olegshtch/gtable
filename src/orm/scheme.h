@@ -27,57 +27,6 @@ namespace ORM
 	protected:
 		std::vector<const FieldBase*> m_Fields;
 	};
-
-	template <class T1, class T2 = void, class T3 = void> class Tuple : public Scheme
-	{
-	public:
-		Tuple()
-			:f1("f1"),
-			f2("f2"),
-			f3("f3")
-		{
-			add<T1>(f1);
-			add<T2>(f2);
-			add<T3>(f3);
-		}
-		~Tuple()
-		{
-		}
-		Field<T1> f1;
-		Field<T2> f2;
-		Field<T3> f3;
-	};
-	
-	template <class T1, class T2> class Tuple<T1, T2, void> : public Scheme
-	{
-	public:
-		Tuple()
-			:f1("f1"),
-			f2("f2")
-		{
-			add<T1>(f1);
-			add<T2>(f2);
-		}
-		~Tuple()
-		{
-		}
-		Field<T1> f1;
-		Field<T2> f2;
-	};
-
-	template <class T1> class Tuple<T1, void, void> : public Scheme
-	{
-	public:
-		Tuple()
-			:f1("f1")
-		{
-			add<T1>(f1);
-		}
-		~Tuple()
-		{
-		}
-		Field<T1> f1;
-	};
 }
 
 #endif
