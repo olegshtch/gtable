@@ -6,6 +6,8 @@
 #include "data.h"
 #include "table.h"
 #include "select.h"
+#include "insert.h"
+#include "update.h"
 
 namespace ORM
 {
@@ -42,6 +44,18 @@ namespace ORM
 		std::auto_ptr<SelectBase> Select(Glib::RefPtr<Data> &data, const FieldBase& f1, const FieldBase& f2)
 		{
 			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, f1.GetFieldName() + "," + f2.GetFieldName()));
+		}
+
+		// Insert family
+		std::auto_ptr<InsertBase> InsertInto(const Table& table)
+		{
+			return std::auto_ptr<InsertBase>(new InsertBase(*this, table));
+		}
+
+		// Update family
+		std::auto_ptr<UpdateBase> Update(const Table& table)
+		{
+			return std::auto_ptr<UpdateBase>(new UpdateBase(*this, table));
 		}
 	
 		void SQLExec0(const Glib::ustring &sql);

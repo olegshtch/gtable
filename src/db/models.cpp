@@ -8,6 +8,8 @@ const DB::ModelEntity DB::g_ModelHours("Hours");
 const DB::ModelEntity DB::g_ModelGroups("Groups");
 const DB::ModelEntity DB::g_ModelTeachers("Teachers");
 const DB::ModelEntity DB::g_ModelLessons("Lessons");
+const DB::ModelFaculties DB::g_ModelFaculties("Faculties");
+
 const DB::ModelOrder DB::g_ModelOrder("LessonsOrder");
 const DB::ModelPlan DB::g_ModelPlan("TeachPlan");
 const DB::ModelLessonTeacher DB::g_ModelLessonTeacher("LessonTeacher");

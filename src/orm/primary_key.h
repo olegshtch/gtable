@@ -40,7 +40,7 @@ namespace ORM
 			stream >> value;
 			it->set_value(*this, value);
 		}
-		Glib::ustring GetStrValue(Gtk::TreeIter &it) const
+		Glib::ustring GetStrValue(const Gtk::TreeIter &it) const
 		{
 			return Glib::ustring::format(it->get_value(*this));
 		}

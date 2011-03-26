@@ -25,14 +25,19 @@ public:
 		m_Scheme = &scheme;
 		m_refModel = ORM::Data::create(scheme);
 		set_model(m_refModel);
+		m_refModel->signal_row_changed().connect(sigc::mem_fun(*this, &ListView::on_row_changed));
 	}
 	void update_model()
 	{
 		DB::DataBase::Instance().ListEntity(*m_Scheme, m_refModel);
+		show_all_children();
 	}
 	void add_empty_line()
 	{
+		DB::DataBase::Instance().AppendEntity(*m_Scheme, m_refModel->append());
+		update_model();
 	}
+	virtual void on_row_changed(const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter);
 private:
 	const ORM::Table* m_Scheme;
 	Glib::RefPtr<ORM::Data> m_refModel;

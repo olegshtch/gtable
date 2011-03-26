@@ -28,16 +28,22 @@ void DataBase::InitTable()
 	m_Connection.CreateTable(g_ModelGroups);
 	m_Connection.CreateTable(g_ModelTeachers);
 	m_Connection.CreateTable(g_ModelLessons);
+	m_Connection.CreateTable(g_ModelFaculties);
 }
 
-void DataBase::AppendEntity(const ModelEntity& ent, const Glib::ustring &name)
+void DataBase::AppendEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
 {
-	m_Connection.SQLExec0(Glib::ustring::compose("INSERT INTO %1 (name) VALUES (\"%2\")", ent.GetTableName(), name));
+	m_Connection.InsertInto(ent)->Values(row);
 }
 
-void DataBase::ListEntity(const ORM::Table& ent,Glib::RefPtr<ORM::Data> &list_store, bool sort_by_name)
+void DataBase::ListEntity(const ORM::Table& ent,Glib::RefPtr<ORM::Data> &list_store)
 {
 	m_Connection.Select(list_store)->From(ent);
+}
+
+void DataBase::EditEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
+{
+	m_Connection.Update(ent)->Set(ent.GetField(1), row).Where(ORM::Eq(ent.fId, row));
 }
 
 bool DataBase::GetAudMultithr(const ModelEntity& ent, long id)

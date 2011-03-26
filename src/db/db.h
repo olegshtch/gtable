@@ -46,8 +46,9 @@ namespace DB
 			m_Connection.MoveTo(dbname);
 		}
 
-		void AppendEntity(const ModelEntity& ent, const Glib::ustring &name);
-		void ListEntity(const ORM::Table& ent, Glib::RefPtr<ORM::Data> &list_store, bool sort_by_name = false);
+		void AppendEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
+		void ListEntity(const ORM::Table& ent, Glib::RefPtr<ORM::Data> &list_store);
+		void EditEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
 		void DeleteEntity(const ModelEntity& ent, int id);
 		void EditEntityName(const ModelEntity& ent, int id, const Glib::ustring &new_name);
 		Glib::ustring GetEntityName(const ModelEntity& ent, int id);
@@ -55,17 +56,6 @@ namespace DB
 		void EditMultithr(const ModelEntity& ent, int id, bool multithr);
 		bool GetAudMultithr(const ModelEntity& ent, long id);
 
-#if 0
-		void ListLinkedEntity(const Link_N2N& link, int parent_id, Glib::RefPtr<ORM::Data> &list_store);
-		void AppendLinkedEntity(const Link_N2N& link, int parent_id, int child_id);
-		void DeleteLinkedEntity(const Link_N2N& link, int parent_id, int child_id);
-		void ListLink(const Link_N2N& link, Glib::RefPtr<ORM::Data> &list_store);
-		void ListLinkedTeachPlan(const Link_TeachPlan& link, int parent_id, Glib::RefPtr<ORM::Data> &list_store);
-		void ListTeacherLessons(const DB::Link_N2N& link, Glib::RefPtr<ORM::Data>& list_store);
-
-		void EditHours(const DB::Link_TeachPlan& link, int id, unsigned int hours);
-		//void ListCircleLink(const Link_N2N& link, Glib::RefPtr<Gtk::ListStore> &list_store);
-#endif
 		size_t GetEntitiesCount(const DB::ModelEntity& ent);
 		size_t GetEntitiesIDs(const DB::ModelEntity& ent, std::vector<size_t> *array);
 

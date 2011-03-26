@@ -52,6 +52,18 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
 	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 
+	m_refBuilder->get_widget_derived("TreeViewFaculty", m_pTreeView);
+	if(! m_pTreeView)
+	{
+		throw Glib::Error(1, 0, "Cann't load TreeViewFaculty");
+	}
+	m_pTreeView->set_scheme(DB::g_ModelFaculties);
+	m_pTreeView->append_column(_("id"), DB::g_ModelFaculties.fId);
+	m_pTreeView->append_column_editable(_("name"), DB::g_ModelFaculties.name);
+	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelFaculties.abbr);
+	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
+	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
+
 	show_all_children();
 
 	OnNew();
@@ -131,7 +143,7 @@ void MainWindow::OnDelete()
 bool MainWindow::OnFocusIn(GdkEventFocus* event, ListView *list_view)
 {
 	m_pCurrentListView = list_view;
-	m_pCurrentListView->update_model();
+	//m_pCurrentListView->update_model();
 	return false;
 }
 

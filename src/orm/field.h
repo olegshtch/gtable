@@ -19,7 +19,7 @@ namespace ORM
 		{
 		}
 		virtual void SetStrValue(Gtk::TreeIter &it, const Glib::ustring& str) const = 0;
-		virtual Glib::ustring GetStrValue(Gtk::TreeIter &it) const = 0;
+		virtual Glib::ustring GetStrValue(const Gtk::TreeIter &it) const = 0;
 		virtual Glib::ustring GetDefinition() const = 0;
 		const Glib::ustring& GetFieldName() const
 		{
@@ -47,7 +47,7 @@ namespace ORM
 			stream >> value;
 			it->set_value(*this, value);
 		}
-		Glib::ustring GetStrValue(Gtk::TreeIter &it) const
+		Glib::ustring GetStrValue(const Gtk::TreeIter &it) const
 		{
 			return Glib::ustring::format(it->get_value(*this));
 		}
@@ -67,9 +67,12 @@ namespace ORM
 		{
 			it->set_value(*this, str);
 		}
-		Glib::ustring GetStrValue(Gtk::TreeIter &it) const
+		Glib::ustring GetStrValue(const Gtk::TreeIter &it) const
 		{
-			return it->get_value(*this);
+			Glib::ustring res = "\"";
+			res += Glib::strescape(it->get_value(*this));
+			res += "\"";
+			return res;
 		}
 		Glib::ustring GetDefinition() const
 		{
@@ -95,7 +98,7 @@ namespace ORM
 			stream >> value;
 			it->set_value(*this, value);
 		}
-		Glib::ustring GetStrValue(Gtk::TreeIter &it) const
+		Glib::ustring GetStrValue(const Gtk::TreeIter &it) const
 		{
 			return Glib::ustring::format(it->get_value(*this));
 		}
@@ -123,7 +126,7 @@ namespace ORM
 			stream >> value;
 			it->set_value(*this, (bool)value);
 		}
-		Glib::ustring GetStrValue(Gtk::TreeIter &it) const
+		Glib::ustring GetStrValue(const Gtk::TreeIter &it) const
 		{
 			return it->get_value(*this) ? "1" : "0";
 		}

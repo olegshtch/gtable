@@ -37,6 +37,22 @@ namespace DB
 		}
 	};
 
+	// id - идентификатор сущности
+	// name - название
+	// abbr - сокращение
+	class ModelFaculties : public ModelEntity
+	{
+	public:
+		ORM::Field<Glib::ustring> abbr;
+
+		ModelFaculties(const Glib::ustring& table_name)
+			:ModelEntity(table_name),
+			abbr("abbr")
+		{
+			add(abbr);
+		}
+	};
+
 	// id - идентификатор первой сущности
 	// name - название
 	// l_id - идентификатор второй сущности
@@ -147,6 +163,7 @@ namespace DB
 	extern const ModelEntity g_ModelGroups;
 	extern const ModelEntity g_ModelTeachers;
 	extern const ModelEntity g_ModelLessons;
+	extern const ModelFaculties g_ModelFaculties;
 
 	extern const ModelOrder g_ModelOrder;
 	extern const ModelPlan g_ModelPlan;
