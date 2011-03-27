@@ -46,6 +46,16 @@ void DataBase::EditEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
 	}
 }
 
+Glib::ustring DataBase::GetTextById(const ORM::Table& ent, const ORM::Field<Glib::ustring>& field, long id)
+{
+	ORM::Scheme scheme;
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+	m_Connection.Select(data, field)->From(ent)->Where(ORM::Eq(ent.fId, static_cast<ORM::PrimaryKey>(id)));
+	return "";
+}
+
+//---
+
 bool DataBase::GetAudMultithr(const ModelEntity& ent, long id)
 {
 	bool res;

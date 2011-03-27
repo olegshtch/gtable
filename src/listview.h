@@ -8,12 +8,14 @@
 #include "orm/table.h"
 #include "orm/foreign_key.h"
 #include "db/db.h"
+#include "cellrendererforeign.h"
 
 class ListView : public Gtk::TreeView
 {
 public:
 	ListView(GtkTreeView *cobject, Glib::RefPtr<Gtk::Builder>&)
-		:Gtk::TreeView(cobject),
+		:Glib::ObjectBase(typeid(ListView)),
+		Gtk::TreeView(cobject),
 		m_Scheme(NULL),
 		m_Refresh(true)
 	{
@@ -44,12 +46,8 @@ public:
 	}
 	int append_column_foreign_editable(const Glib::ustring& str, const ORM::Field<ORM::ForeignKey>& field, Glib::RefPtr<Gtk::TreeModel> foreign_model, const ORM::Field<Glib::ustring>& foreign_field)
 	{
-		Gtk::CellRendererCombo *combo = Gtk::manage(new Gtk::CellRendererCombo());
-		combo->property_has_entry() = false;
-		combo->property_model() = foreign_model;
-		combo->property_text_column() = foreign_field.index();
-		combo->property_editable() = true;
-		return append_column(str, *combo);
+		CellRendererForeign *cellrenderer = Gtk::manage(new CellRendererForeign(foreign_model));
+		return append_column(str, *cellrenderer);
 	}
 	virtual void on_row_changed(const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter);
 private:

@@ -59,6 +59,8 @@ namespace DB
 		size_t GetEntitiesCount(const DB::ModelEntity& ent);
 		size_t GetEntitiesIDs(const DB::ModelEntity& ent, std::vector<size_t> *array);
 
+		Glib::ustring GetTextById(const ORM::Table& ent, const ORM::Field<Glib::ustring>& field, long id);
+
 		//bool IsLinkBetween(const DB::Link_N2N &link, size_t id_a, size_t id_l);
 		//size_t GetTForGL(size_t id_g, size_t id_l); // get teacher id by lesson's id and group's id
 

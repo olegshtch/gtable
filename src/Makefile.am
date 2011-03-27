@@ -3,11 +3,15 @@ bin_PROGRAMS = table
 table_SOURCES = ga/fitness.cpp \
 		ga/ga.cpp \
 		ga/individual.cpp \
+		celleditableforeign.cpp \
+		cellrendererforeign.cpp \
 		listview.cpp \
 		logbuf.cpp \
 		main.cpp \
 		main_window.cpp
-noinst_HEADERS = listview.h \
+noinst_HEADERS = celleditableforeign.cpp \
+		 cellrendererforeign.h \
+		 listview.h \
 		 logbuf.h \
 		 main_window.h \
 		 shared.h

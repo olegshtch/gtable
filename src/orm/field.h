@@ -51,6 +51,10 @@ namespace ORM
 		{
 			return Glib::ustring::format(it->get_value(*this));
 		}
+		static Glib::ustring ToString(const T& value)
+		{
+			return Glib::ustring::format(value);
+		}
 	};
 
 	template<> class Field<Glib::ustring> : public Gtk::TreeModelColumn<Glib::ustring>, public FieldBase
@@ -70,7 +74,7 @@ namespace ORM
 		Glib::ustring GetStrValue(const Gtk::TreeIter &it) const
 		{
 			Glib::ustring res = "\"";
-			res += Glib::strescape(it->get_value(*this), "\\");
+			res += it->get_value(*this);
 			res += "\"";
 			return res;
 		}

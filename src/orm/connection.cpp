@@ -19,6 +19,7 @@ ORM::Connection::Connection(const Glib::ustring &file, bool create_new)
 	}
 
 	SQLExec0("PRAGMA foreign_key = ON");
+	SQLExec0("PRAGMA recursive_triggers = ON");
 }
 
 ORM::Connection::~Connection()

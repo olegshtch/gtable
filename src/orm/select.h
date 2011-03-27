@@ -3,6 +3,7 @@
 
 #include "query.h"
 #include "table.h"
+#include "where.h"
 
 namespace ORM
 {
@@ -20,10 +21,15 @@ namespace ORM
 		{
 		}
 
-		SelectBase& From(const Table& table1)
+		SelectBase* From(const Table& table1)
 		{
 			m_Query += m_Fields + " FROM " + table1.GetTableName();
-			return *this;
+			return this;
+		}
+
+		void Where(const WhereBase& where)
+		{
+			m_Query += " WHERE " + where.GetQuery();
 		}
 	private:
 		Glib::ustring m_Fields;

@@ -48,6 +48,10 @@ namespace ORM
 		{
 			return m_FieldName + " INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL"; 
 		}
+		static Glib::ustring ToString(const PrimaryKey& value)
+		{
+			return Glib::ustring::format(value);
+		}
 	};
 }
 
