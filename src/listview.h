@@ -3,12 +3,10 @@
 
 #include <gtkmm/treeview.h>
 #include <gtkmm/builder.h>
-#include <gtkmm/cellrenderercombo.h>
 #include "orm/data.h"
 #include "orm/table.h"
 #include "orm/foreign_key.h"
 #include "db/db.h"
-#include "cellrendererforeign.h"
 
 class ListView : public Gtk::TreeView
 {
@@ -44,16 +42,26 @@ public:
 		DB::DataBase::Instance().AppendEntity(*m_Scheme, m_refModel->append());
 		update_model();
 	}
-	int append_column_foreign_editable(const Glib::ustring& str, const ORM::Field<ORM::ForeignKey>& field, Glib::RefPtr<Gtk::TreeModel> foreign_model, const ORM::Field<Glib::ustring>& foreign_field)
+	void remove_line()
 	{
-		CellRendererForeign *cellrenderer = Gtk::manage(new CellRendererForeign(foreign_model));
-		return append_column(str, *cellrenderer);
+		Glib::RefPtr<Gtk::TreeSelection> ref_selection = get_selection();
+		ref_selection->selected_foreach_iter(sigc::mem_fun(*this, &ListView::RemoveIter));
 	}
+	int append_column_foreign_editable(const Glib::ustring& str, const ORM::Field<ORM::ForeignKey>& field, const ORM::Table& foreign_table, const ORM::Field<Glib::ustring>& foreign_field);
 	virtual void on_row_changed(const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter);
 private:
 	const ORM::Table* m_Scheme;
 	Glib::RefPtr<ORM::Data> m_refModel;
 	bool m_Refresh;
+
+	static void ForeignKeyAsString(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& row, const ORM::Field<ORM::ForeignKey>* field, const ORM::Table* foreign_table, const ORM::Field<Glib::ustring>* foreign_field);
+	void OnForeignEdited(const Glib::ustring& path, long int id, const ORM::Field<ORM::ForeignKey> *field);
+	void RemoveIter(const Gtk::TreeModel::iterator& iter)
+	{
+		DB::DataBase::Instance().RemoveEntity(*m_Scheme, iter);
+		m_refModel->erase(iter);
+	}
+
 };
 
 #endif

@@ -1,18 +1,16 @@
 #include "celleditableforeign.h"
 #include "db/db.h"
 
-Glib::ustring CellEditableForeign::get_text() const
+void CellEditableForeign::start_editing_vfunc(GdkEvent* event)
 {
-	return DB::DataBase::Instance().GetTextById(m_Table, m_Field, m_Id);
+	std::cout << "CellEditableForeign::start_editing_vfunc" << std::endl;
+	m_ComboBox.signal_changed().connect(sigc::mem_fun(*this, &CellEditableForeign::OnComboBoxChanged));
+
+	show_all_children();
 }
 
-long CellEditableForeign::get_id() const
+void CellEditableForeign::OnComboBoxChanged()
 {
-	return m_Id;
-}
-
-void CellEditableForeign::set_id(long id)
-{
-	m_Id = id;
+	signal_editing_done_.emit();
 }
 

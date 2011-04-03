@@ -48,8 +48,9 @@ namespace DB
 
 		void AppendEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
 		void ListEntity(const ORM::Table& ent, Glib::RefPtr<ORM::Data> &list_store);
+		void ListEntitiesText(const ORM::Table& ent, const ORM::Field<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data);
 		void EditEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
-		void DeleteEntity(const ModelEntity& ent, int id);
+		void RemoveEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
 		void EditEntityName(const ModelEntity& ent, int id, const Glib::ustring &new_name);
 		Glib::ustring GetEntityName(const ModelEntity& ent, int id);
 

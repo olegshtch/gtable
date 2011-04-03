@@ -23,10 +23,30 @@ namespace DB
 	};
 
 	extern const ModelEntity g_ModelDays;
-	extern const ModelEntity g_ModelHours;
 	extern const ModelEntity g_ModelGroups;
 	extern const ModelEntity g_ModelTeachers;
 	extern const ModelEntity g_ModelLessons;
+
+	// id - идентификатор сущности
+	// start - время начала
+	// finish - время окончания
+	class ModelHours : public ORM::Table
+	{
+	public:
+		ORM::Field<Glib::ustring> start;
+		ORM::Field<Glib::ustring> finish;
+
+		ModelHours(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			start("start"),
+			finish("finish")
+		{
+			add(start);
+			add(finish);
+		}
+	};
+
+	extern const ModelHours g_ModelHours;
 
 	// id - идентификатор аудитории
 	// name - название

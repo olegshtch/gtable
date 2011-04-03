@@ -4,7 +4,7 @@
 
 const DB::ModelAud DB::g_ModelAud("Auditoriums");
 const DB::ModelEntity DB::g_ModelDays("Days");
-const DB::ModelEntity DB::g_ModelHours("Hours");
+const DB::ModelHours DB::g_ModelHours("Hours");
 const DB::ModelEntity DB::g_ModelGroups("Groups");
 const DB::ModelEntity DB::g_ModelTeachers("Teachers");
 const DB::ModelEntity DB::g_ModelLessons("Lessons");

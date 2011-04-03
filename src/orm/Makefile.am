@@ -8,6 +8,7 @@ liborm_a_SOURCES = connection.cpp \
 	table.cpp
 noinst_HEADERS = connection.h \
 	data.h \
+	delete.h \
 	field.h \
 	foreign_key.h
 	insert.h \

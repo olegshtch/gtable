@@ -39,6 +39,7 @@ ORM::Connection::~Connection()
 		while(sql_stmt);
 		sqlite3_close(m_SQLite);
 	}
+	std::clog << "SQLite finalized." << std::endl;
 }
 
 void ORM::Connection::MoveTo(const Glib::ustring& dbname)

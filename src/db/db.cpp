@@ -10,7 +10,11 @@ DataBase* DataBase::s_Ptr = new DataBase(":memory:");
 
 void DataBase::Free()
 {
-	delete s_Ptr;
+	if(s_Ptr)
+	{
+		delete s_Ptr;
+		s_Ptr = 0;
+	}
 }
 
 DataBase::DataBase(const Glib::ustring &db)
@@ -49,9 +53,25 @@ void DataBase::EditEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
 Glib::ustring DataBase::GetTextById(const ORM::Table& ent, const ORM::Field<Glib::ustring>& field, long id)
 {
 	ORM::Scheme scheme;
+	ORM::Field<Glib::ustring> str_field("");
+	scheme.add(str_field);
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
 	m_Connection.Select(data, field)->From(ent)->Where(ORM::Eq(ent.fId, static_cast<ORM::PrimaryKey>(id)));
-	return "";
+	if(data->children().size())
+	{
+		return data->children().begin()->get_value(str_field);
+	}
+	return "{null}";
+}
+
+void DataBase::ListEntitiesText(const ORM::Table& ent, const ORM::Field<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data)
+{
+	m_Connection.Select(data, ent.fId, field)->From(ent);
+}
+
+void DataBase::RemoveEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
+{
+	m_Connection.DeleteFrom(ent)->Where(ORM::Eq(ent.fId, row));
 }
 
 //---
@@ -61,11 +81,6 @@ bool DataBase::GetAudMultithr(const ModelEntity& ent, long id)
 	bool res;
 	SQLExec<bool>(Glib::ustring::compose("SELECT multithr FROM %1 WHERE id = %2", ent.GetTableName(), id), &res);
 	return res;
-}
-
-void DataBase::DeleteEntity(const ModelEntity& ent, int id)
-{
-	m_Connection.SQLExec0(Glib::ustring::compose("DELETE FROM %1 WHERE id=%2", ent.GetTableName(), id));
 }
 
 void DataBase::EditEntityName(const ModelEntity& ent, int id, const Glib::ustring &new_name)

@@ -8,6 +8,7 @@
 #include "select.h"
 #include "insert.h"
 #include "update.h"
+#include "delete.h"
 
 namespace ORM
 {
@@ -56,6 +57,12 @@ namespace ORM
 		std::auto_ptr<UpdateBase> Update(const Table& table)
 		{
 			return std::auto_ptr<UpdateBase>(new UpdateBase(*this, table));
+		}
+
+		// Delete family
+		std::auto_ptr<DeleteBase> DeleteFrom(const Table& table)
+		{
+			return std::auto_ptr<DeleteBase>(new DeleteBase(*this, table));
 		}
 	
 		void SQLExec0(const Glib::ustring &sql);

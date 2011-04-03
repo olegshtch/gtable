@@ -3,17 +3,24 @@
 
 #include <gtkmm/celleditable.h>
 #include <gtkmm/eventbox.h>
-#include "orm/table.h"
+#include <gtkmm/combobox.h>
+#include "orm/data.h"
 
 class CellEditableForeign : public Gtk::EventBox, public Gtk::CellEditable
 {
 public:
-	CellEditableForeign(const Glib::ustring& path, const ORM::Table& table, const ORM::Field<Glib::ustring>& field)
+	CellEditableForeign(const Glib::ustring& path, const Glib::RefPtr<ORM::Data>& data, const ORM::Field<Glib::ustring>& field)
 		:Glib::ObjectBase(typeid(CellEditableForeign)),
 		m_Path(path),
-		m_Table(table),
-		m_Field(field)
+		m_Data(data),
+		m_Field(field),
+		m_ComboBox(m_Data)
 	{
+		add(m_ComboBox);
+		m_ComboBox.pack_start(field);
+		m_ComboBox.popup();
+
+		set_flags(Gtk::CAN_FOCUS);
 
 		show_all_children();
 	}
@@ -25,15 +32,29 @@ public:
 	{
 		return m_Path;
 	}
-	Glib::ustring get_text() const;
-	long get_id() const;
-	void set_id(long id);
+	Gtk::TreeIter get_iter() const
+	{
+		return m_ComboBox.get_active();
+	}
+	void set_iter(const Gtk::TreeIter& iter)
+	{
+		m_ComboBox.set_active(iter);
+	}
+
+	// Signal for editing done
+	typedef sigc::signal<void> signal_editing_done_t;
+	signal_editing_done_t& signal_editing_done() { return signal_editing_done_; };
 protected:
 	Glib::ustring m_Path;
-	long m_Id;
-	const ORM::Table& m_Table;
+	Glib::RefPtr<ORM::Data> m_Data;
 	const ORM::Field<Glib::ustring>& m_Field;
+	signal_editing_done_t signal_editing_done_;
+
+	// Override CellEditable
+	virtual void start_editing_vfunc(GdkEvent* event);
 private:
+	Gtk::ComboBox m_ComboBox;
+	void OnComboBoxChanged();
 };
 
 #endif
