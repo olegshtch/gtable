@@ -8,13 +8,15 @@ table_SOURCES = ga/fitness.cpp \
 		listview.cpp \
 		logbuf.cpp \
 		main.cpp \
-		main_window.cpp
+		main_window.cpp \
+		sheet.cpp
 noinst_HEADERS = celleditableforeign.cpp \
 		 cellrendererforeign.h \
 		 listview.h \
 		 logbuf.h \
 		 main_window.h \
-		 shared.h
+		 shared.h \
+		 sheet.h
 
 AM_CXXFLAGS = \
 	-I$(top_srcdir) \
