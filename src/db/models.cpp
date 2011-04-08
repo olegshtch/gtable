@@ -9,6 +9,6 @@ const DB::ModelEntity DB::g_ModelGroups("Groups");
 const DB::ModelEntity DB::g_ModelLessons("Lessons");
 const DB::ModelFaculties DB::g_ModelFaculties("Faculties");
 const DB::ModelChairs DB::g_ModelChairs("Chairs");
-const DB::ModelSpecialities DB::g_ModelSpecialities("Specialities"); //добавить в GUI
+const DB::ModelSpecialities DB::g_ModelSpecialities("Specialities");
 const DB::ModelTeachers DB::g_ModelTeachers("Teachers");
 
