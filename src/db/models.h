@@ -24,7 +24,6 @@ namespace DB
 
 	extern const ModelEntity g_ModelDays;
 	extern const ModelEntity g_ModelGroups;
-	extern const ModelEntity g_ModelTeachers;
 	extern const ModelEntity g_ModelLessons;
 
 	// id - идентификатор сущности
@@ -102,6 +101,49 @@ namespace DB
 	};
 
 	extern const ModelChairs g_ModelChairs;
+
+	// id - идентификатор специальности
+	class ModelSpeciality : public ModelFaculties
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> chair;
+		ModelSpeciality(const Glib::ustring& table_name)
+			:ModelFaculties(table_name),
+			chair(g_ModelChairs)
+		{
+			add(chair);
+		}
+	};
+
+	extern const ModelSpeciality g_ModelSpeciality;
+
+	// id - идентификатор группы
+	
+
+	// id - идентификатор преподавателя
+	class ModelTeachers : public ORM::Table
+	{
+	public:
+		ORM::Field<Glib::ustring> firstname;
+		ORM::Field<Glib::ustring> secondname;
+		ORM::Field<Glib::ustring> thirdname;
+		ORM::Field<ORM::ForeignKey> chair;
+
+		ModelTeachers(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			firstname("firstname"),
+			secondname("secondname"),
+			thirdname("thirdname"),
+			chair(g_ModelChairs)
+		{
+			add(firstname);
+			add(secondname);
+			add(thirdname);
+			add(chair);
+		}
+	};
+
+	extern const ModelTeachers g_ModelTeachers;
 }
 
 #endif

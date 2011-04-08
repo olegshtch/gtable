@@ -41,7 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;GETTEXT_PACKAGE=\&quot;gtable\&quot;;TABLE_LOCALEDIR=\&quot;.\&quot;"
+				AdditionalIncludeDirectories="..\src;..\src\db;..\src\orm;..\src\ga"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;GETTEXT_PACKAGE=\&quot;gtable\&quot;;TABLE_LOCALEDIR=\&quot;.\&quot;;UIDIR=\&quot;\&quot;"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -60,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sqlite3.lib gtkmm-vc90-d-2_4.lib intl.lib gthread-2.0.lib glibmm-vc90-d-2_4.lib sigc-vc90-d-2_0.lib atkmm-vc90-d-1_6.lib gtk-win32-2.0.lib glib-2.0.lib"
+				AdditionalDependencies="sqlite3.lib gtkmm-vc90-d-2_4.lib intl.lib gthread-2.0.lib glibmm-vc90-d-2_4.lib sigc-vc90-d-2_0.lib atkmm-vc90-d-1_6.lib gtk-win32-2.0.lib glib-2.0.lib gdk-win32-2.0.lib gdkmm-vc90-d-2_4.lib gobject-2.0.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -118,7 +119,8 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;GETTEXT_PACKAGE=\&quot;gtable\&quot;;TABLE_LOCALEDIR=\&quot;.\&quot;"
+				AdditionalIncludeDirectories="..\src;..\src\db;..\src\orm;..\src\ga"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;GETTEXT_PACKAGE=\&quot;gtable\&quot;;TABLE_LOCALEDIR=\&quot;.\&quot;;UIDIR=\&quot;\&quot;"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -136,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sqlite3.lib gtkmm-vc90-2_4.lib intl.lib gthread-2.0.lib glibmm-vc90-2_4.lib sigc-vc90-2_0.lib atkmm-vc90-1_6.lib gtk-win32-2.0.lib glib-2.0.lib"
+				AdditionalDependencies="sqlite3.lib gtkmm-vc90-2_4.lib intl.lib gthread-2.0.lib glibmm-vc90-2_4.lib sigc-vc90-2_0.lib atkmm-vc90-1_6.lib gtk-win32-2.0.lib glib-2.0.lib gdk-win32-2.0.lib gdkmm-vc90-2_4.lib gobject-2.0.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -171,181 +173,157 @@
 	</References>
 	<Files>
 		<Filter
-			Name="Source Files"
-			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			Name="GA"
 			>
 			<File
-				RelativePath="..\src\auditorium_frame.cpp"
+				RelativePath="..\src\ga\fitness.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\combobox_dialog.cpp"
+				RelativePath="..\src\ga\fitness.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\entities_list_widget.cpp"
+				RelativePath="..\src\ga\ga.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\entry_text_dialog.cpp"
+				RelativePath="..\src\ga\ga.h"
 				>
 			</File>
 			<File
-				RelativePath="..\src\groups_frame.cpp"
+				RelativePath="..\src\ga\individual.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lessons_frame.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\lessons_widget.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\link_list_widget.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\logbuf.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\main.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\main_window.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\notebook_label_widget.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\order_dialog.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\teachers_frame.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\time_frame.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-			<File
-				RelativePath="..\src\auditorium_frame.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\combobox_dialog.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\entities_list_widget.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\entry_text_dialog.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\groups_frame.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\lessons_frame.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\lessons_widget.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\link_list_widget.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\logbuf.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\main_window.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\notebook_label_widget.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\order_dialog.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\shared.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\teachers_frame.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\time_frame.h"
+				RelativePath="..\src\ga\individual.h"
 				>
 			</File>
 		</Filter>
 		<Filter
 			Name="DB"
 			>
-			<Filter
-				Name="Header Files"
+			<File
+				RelativePath="..\src\db\db.cpp"
 				>
-				<File
-					RelativePath="..\src\db\db.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\db\entities.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\db\links.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\db\models.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Source Files"
+			</File>
+			<File
+				RelativePath="..\src\db\db.h"
 				>
-				<File
-					RelativePath="..\src\db\db.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\db\entities.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\db\links.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\db\models.cpp"
-					>
-				</File>
-			</Filter>
+			</File>
+			<File
+				RelativePath="..\src\db\models.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\db\models.h"
+				>
+			</File>
 		</Filter>
+		<Filter
+			Name="ORM"
+			>
+			<File
+				RelativePath="..\src\orm\connection.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\connection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\data.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\data.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\delete.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\field.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\foreign_key.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\foreign_key.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\insert.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\primary_key.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\query.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\table.cpp"
+				>
+			</File>
+		</Filter>
+		<File
+			RelativePath="..\src\celleditableforeign.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\src\cellrendererforeign.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\src\cellrendererforeign.h"
+			>
+		</File>
+		<File
+			RelativePath="..\src\listview.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\src\listview.h"
+			>
+		</File>
+		<File
+			RelativePath="..\src\logbuf.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\src\logbuf.h"
+			>
+		</File>
+		<File
+			RelativePath="..\src\main.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\src\main_window.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\src\main_window.h"
+			>
+		</File>
+		<File
+			RelativePath="..\src\shared.h"
+			>
+		</File>
+		<File
+			RelativePath="..\src\sheet.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\src\sheet.h"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

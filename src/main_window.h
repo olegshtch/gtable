@@ -6,7 +6,6 @@
 #include <gtkmm/statusbar.h>
 #include <gtkmm/notebook.h>
 #include <gtkmm/actiongroup.h>
-//#include <gtkmm/uimanager.h>
 #include <gtkmm/builder.h>
 #include "listview.h"
 #include "db/db.h"

@@ -2,116 +2,103 @@
 #include "sheet.h"
 
 Sheet::Sheet()
-	:Glib::ObjectBase(typeid(Sheet))
+	:Glib::ObjectBase(typeid(Sheet)),
+	m_refModel(Gtk::ListStore::create(m_ColumnRecord))
 {
-	set_rows_count(2);
-	set_columns_count(2);
-	m_CellWidth = 100;
-	m_CellHeight = 75;
-	m_VertLabelWidth = 20;
-	m_HorzLabelHeight = 20;
-	m_TextMatrix[0][0] = "123";
-	m_TextMatrix[0][1] = "1afasdfa";
-	m_TextMatrix[1][0] = "adfvxc asdf";
-	m_TextMatrix[1][1] = "1dfasf adsf adf sf";
-	m_VertLabels[0] = "12";
-	m_VertLabels[1] = "2";
-	m_HorzLabels[0] = "asd";
-	m_HorzLabels[1] = "hkhj";
-}
+	set_model(m_refModel);
+	insert_column_with_data_func(0, Glib::ustring(), m_LabelRenderer, sigc::mem_fun(*this, &Sheet::on_label_data));
+	property_can_focus() = true;
+	set_headers_visible(true);
+	set_grid_lines(Gtk::TREE_VIEW_GRID_LINES_BOTH);
 
-bool Sheet::on_expose_event(GdkEventExpose* event)
-{
-	//std::cout << "Sheet: expose event" << std::endl;
-	Glib::RefPtr<Gdk::Window> ref_window = get_window();
-	Gdk::Rectangle expose_rect(&event->area);
-	if(ref_window)
-	{
-		Gtk::Allocation allocation = get_allocation();
-		Cairo::RefPtr<Cairo::Context> cr = ref_window->create_cairo_context();
-		cr->rectangle(event->area.x, event->area.y, event->area.width, event->area.height);
-		cr->clip();
-
-		Pango::FontDescription font_desc("sans 12");
-		
-		//draw vert labels
-		bool is_intersect = false;
-		for(size_t i = 0; i < m_ColumnsCount; ++ i)
-		{
-			Gdk::Rectangle rect = get_label_vert_rect(i);
-			expose_rect.intersect(rect, is_intersect);
-			if(is_intersect)
-			{
-				Glib::RefPtr<Pango::Layout> layout = Pango::Layout::create(cr);
-				Glib::RefPtr<Pango::Context> context = layout->get_context();
-				layout->set_font_description(font_desc);
-				layout->set_text(m_VertLabels[i]);
-				ref_window->draw_layout(Gdk::GC::create(ref_window), rect.get_x(), rect.get_y(), layout);
-			}
-		}
-
-		//draw horz labels
-		for(size_t j = 0; j < m_RowsCount; ++ j)
-		{
-			Gdk::Rectangle rect = get_label_horz_rect(j);
-			expose_rect.intersect(rect, is_intersect);
-			if(is_intersect)
-			{
-				Glib::RefPtr<Pango::Layout> layout = Pango::Layout::create(cr);
-				Glib::RefPtr<Pango::Context> context = layout->get_context();
-				layout->set_font_description(font_desc);
-				layout->set_text(m_HorzLabels[j]);
-				ref_window->draw_layout(Gdk::GC::create(ref_window), rect.get_x(), rect.get_y(), layout);
-			}
-		}
-
-		//draw cells labels
-		for(size_t i = 0; i < m_RowsCount; ++ i)
-		{
-			for(size_t j = 0; j < m_ColumnsCount; ++ j)
-			{
-				Gdk::Rectangle rect = get_cell_rect(i, j);
-				expose_rect.intersect(rect, is_intersect);
-				if(is_intersect)
-				{
-					Glib::RefPtr<Pango::Layout> layout = Pango::Layout::create(cr);
-					Glib::RefPtr<Pango::Context> context = layout->get_context();
-					layout->set_font_description(font_desc);
-					layout->set_text(m_TextMatrix[i][j]);
-					ref_window->draw_layout(Gdk::GC::create(ref_window), rect.get_x(), rect.get_y(), layout);
-				}
-			}
-		}
-
-
-	}
-	return true;
-}
-
-void Sheet::on_size_request(Gtk::Requisition* requisition)
-{
-	requisition->height = m_HorzLabelHeight + m_RowsCount * m_CellHeight;
-	requisition->width = m_VertLabelWidth + m_ColumnsCount * m_CellWidth;
+	m_LabelRenderer.property_background_gdk() = Gdk::Color("Gray");
+	
+	show_all_children();
 }
 
 Sheet::~Sheet()
 {
 }
 
+void Sheet::on_label_data(Gtk::CellRenderer* cell, const Gtk::TreeModel::iterator& iter)
+{
+	//std::cout << "Sheet::on_label_data" << std::endl;
+	m_LabelRenderer.property_text() = iter->get_value(m_ColumnRecord.label);
+}
+
+void Sheet::on_cell_data(Gtk::CellRenderer* cell, const Gtk::TreeModel::iterator& iter, size_t column)
+{
+	//std::cout << "Sheet::on_cell_data" << std::endl;
+	m_CellRenderer.property_text() = m_TextMatrix[iter->get_value(m_ColumnRecord.id)][column];
+}
+
 void Sheet::set_rows_count(size_t rows)
 {
 	m_RowsCount = rows;
-	m_VertLabels.resize(rows);
 	m_TextMatrix.resize(rows, std::vector<Glib::ustring>(m_ColumnsCount));
+
+	if(m_refModel->children().size() != m_RowsCount)
+	{
+		long delta = m_refModel->children().size() - m_RowsCount;
+		if(delta < 0)
+		{
+			//append rows
+			for(; delta != 0; ++ delta)
+			{
+				Gtk::TreeIter iter = m_refModel->append();
+				iter->set_value(m_ColumnRecord.id, m_RowsCount + delta);
+			}
+		}
+		else
+		{
+			// delete rows
+			for(; delta != 0; -- delta)
+			{
+				m_refModel->erase(-- m_refModel->children().end());
+			}
+		}
+	}
 }
 
 void Sheet::set_columns_count(size_t columns)
 {
 	m_ColumnsCount = columns;
-	m_HorzLabels.resize(columns);
 	for(std::vector<std::vector<Glib::ustring> >::iterator it = m_TextMatrix.begin(); it != m_TextMatrix.end(); ++ it)
 	{
 		it->resize(columns);
 	}
+
+	if(get_columns().size() != columns + 1)
+	{
+		long delta = get_columns().size() - columns - 1;
+		if(delta < 0)
+		{
+			//append rows
+			for(; delta != 0; ++ delta)
+			{
+				Gtk::TreeViewColumn *tree_view_column = new Gtk::TreeViewColumn(Glib::ustring(), m_CellRenderer);
+				tree_view_column->set_cell_data_func(m_CellRenderer, sigc::bind(sigc::mem_fun(*this, &Sheet::on_cell_data), static_cast<size_t>(static_cast<long>(columns) + delta)));
+				append_column(*Gtk::manage(tree_view_column));
+			}
+		}
+		else
+		{
+			//remove rows
+			for(; delta != 0; -- delta)
+			{
+				remove_column(*get_column(get_columns().size() - 1));
+			}
+		}
+	}
+}
+
+void Sheet::set_horz_label(size_t column, const Glib::ustring& label)
+{
+	get_column(column + 1)->set_title(label);
+}
+
+void Sheet::set_vert_label(size_t row, const Glib::ustring& label)
+{
+	m_refModel->children()[row].set_value(m_ColumnRecord.label, label);
 }
 

@@ -79,9 +79,23 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
 	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 
-	Gtk::Notebook* p_notebook = 0;
-	m_refBuilder->get_widget("NotebookLoadings", p_notebook);
-	p_notebook->append_page(*Gtk::manage(new Sheet()), _("Holydays"));
+	m_refBuilder->get_widget_derived("TreeViewTeachers", m_pTreeView);
+	if(! m_pTreeView)
+	{
+		throw Glib::Error(1, 0, "Cann't load TreeViewTeachers");
+	}
+	m_pTreeView->set_scheme(DB::g_ModelTeachers);
+	m_pTreeView->append_column(_("id"), DB::g_ModelTeachers.fId);
+	m_pTreeView->append_column_editable(_("firstname"), DB::g_ModelTeachers.firstname);
+	m_pTreeView->append_column_editable(_("secondname"), DB::g_ModelTeachers.secondname);
+	m_pTreeView->append_column_editable(_("thirdname"), DB::g_ModelTeachers.thirdname);
+	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelTeachers.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
+	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
+	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
+
+#ifdef WIN32
+	OnNew();
+#endif
 
 	show_all_children();
 }

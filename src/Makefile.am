@@ -10,7 +10,7 @@ table_SOURCES = ga/fitness.cpp \
 		main.cpp \
 		main_window.cpp \
 		sheet.cpp
-noinst_HEADERS = celleditableforeign.cpp \
+noinst_HEADERS = celleditableforeign.h \
 		 cellrendererforeign.h \
 		 listview.h \
 		 logbuf.h \

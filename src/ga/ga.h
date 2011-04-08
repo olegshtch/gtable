@@ -1,7 +1,11 @@
 #ifndef _GA_H_
 #define _GA_H_
 
+#ifdef WIN32
+typedef unsigned char uint8_t;
+#else
 #include <stdint.h>
+#endif
 #include <vector>
 
 // Занятие
