@@ -103,11 +103,14 @@ namespace DB
 	extern const ModelChairs g_ModelChairs;
 
 	// id - идентификатор специальности
-	class ModelSpeciality : public ModelFaculties
+	// name - название
+	// abbr - сокращение
+	// chair - кафедра
+	class ModelSpecialities : public ModelFaculties
 	{
 	public:
 		ORM::Field<ORM::ForeignKey> chair;
-		ModelSpeciality(const Glib::ustring& table_name)
+		ModelSpecialities(const Glib::ustring& table_name)
 			:ModelFaculties(table_name),
 			chair(g_ModelChairs)
 		{
@@ -115,7 +118,7 @@ namespace DB
 		}
 	};
 
-	extern const ModelSpeciality g_ModelSpeciality;
+	extern const ModelSpecialities g_ModelSpecialities;
 
 	// id - идентификатор группы
 	

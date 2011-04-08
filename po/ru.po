@@ -7,48 +7,72 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Table 0.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-07 11:55+0400\n"
-"PO-Revision-Date: 2011-04-07 11:55+0300\n"
+"POT-Creation-Date: 2011-04-08 11:48+0400\n"
+"PO-Revision-Date: 2011-04-08 11:49+0300\n"
 "Last-Translator: Oleg Shchelykal'nov <O01eg@yandex.ru>\n"
 "Language-Team: Russian\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: ../src/main_window.cpp:40 ../src/main_window.cpp:52
-#: ../src/main_window.cpp:63 ../src/main_window.cpp:75
+#: ../src/main_window.cpp:39
+#: ../src/main_window.cpp:51
+#: ../src/main_window.cpp:62
+#: ../src/main_window.cpp:74
+#: ../src/main_window.cpp:87
+#: ../src/main_window.cpp:101
 msgid "id"
 msgstr "id"
 
-#: ../src/main_window.cpp:41
+#: ../src/main_window.cpp:40
 msgid "start"
 msgstr "Начало"
 
-#: ../src/main_window.cpp:42
+#: ../src/main_window.cpp:41
 msgid "finish"
 msgstr "Окончание"
 
-#: ../src/main_window.cpp:53 ../src/main_window.cpp:64
-#: ../src/main_window.cpp:76
+#: ../src/main_window.cpp:52
+#: ../src/main_window.cpp:63
+#: ../src/main_window.cpp:75
+#: ../src/main_window.cpp:102
 msgid "name"
 msgstr "Название"
 
-#: ../src/main_window.cpp:65 ../src/main_window.cpp:77
+#: ../src/main_window.cpp:64
+#: ../src/main_window.cpp:76
+#: ../src/main_window.cpp:103
 msgid "abbreviation"
 msgstr "Сокращение"
 
-#: ../src/main_window.cpp:78
+#: ../src/main_window.cpp:77
 msgid "faculty"
 msgstr "Факультет"
 
-#: ../src/main_window.cpp:96
+#: ../src/main_window.cpp:88
+msgid "firstname"
+msgstr "Имя"
+
+#: ../src/main_window.cpp:89
+msgid "secondname"
+msgstr "Фамилия"
+
+#: ../src/main_window.cpp:90
+msgid "thirdname"
+msgstr "Отчество"
+
+#: ../src/main_window.cpp:91
+#: ../src/main_window.cpp:104
+msgid "chair"
+msgstr "Кафедра"
+
+#: ../src/main_window.cpp:126
 msgid "Choose file for opening database:"
 msgstr "Выберите файл содержащий базу данных:"
 
-#: ../src/main_window.cpp:108
+#: ../src/main_window.cpp:138
 msgid "Choose file for saving database:"
 msgstr "Выберите файл для хранения базы данных:"
 
@@ -89,46 +113,50 @@ msgid "Loadings"
 msgstr "Нагрузки"
 
 #: ../ui/main_window.glade.h:10
+msgid "Specialities"
+msgstr "Специальности"
+
+#: ../ui/main_window.glade.h:11
 msgid "Table"
 msgstr "Расписание"
 
-#: ../ui/main_window.glade.h:11
+#: ../ui/main_window.glade.h:12
 msgid "Teachers"
 msgstr "Преподаватели"
 
-#: ../ui/main_window.glade.h:12
+#: ../ui/main_window.glade.h:13
 msgid "_File"
 msgstr "_Файл"
 
-#: ../ui/main_window.glade.h:13
+#: ../ui/main_window.glade.h:14
 msgid "_Help"
 msgstr "_Помощь"
 
-#: ../ui/main_window.glade.h:14
+#: ../ui/main_window.glade.h:15
 msgid "_Schedule"
 msgstr "_Расписание"
 
-#: ../ui/main_window.glade.h:15
+#: ../ui/main_window.glade.h:16
 msgid "toolbutton1"
 msgstr "toolbutton1"
 
-#: ../ui/main_window.glade.h:16
+#: ../ui/main_window.glade.h:17
 msgid "toolbutton2"
 msgstr "toolbutton2"
 
-#: ../ui/main_window.glade.h:17
+#: ../ui/main_window.glade.h:18
 msgid "toolbutton3"
 msgstr "toolbutton3"
 
-#: ../ui/main_window.glade.h:18
+#: ../ui/main_window.glade.h:19
 msgid "toolbutton5"
 msgstr "toolbutton5"
 
-#: ../ui/main_window.glade.h:19
+#: ../ui/main_window.glade.h:20
 msgid "toolbutton6"
 msgstr "toolbutton6"
 
-#: ../ui/main_window.glade.h:20
+#: ../ui/main_window.glade.h:21
 msgid "toolbutton7"
 msgstr "toolbutton7"
 
