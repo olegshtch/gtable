@@ -7,6 +7,8 @@
 #include <gtkmm/notebook.h>
 #include <gtkmm/actiongroup.h>
 #include <gtkmm/builder.h>
+#include <gtkmm/comboboxentry.h>
+#include "cellrendererforeign.h"
 #include "listview.h"
 #include "db/db.h"
 
@@ -16,6 +18,8 @@ public:
 	MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& builder);
 	virtual ~MainWindow();
 private:
+	Glib::RefPtr<Gtk::Builder> m_refBuilder;
+
 	void OnNew();
 	void OnOpen();
 	void OnSave();
@@ -35,15 +39,16 @@ private:
 
 	ListView* AddListView(const Glib::ustring& name, const ORM::Table& scheme);
 
-	//Gtk::VBox m_Box;
-	//Gtk::Statusbar m_Statusbar;
-	//Glib::RefPtr<Gtk::Notebook> m_refNotebook;
-	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
-	//Glib::RefPtr<Gtk::UIManager> m_refUIManager;
+	// Loadings -> Holydays
+	Gtk::ComboBoxEntry *m_HolydaysCategory;
+	Gtk::ComboBoxEntry *m_HolydaysObjectList;
+	void SwitchHolydayCategory();
 
-	Glib::RefPtr<Gtk::Builder> m_refBuilder;
+	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 
 	ListView *m_pCurrentListView;
+
+	ComboScheme m_ComboScheme;
 };
 
 #endif

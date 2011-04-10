@@ -8,22 +8,23 @@
 #include "orm/scheme.h"
 #include "orm/data.h"
 
+class ComboScheme : public ORM::Scheme
+{
+public:
+	ORM::Field<long int> fId;
+	ORM::Field<Glib::ustring> fText;
+
+	ComboScheme()
+		:fId(""),
+		fText("")
+	{
+		add(fId);
+		add(fText);
+	}
+};
+
 class CellRendererForeign : public Gtk::CellRendererCombo
 {
-	class ComboScheme : public ORM::Scheme
-	{
-	public:
-		ORM::Field<long int> fId;
-		ORM::Field<Glib::ustring> fText;
-
-		ComboScheme()
-			:fId(""),
-			fText("")
-		{
-			add(fId);
-			add(fText);
-		}
-	};
 public:
 	CellRendererForeign(const ORM::Field<ORM::ForeignKey>& field, const ORM::Table& foreign_table, const ORM::Field<Glib::ustring>& foreign_field)
 		:Glib::ObjectBase(typeid(CellRendererForeign)),

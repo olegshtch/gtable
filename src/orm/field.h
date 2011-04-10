@@ -82,6 +82,13 @@ namespace ORM
 		{
 			return m_FieldName + " TEXT NOT NULL"; 
 		}
+		static Glib::ustring ToString(const Glib::ustring& value)
+		{
+			Glib::ustring res = "\"";
+			res += value;
+			res += "\"";
+			return res;
+		}
 	};
 
 	template<> class Field<long int> : public Gtk::TreeModelColumn<long int>, public FieldBase

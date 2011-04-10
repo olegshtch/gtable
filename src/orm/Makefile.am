@@ -9,6 +9,7 @@ liborm_a_SOURCES = connection.cpp \
 noinst_HEADERS = connection.h \
 	data.h \
 	delete.h \
+	expr.h \
 	field.h \
 	foreign_key.h
 	insert.h \

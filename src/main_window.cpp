@@ -6,11 +6,14 @@
 #include "sheet.h"
 #include "ga/ga.h"
 #include "orm/data.h"
+#include "orm/expr.h"
 #include "db/models.h"
 
 MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& builder)
 	:Gtk::Window(cobject),
 	m_refBuilder(builder),
+	m_HolydaysCategory(NULL),
+	m_HolydaysObjectList(NULL),
 	m_pCurrentListView(NULL)
 {
 	m_refActionGroup = Glib::RefPtr<Gtk::ActionGroup>::cast_dynamic(m_refBuilder->get_object("ActionGroup"));
@@ -28,7 +31,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ActionAppend")),sigc::mem_fun(*this, &MainWindow::OnAppend));
 	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ActionDelete")),sigc::mem_fun(*this, &MainWindow::OnDelete));
 
-	// connect models
+	// connect Lists
 	
 	ListView* m_pTreeView = AddListView("TreeViewHours", DB::g_ModelHours);
 	m_pTreeView->append_column_editable(_("start"), DB::g_ModelHours.start);
@@ -47,8 +50,8 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column_foreign_editable(_("faculty"), DB::g_ModelChairs.faculty, DB::g_ModelFaculties, DB::g_ModelFaculties.abbr);
 
 	m_pTreeView = AddListView("TreeViewTeachers", DB::g_ModelTeachers);
-	m_pTreeView->append_column_editable(_("firstname"), DB::g_ModelTeachers.firstname);
 	m_pTreeView->append_column_editable(_("secondname"), DB::g_ModelTeachers.secondname);
+	m_pTreeView->append_column_editable(_("firstname"), DB::g_ModelTeachers.firstname);
 	m_pTreeView->append_column_editable(_("thirdname"), DB::g_ModelTeachers.thirdname);
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelTeachers.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
 
@@ -60,6 +63,21 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView = AddListView("TreeViewGroups", DB::g_ModelGroups);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelGroups.name);
 	m_pTreeView->append_column_foreign_editable(_("speciality"), DB::g_ModelGroups.speciality, DB::g_ModelSpecialities, DB::g_ModelSpecialities.abbr);
+
+	// Loadings -> Holydays
+	
+	m_refBuilder->get_widget("HolydaysCategory", m_HolydaysCategory);
+	if(! m_HolydaysCategory)
+	{
+		throw Glib::Error(1, 0, "Cann't load HolydaysCategory");
+	}
+	m_HolydaysCategory->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::SwitchHolydayCategory));
+
+	m_refBuilder->get_widget("HolydaysObjectList", m_HolydaysObjectList);
+	if(! m_HolydaysObjectList)
+	{
+		throw Glib::Error(1, 0, "Cann't load HolydaysObjectList");
+	}
 
 	OnNew();
 
@@ -163,5 +181,30 @@ ListView* MainWindow::AddListView(const Glib::ustring& name, const ORM::Table& s
 	res->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), res));
 	res->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 	return res;
+}
+
+void MainWindow::SwitchHolydayCategory()
+{
+	Glib::ustring choose = m_HolydaysCategory->get_active_text();
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(m_ComboScheme);
+	if(choose == _("Teachers"))
+	{
+		// fill HolydayObjectList by teachers
+		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelTeachers, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + DB::g_ModelTeachers.firstname + " " + DB::g_ModelTeachers.thirdname), data);
+		m_HolydaysObjectList->set_model(data);
+		m_HolydaysObjectList->set_text_column(m_ComboScheme.fText);
+	}
+	else if(choose == _("Groups"))
+	{
+		// fill HolydayObjectList by groups
+		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelGroups, DB::g_ModelGroups.name, data);
+		m_HolydaysObjectList->set_model(data);
+		m_HolydaysObjectList->set_text_column(m_ComboScheme.fText);
+	}
+	else
+	{
+		// clean data
+		m_HolydaysObjectList->unset_model();
+	}
 }
 
