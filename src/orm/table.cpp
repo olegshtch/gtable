@@ -1,6 +1,7 @@
 #include "table.h"
+#include "connection.h"
 
-std::set<const ORM::Table*> ORM::Table::s_Tables;
+std::set<const ORM::Table*> *ORM::Table::s_Tables = NULL;
 
 Glib::ustring ORM::Table::GetSqlCreateString() const
 {
@@ -15,4 +16,13 @@ Glib::ustring ORM::Table::GetSqlCreateString() const
 	query.replace(query.size() - 1, 1, 1, ')');
 	return query;
 }
+
+void ORM::Table::InitTables(ORM::Connection &db)
+{
+	for(std::set<const Table*>::const_iterator it = s_Tables->begin(); it != s_Tables->end(); ++it)
+	{
+		db.CreateTable(**it, true);
+	}
+}
+
 

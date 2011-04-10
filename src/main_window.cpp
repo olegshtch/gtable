@@ -106,9 +106,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
 	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 
-#ifdef WIN32
 	OnNew();
-#endif
 
 	show_all_children();
 }

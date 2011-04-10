@@ -21,15 +21,6 @@ DataBase::DataBase(const Glib::ustring &db)
 	:m_Connection(db, true)
 {
 	atexit(Free);
-	InitTables();
-}
-
-void DataBase::InitTables()
-{
-	for(ORM::Table::const_iterator it = ORM::Table::begin(); it != ORM::Table::end(); ++it)
-	{
-		m_Connection.CreateTable(**it, true);
-	}
 }
 
 void DataBase::AppendEntity(const ORM::Table& ent, const Gtk::TreeIter& row)

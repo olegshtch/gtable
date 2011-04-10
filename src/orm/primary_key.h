@@ -42,7 +42,9 @@ namespace ORM
 		}
 		Glib::ustring GetStrValue(const Gtk::TreeIter &it) const
 		{
-			return Glib::ustring::format(it->get_value(*this));
+			std::stringstream stream;
+			stream << it->get_value(*this);
+			return stream.str();
 		}
 		Glib::ustring GetDefinition() const
 		{
@@ -50,7 +52,9 @@ namespace ORM
 		}
 		static Glib::ustring ToString(const PrimaryKey& value)
 		{
-			return Glib::ustring::format(value);
+			std::stringstream stream;
+			stream << value;
+			return stream.str();
 		}
 	};
 }

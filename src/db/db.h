@@ -34,7 +34,7 @@ namespace DB
 		{
 			m_Connection.~Connection();
 			new (&m_Connection) ORM::Connection(":memory:", true);	
-			InitTables();
+			ORM::Table::InitTables(m_Connection);
 		}
 		void Open(const Glib::ustring &dbname)
 		{
@@ -70,7 +70,6 @@ namespace DB
 
 		void ListLessonRecords(Glib::RefPtr<ORM::Data> &list_store);
 	private:
-		void InitTables();
 #if 1
 		template <class Type> void SQLExec(const Glib::ustring& sql, Type *result)
 		{

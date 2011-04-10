@@ -17,7 +17,7 @@ public:
 		m_Scheme(NULL),
 		m_Refresh(true)
 	{
-		set_can_focus(true);
+		property_can_focus() = true;
 		set_headers_visible(true);
 	}
 	~ListView()

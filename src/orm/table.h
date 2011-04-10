@@ -7,22 +7,31 @@
 
 namespace ORM
 {
+	class Connection;
+
 	class Table : public Scheme
 	{
 	public:
-		typedef std::set<const Table*>::const_iterator const_iterator;
-
 		Table(const Glib::ustring& table_name)
 			:m_TableName(table_name),
 			fId(*this)
 		{
-			s_Tables.insert(this);
+			if(! s_Tables)
+			{
+				s_Tables = new std::set<const Table*>();
+			}
+			s_Tables->insert(this);
 			add(fId);
 		}
 
 		~Table()
 		{
-			s_Tables.erase(this);
+			s_Tables->erase(this);
+			if(s_Tables->empty())
+			{
+				delete s_Tables;
+				s_Tables = NULL;
+			}
 		}
 
 		Glib::ustring GetSqlCreateString() const;
@@ -31,18 +40,10 @@ namespace ORM
 			return m_TableName;
 		}
 
-		static std::set<const Table*>::const_iterator begin()
-		{
-			return s_Tables.begin();
-		}
-
-		static std::set<const Table*>::const_iterator end()
-		{
-			return s_Tables.end();
-		}
+		static void InitTables(ORM::Connection &db);
 	private:
 		Glib::ustring m_TableName;
-		static std::set<const Table*> s_Tables;
+		static std::set<const Table*> *s_Tables;
 	public:
 		Field<PrimaryKey> fId;
 	};
