@@ -67,7 +67,7 @@ namespace ORM
 		Expr operator+(const Expr& expr) const
 		{
 			Expr res(*this);
-			res.m_Expr += " + " + expr.m_Expr;
+			res.m_Expr += " || " + expr.m_Expr;
 			return res;
 		}
 
