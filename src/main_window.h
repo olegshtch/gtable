@@ -33,6 +33,8 @@ private:
 	bool OnFocusIn(GdkEventFocus* event, ListView *list_view);
 	bool OnFocusOut(GdkEventFocus* event);
 
+	ListView* AddListView(const Glib::ustring& name, const ORM::Table& scheme);
+
 	//Gtk::VBox m_Box;
 	//Gtk::Statusbar m_Statusbar;
 	//Glib::RefPtr<Gtk::Notebook> m_refNotebook;

@@ -23,7 +23,6 @@ namespace DB
 	};
 
 	extern const ModelEntity g_ModelDays;
-	extern const ModelEntity g_ModelGroups;
 	extern const ModelEntity g_ModelLessons;
 
 	// id - идентификатор сущности
@@ -121,7 +120,22 @@ namespace DB
 	extern const ModelSpecialities g_ModelSpecialities;
 
 	// id - идентификатор группы
-	
+	// name - имя группы
+	// speciality - специальность
+	class ModelGroups : public ModelEntity
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> speciality;
+			
+		ModelGroups(const Glib::ustring& table_name)
+			:ModelEntity(table_name),
+			speciality(g_ModelSpecialities)
+		{
+			add(speciality);
+		}
+	};
+
+	extern const ModelGroups g_ModelGroups;
 
 	// id - идентификатор преподавателя
 	class ModelTeachers : public ORM::Table

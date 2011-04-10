@@ -30,81 +30,36 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 
 	// connect models
 	
-	ListView* m_pTreeView = 0;
-	m_refBuilder->get_widget_derived("TreeViewHours", m_pTreeView);
-	if(! m_pTreeView)
-	{
-		throw Glib::Error(1, 0, "Cann't load TreeViewHours");
-	}
-	m_pTreeView->set_scheme(DB::g_ModelHours);
-	m_pTreeView->append_column(_("id"), DB::g_ModelHours.fId);
+	ListView* m_pTreeView = AddListView("TreeViewHours", DB::g_ModelHours);
 	m_pTreeView->append_column_editable(_("start"), DB::g_ModelHours.start);
 	m_pTreeView->append_column_editable(_("finish"), DB::g_ModelHours.finish);
-	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
-	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 
-	m_refBuilder->get_widget_derived("TreeViewDays", m_pTreeView);
-	if(! m_pTreeView)
-	{
-		throw Glib::Error(1, 0, "Cann't load TreeViewDays");
-	}
-	m_pTreeView->set_scheme(DB::g_ModelDays);
-	m_pTreeView->append_column(_("id"), DB::g_ModelDays.fId);
+	m_pTreeView = AddListView("TreeViewDays", DB::g_ModelDays);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelDays.name);
-	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
-	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 
-	m_refBuilder->get_widget_derived("TreeViewFaculty", m_pTreeView);
-	if(! m_pTreeView)
-	{
-		throw Glib::Error(1, 0, "Cann't load TreeViewFaculty");
-	}
-	m_pTreeView->set_scheme(DB::g_ModelFaculties);
-	m_pTreeView->append_column(_("id"), DB::g_ModelFaculties.fId);
+	m_pTreeView = AddListView("TreeViewFaculty", DB::g_ModelFaculties);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelFaculties.name);
 	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelFaculties.abbr);
-	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
-	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 
-	m_refBuilder->get_widget_derived("TreeViewChairs", m_pTreeView);
-	if(! m_pTreeView)
-	{
-		throw Glib::Error(1, 0, "Cann't load TreeViewChairs");
-	}
-	m_pTreeView->set_scheme(DB::g_ModelChairs);
-	m_pTreeView->append_column(_("id"), DB::g_ModelChairs.fId);
+	m_pTreeView = AddListView("TreeViewChairs", DB::g_ModelChairs);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelChairs.name);
 	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelChairs.abbr);
 	m_pTreeView->append_column_foreign_editable(_("faculty"), DB::g_ModelChairs.faculty, DB::g_ModelFaculties, DB::g_ModelFaculties.abbr);
-	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
-	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 
-	m_refBuilder->get_widget_derived("TreeViewTeachers", m_pTreeView);
-	if(! m_pTreeView)
-	{
-		throw Glib::Error(1, 0, "Cann't load TreeViewTeachers");
-	}
-	m_pTreeView->set_scheme(DB::g_ModelTeachers);
-	m_pTreeView->append_column(_("id"), DB::g_ModelTeachers.fId);
+	m_pTreeView = AddListView("TreeViewTeachers", DB::g_ModelTeachers);
 	m_pTreeView->append_column_editable(_("firstname"), DB::g_ModelTeachers.firstname);
 	m_pTreeView->append_column_editable(_("secondname"), DB::g_ModelTeachers.secondname);
 	m_pTreeView->append_column_editable(_("thirdname"), DB::g_ModelTeachers.thirdname);
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelTeachers.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
-	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
-	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 
-	m_refBuilder->get_widget_derived("TreeViewSpecialities", m_pTreeView);
-	if(! m_pTreeView)
-	{
-		throw Glib::Error(1, 0, "Cann't load TreeViewSpecialities");
-	}
-	m_pTreeView->set_scheme(DB::g_ModelSpecialities);
-	m_pTreeView->append_column(_("id"), DB::g_ModelSpecialities.fId);
+	m_pTreeView = AddListView("TreeViewSpecialities", DB::g_ModelSpecialities);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelSpecialities.name);
 	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelSpecialities.abbr);
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelSpecialities.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
-	m_pTreeView->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), m_pTreeView));
-	m_pTreeView->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
+
+	m_pTreeView = AddListView("TreeViewGroups", DB::g_ModelGroups);
+	m_pTreeView->append_column_editable(_("name"), DB::g_ModelGroups.name);
+	m_pTreeView->append_column_foreign_editable(_("speciality"), DB::g_ModelGroups.speciality, DB::g_ModelSpecialities, DB::g_ModelSpecialities.abbr);
 
 	OnNew();
 
@@ -193,5 +148,20 @@ bool MainWindow::OnFocusOut(GdkEventFocus* event)
 {
 	m_pCurrentListView = 0;
 	return false;
+}
+
+ListView* MainWindow::AddListView(const Glib::ustring& name, const ORM::Table& scheme)
+{
+	ListView *res = 0;
+	m_refBuilder->get_widget_derived(name, res);
+	if(! res)
+	{
+		throw Glib::Error(1, 0, "Cann't load " + name);
+	}
+	res->set_scheme(scheme);
+	res->append_column(_("id"), scheme.fId);
+	res->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), res));
+	res->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
+	return res;
 }
 

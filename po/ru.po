@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Table 0.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-08 11:48+0400\n"
-"PO-Revision-Date: 2011-04-08 11:49+0300\n"
+"POT-Creation-Date: 2011-04-10 18:36+0400\n"
+"PO-Revision-Date: 2011-04-10 18:36+0300\n"
 "Last-Translator: Oleg Shchelykal'nov <O01eg@yandex.ru>\n"
 "Language-Team: Russian\n"
 "Language: \n"
@@ -17,62 +17,68 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: ../src/main_window.cpp:39
-#: ../src/main_window.cpp:51
-#: ../src/main_window.cpp:62
-#: ../src/main_window.cpp:74
-#: ../src/main_window.cpp:87
-#: ../src/main_window.cpp:101
-msgid "id"
-msgstr "id"
-
 #: ../src/main_window.cpp:40
-msgid "start"
-msgstr "Начало"
-
-#: ../src/main_window.cpp:41
-msgid "finish"
-msgstr "Окончание"
-
 #: ../src/main_window.cpp:52
 #: ../src/main_window.cpp:63
 #: ../src/main_window.cpp:75
+#: ../src/main_window.cpp:88
 #: ../src/main_window.cpp:102
-msgid "name"
-msgstr "Название"
+#: ../src/main_window.cpp:115
+msgid "id"
+msgstr "id"
 
+#: ../src/main_window.cpp:41
+msgid "start"
+msgstr "Начало"
+
+#: ../src/main_window.cpp:42
+msgid "finish"
+msgstr "Окончание"
+
+#: ../src/main_window.cpp:53
 #: ../src/main_window.cpp:64
 #: ../src/main_window.cpp:76
 #: ../src/main_window.cpp:103
+#: ../src/main_window.cpp:116
+msgid "name"
+msgstr "Название"
+
+#: ../src/main_window.cpp:65
+#: ../src/main_window.cpp:77
+#: ../src/main_window.cpp:104
 msgid "abbreviation"
 msgstr "Сокращение"
 
-#: ../src/main_window.cpp:77
+#: ../src/main_window.cpp:78
 msgid "faculty"
 msgstr "Факультет"
 
-#: ../src/main_window.cpp:88
+#: ../src/main_window.cpp:89
 msgid "firstname"
 msgstr "Имя"
 
-#: ../src/main_window.cpp:89
+#: ../src/main_window.cpp:90
 msgid "secondname"
 msgstr "Фамилия"
 
-#: ../src/main_window.cpp:90
+#: ../src/main_window.cpp:91
 msgid "thirdname"
 msgstr "Отчество"
 
-#: ../src/main_window.cpp:91
-#: ../src/main_window.cpp:104
+#: ../src/main_window.cpp:92
+#: ../src/main_window.cpp:105
 msgid "chair"
 msgstr "Кафедра"
 
-#: ../src/main_window.cpp:126
+#: ../src/main_window.cpp:117
+msgid "speciality"
+msgstr "Специальность"
+
+#: ../src/main_window.cpp:137
 msgid "Choose file for opening database:"
 msgstr "Выберите файл содержащий базу данных:"
 
-#: ../src/main_window.cpp:138
+#: ../src/main_window.cpp:149
 msgid "Choose file for saving database:"
 msgstr "Выберите файл для хранения базы данных:"
 
