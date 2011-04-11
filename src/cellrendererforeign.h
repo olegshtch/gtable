@@ -5,23 +5,8 @@
 #include <gtkmm/treemodel.h>
 #include "celleditableforeign.h"
 #include "orm/foreign_key.h"
-#include "orm/scheme.h"
 #include "orm/data.h"
-
-class ComboScheme : public ORM::Scheme
-{
-public:
-	ORM::Field<long int> fId;
-	ORM::Field<Glib::ustring> fText;
-
-	ComboScheme()
-		:fId(""),
-		fText("")
-	{
-		add(fId);
-		add(fText);
-	}
-};
+#include "id_text_scheme.h"
 
 class CellRendererForeign : public Gtk::CellRendererCombo
 {
@@ -53,7 +38,7 @@ protected:
 
 	signal_edited_t signal_edited_;
 private:
-	const ComboScheme m_Scheme;
+	const IdTextScheme m_Scheme;
 	Glib::RefPtr<ORM::Data> m_ComboData;
 
 	const ORM::Field<ORM::ForeignKey>& m_Field;

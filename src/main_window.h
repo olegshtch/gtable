@@ -8,8 +8,9 @@
 #include <gtkmm/actiongroup.h>
 #include <gtkmm/builder.h>
 #include <gtkmm/comboboxentry.h>
-#include "cellrendererforeign.h"
+#include "id_text_scheme.h"
 #include "listview.h"
+#include "sheet.h"
 #include "db/db.h"
 
 class MainWindow : public Gtk::Window
@@ -42,13 +43,15 @@ private:
 	// Loadings -> Holydays
 	Gtk::ComboBoxEntry *m_HolydaysCategory;
 	Gtk::ComboBoxEntry *m_HolydaysObjectList;
+	Sheet *m_SheetHolydays;
 	void SwitchHolydayCategory();
+	void SwitchHolydayObject();
 
 	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 
 	ListView *m_pCurrentListView;
 
-	ComboScheme m_ComboScheme;
+	IdTextScheme m_ComboScheme;
 };
 
 #endif

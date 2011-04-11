@@ -3,45 +3,40 @@
 
 #include <gtkmm/treeview.h>
 #include <gtkmm/cellrenderertext.h>
-#include <gtkmm/liststore.h>
+#include <gtkmm/builder.h>
 #include <vector>
+#include "orm/data.h"
+#include "id_text_scheme.h"
 
 class Sheet : public Gtk::TreeView
 {
 public:
 	Sheet();
+	Sheet(GtkTreeView *cobject, const Glib::RefPtr<Gtk::Builder>& builder);
 	~Sheet();
 
-	void set_rows_count(size_t rows);
-	void set_columns_count(size_t columns);
+	void set_horz_model(const Glib::RefPtr<ORM::Data>& horz_model);
+	void set_vert_model(const Glib::RefPtr<ORM::Data>& vert_model);
 
-	void set_horz_label(size_t column, const Glib::ustring& label);
-	void set_vert_label(size_t row, const Glib::ustring& label);
-	void set_cell_data(size_t row, size_t column, const Glib::ustring& label)
+	typedef sigc::signal<void, Gtk::CellRenderer*, long int, long int> signal_cell_data_t;
+	signal_cell_data_t& signal_cell_data()
 	{
-		m_TextMatrix[row][column] = label;
+		return signal_cell_data_;
 	}
 protected:
 	void on_label_data(Gtk::CellRenderer* cell, const Gtk::TreeModel::iterator& iter);
-	void on_cell_data(Gtk::CellRenderer* cell, const Gtk::TreeModel::iterator& iter, size_t column);
-private:
-	class SheetModel : public Gtk::TreeModelColumnRecord
-	{
-	public:
-		Gtk::TreeModelColumn<unsigned long> id;
-		Gtk::TreeModelColumn<Glib::ustring> label;
-		SheetModel()
-		{
-			add(id);
-			add(label);
-		}
-	};
+	void on_cell_data(Gtk::CellRenderer* cell, const Gtk::TreeModel::iterator& iter, long int column_id);
 
-	SheetModel m_ColumnRecord;
-	Glib::RefPtr<Gtk::ListStore> m_refModel;
+	signal_cell_data_t signal_cell_data_;
+private:
+	void Init();
+	void set_columns_count(size_t columns);
+
+	IdTextScheme m_ColumnRecord;
+	Glib::RefPtr<ORM::Data> m_refVertModel;
+	Glib::RefPtr<ORM::Data> m_refHorzModel;
 	Gtk::CellRendererText m_CellRenderer;
 	Gtk::CellRendererText m_LabelRenderer;
-	std::vector<std::vector<Glib::ustring> > m_TextMatrix;
 	size_t m_RowsCount;
 	size_t m_ColumnsCount;
 };

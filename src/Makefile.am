@@ -12,6 +12,7 @@ table_SOURCES = ga/fitness.cpp \
 		sheet.cpp
 noinst_HEADERS = celleditableforeign.h \
 		 cellrendererforeign.h \
+		 id_text_scheme.h \
 		 listview.h \
 		 logbuf.h \
 		 main_window.h \

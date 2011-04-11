@@ -3,7 +3,6 @@
 #include <iostream>
 #include "main_window.h"
 #include "shared.h"
-#include "sheet.h"
 #include "ga/ga.h"
 #include "orm/data.h"
 #include "orm/expr.h"
@@ -14,6 +13,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_refBuilder(builder),
 	m_HolydaysCategory(NULL),
 	m_HolydaysObjectList(NULL),
+	m_SheetHolydays(NULL),
 	m_pCurrentListView(NULL)
 {
 	m_refActionGroup = Glib::RefPtr<Gtk::ActionGroup>::cast_dynamic(m_refBuilder->get_object("ActionGroup"));
@@ -77,6 +77,13 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	if(! m_HolydaysObjectList)
 	{
 		throw Glib::Error(1, 0, "Cann't load HolydaysObjectList");
+	}
+	m_HolydaysObjectList->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::SwitchHolydayObject));
+
+	m_refBuilder->get_widget_derived("SheetHolydays", m_SheetHolydays);
+	if(! m_SheetHolydays)
+	{
+		throw Glib::Error(1, 0, "Cann't load SheetHolydays");
 	}
 
 	OnNew();
@@ -206,5 +213,18 @@ void MainWindow::SwitchHolydayCategory()
 		// clean data
 		m_HolydaysObjectList->unset_model();
 	}
+}
+
+void MainWindow::SwitchHolydayObject()
+{
+	long value = m_HolydaysObjectList->get_active()->get_value(m_ComboScheme.fId);
+	Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(m_ComboScheme);
+	Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(m_ComboScheme);
+	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
+	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
+	m_SheetHolydays->set_vert_model(vert_data);
+	m_SheetHolydays->set_horz_model(horz_data);
+
+	show_all_children();
 }
 

@@ -137,7 +137,34 @@ namespace DB
 
 	extern const ModelGroups g_ModelGroups;
 
+	// group - идентификаторв преподавателя
+	// day - идентификатор дня
+	// hour - идентификатор часа
+	class ModelGroupHolydays : public ORM::Table
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> group;
+		ORM::Field<ORM::ForeignKey> day;
+		ORM::Field<ORM::ForeignKey> hour;
+
+		ModelGroupHolydays(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			group(DB::g_ModelGroups),
+			day(DB::g_ModelDays),
+			hour(DB::g_ModelHours)
+		{
+			add(group);
+			add(day);
+			add(hour);
+		}
+	};
+
+	extern const ModelGroupHolydays g_ModelGroupHolydays;
+
 	// id - идентификатор преподавателя
+	// firstname - имя
+	// secondname - фамилия
+	// thirdname - отчество
 	class ModelTeachers : public ORM::Table
 	{
 	public:
@@ -161,6 +188,30 @@ namespace DB
 	};
 
 	extern const ModelTeachers g_ModelTeachers;
+
+	// teacher - идентификаторв преподавателя
+	// day - идентификатор дня
+	// hour - идентификатор часа
+	class ModelTeacherHolydays : public ORM::Table
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> teacher;
+		ORM::Field<ORM::ForeignKey> day;
+		ORM::Field<ORM::ForeignKey> hour;
+
+		ModelTeacherHolydays(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			teacher(DB::g_ModelTeachers),
+			day(DB::g_ModelDays),
+			hour(DB::g_ModelHours)
+		{
+			add(teacher);
+			add(day);
+			add(hour);
+		}
+	};
+
+	extern const ModelTeacherHolydays g_ModelTeacherHolydays;
 }
 
 #endif
