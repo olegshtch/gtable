@@ -7,6 +7,7 @@ liborm_a_SOURCES = connection.cpp \
 	query.cpp \
 	table.cpp
 noinst_HEADERS = connection.h \
+	count.h \
 	data.h \
 	delete.h \
 	expr.h \

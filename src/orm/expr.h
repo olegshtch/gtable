@@ -32,7 +32,10 @@ namespace ORM
 		{
 			return Field<T>(m_Expr);
 		}
-	private:
+	protected:
+		Expr()
+		{
+		}
 		Glib::ustring m_Expr;
 	};
 

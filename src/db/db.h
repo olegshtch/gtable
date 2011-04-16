@@ -51,16 +51,13 @@ namespace DB
 		void ListEntitiesText(const ORM::Table& ent, const ORM::Field<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data);
 		void EditEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
 		void RemoveEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
-		void EditEntityName(const ModelEntity& ent, int id, const Glib::ustring &new_name);
-		Glib::ustring GetEntityName(const ModelEntity& ent, int id);
-
-		void EditMultithr(const ModelEntity& ent, int id, bool multithr);
-		bool GetAudMultithr(const ModelEntity& ent, long id);
-
-		size_t GetEntitiesCount(const DB::ModelEntity& ent);
-		size_t GetEntitiesIDs(const DB::ModelEntity& ent, std::vector<size_t> *array);
-
 		Glib::ustring GetTextById(const ORM::Table& ent, const ORM::Field<Glib::ustring>& field, long id);
+
+		bool GetTeacherHolydays(long int teacher_id, long int day_id, long int hour_id);
+		void SetTeacherHolydays(long int teacher_id, long int day_id, long int hour_id, bool holyday);
+
+		bool GetGroupHolydays(long int group_id, long int day_id, long int hour_id);
+		void SetGroupHolydays(long int group_id, long int day_id, long int hour_id, bool holyday);
 
 	private:		
 		ORM::Connection m_Connection;

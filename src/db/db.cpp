@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include "db.h"
 #include "models.h"
+#include "../orm/count.h"
+#include "../orm/field.h"
 
 using namespace DB;
 
@@ -63,5 +65,69 @@ void DataBase::ListEntitiesText(const ORM::Table& ent, const ORM::Field<Glib::us
 void DataBase::RemoveEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
 {
 	m_Connection.DeleteFrom(ent)->Where(ORM::Eq(ent.fId, row));
+}
+
+bool DataBase::GetTeacherHolydays(long int teacher_id, long int day_id, long int hour_id)
+{
+	ORM::Scheme scheme;
+	ORM::Field<long int> long_field("");
+	scheme.add(long_field);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+	const ORM::FieldBase& field = ORM::Count();
+	m_Connection.Select(data, field)->From(DB::g_ModelTeacherHolydays)->Where(ORM::Eq(DB::g_ModelTeacherHolydays.teacher, ORM::ForeignKey(teacher_id)) and ORM::Eq(DB::g_ModelTeacherHolydays.day, ORM::ForeignKey(day_id)) and ORM::Eq(DB::g_ModelTeacherHolydays.hour, ORM::ForeignKey(hour_id)));
+	if(data->children().size())
+	{
+		return static_cast<bool>(data->children()[0].get_value(long_field));
+	}
+	return false;
+}
+
+void DataBase::SetTeacherHolydays(long int teacher_id, long int day_id, long int hour_id, bool holyday)
+{
+	if(holyday)
+	{
+		Glib::RefPtr<ORM::Data> data = ORM::Data::create(g_ModelTeacherHolydays);
+		Gtk::TreeIter iter = data->append();
+		iter->set_value(g_ModelTeacherHolydays.teacher, teacher_id);
+		iter->set_value(g_ModelTeacherHolydays.day, day_id);
+		iter->set_value(g_ModelTeacherHolydays.hour, hour_id);
+		m_Connection.InsertInto(g_ModelTeacherHolydays)->Values(iter);
+	}
+	else
+	{
+		m_Connection.DeleteFrom(g_ModelTeacherHolydays)->Where(ORM::Eq(DB::g_ModelTeacherHolydays.teacher, ORM::ForeignKey(teacher_id)) and ORM::Eq(DB::g_ModelTeacherHolydays.day, ORM::ForeignKey(day_id)) and ORM::Eq(DB::g_ModelTeacherHolydays.hour, ORM::ForeignKey(hour_id)));
+	}
+}
+
+bool DataBase::GetGroupHolydays(long int group_id, long int day_id, long int hour_id)
+{
+	ORM::Scheme scheme;
+	ORM::Field<long int> long_field("");
+	scheme.add(long_field);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+	const ORM::FieldBase& field = ORM::Count();
+	m_Connection.Select(data, field)->From(DB::g_ModelGroupHolydays)->Where(ORM::Eq(DB::g_ModelGroupHolydays.group, ORM::ForeignKey(group_id)) and ORM::Eq(DB::g_ModelGroupHolydays.day, ORM::ForeignKey(day_id)) and ORM::Eq(DB::g_ModelGroupHolydays.hour, ORM::ForeignKey(hour_id)));
+	if(data->children().size())
+	{
+		return static_cast<bool>(data->children()[0].get_value(long_field));
+	}
+	return false;
+}
+
+void DataBase::SetGroupHolydays(long int group_id, long int day_id, long int hour_id, bool holyday)
+{
+	if(holyday)
+	{
+		Glib::RefPtr<ORM::Data> data = ORM::Data::create(g_ModelGroupHolydays);
+		Gtk::TreeIter iter = data->append();
+		iter->set_value(g_ModelGroupHolydays.group, group_id);
+		iter->set_value(g_ModelGroupHolydays.day, day_id);
+		iter->set_value(g_ModelGroupHolydays.hour, hour_id);
+		m_Connection.InsertInto(g_ModelGroupHolydays)->Values(iter);
+	}
+	else
+	{
+		m_Connection.DeleteFrom(g_ModelGroupHolydays)->Where(ORM::Eq(DB::g_ModelGroupHolydays.group, ORM::ForeignKey(group_id)) and ORM::Eq(DB::g_ModelGroupHolydays.day, ORM::ForeignKey(day_id)) and ORM::Eq(DB::g_ModelGroupHolydays.hour, ORM::ForeignKey(hour_id)));
+	}
 }
 

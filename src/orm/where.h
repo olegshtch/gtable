@@ -20,6 +20,11 @@ namespace ORM
 		{
 			return m_Query;
 		}
+
+		WhereBase operator and(const WhereBase& op2)
+		{
+			return WhereBase(this->m_Query + " AND " + op2.m_Query);
+		}
 	protected:
 		Glib::ustring m_Query;
 	};

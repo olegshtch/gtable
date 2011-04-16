@@ -120,6 +120,12 @@ namespace ORM
 		{
 			return m_FieldName + " INT NOT NULL"; 
 		}
+		static Glib::ustring ToString(long int value)
+		{
+			std::stringstream stream;
+			stream << value;
+			return stream.str();
+		}
 	};
 
 	template<> class Field<bool> : public Gtk::TreeModelColumn<bool>, public FieldBase

@@ -36,6 +36,10 @@ namespace ORM
 		{
 			return m_FieldName + " REFERENCES " + m_ForeignTable + " (" + m_FieldName + ") ON DELETE CASCADE ON UPDATE CASCADE NOT NULL";
 		}
+		static Glib::ustring ToString(const ForeignKey& value)
+		{
+			return Field<PrimaryKey>::ToString(static_cast<long>(value));
+		}
 	private:
 		const Glib::ustring& m_ForeignTable;
 	};

@@ -240,15 +240,47 @@ void MainWindow::HolydaysCellData(Gtk::CellRenderer *cell, long int row, long in
 		long int value = obj_iter->get_value(m_ComboScheme.fId);
 		if(category == _("Teachers"))
 		{
+			if(DB::DataBase::Instance().GetTeacherHolydays(value, column, row))
+			{
+				renderer->property_text() = "+";
+			}
+			else
+			{
+				renderer->property_text() = "";
+			}
 		}
 		else if(category == _("Groups"))
 		{
+			if(DB::DataBase::Instance().GetGroupHolydays(value, column, row))
+			{
+				renderer->property_text() = "+";
+			}
+			else
+			{
+				renderer->property_text() = "";
+			}
 		}
 	}
 }
 
 void MainWindow::HolydaysButtonRelease(long int row, long int column, GdkEventButton* event)
 {
-	
+	Gtk::TreeIter obj_iter = m_HolydaysObjectList->get_active();
+	if(obj_iter)
+	{
+		Glib::ustring category = m_HolydaysCategory->get_active_text();
+		long int value = obj_iter->get_value(m_ComboScheme.fId);
+		if(category == _("Teachers"))
+		{
+			DB::DataBase::Instance().SetTeacherHolydays(value, column, row, ! DB::DataBase::Instance().GetTeacherHolydays(value, column, row));
+			m_SheetHolydays->get_bin_window()->invalidate(true);
+		}
+		else if(category == _("Groups"))
+		{
+			DB::DataBase::Instance().SetGroupHolydays(value, column, row, ! DB::DataBase::Instance().GetGroupHolydays(value, column, row));
+			m_SheetHolydays->get_bin_window()->invalidate(true);
+		}
+
+	}	
 }
 
