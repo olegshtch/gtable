@@ -54,14 +54,17 @@ namespace DB
 	class ModelAuditoriums : public ModelEntity
 	{
 	public:
+		ORM::Field<long> capacity;
 		ORM::Field<bool> multithread;
 		ORM::Field<ORM::ForeignKey> building;
 			
 		ModelAuditoriums(const Glib::ustring& table_name)
 			:ModelEntity(table_name),
+			capacity("capacity"),
 			multithread("multithread"),
 			building(g_ModelBuildings)
 		{
+			add(capacity);
 			add(multithread);
 			add(building);
 		}

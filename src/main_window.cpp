@@ -69,6 +69,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 
 	m_pTreeView = AddListView("TreeViewAuditoriums", DB::g_ModelAuditoriums);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelAuditoriums.name);
+	m_pTreeView->append_column_editable(_("capacity"), DB::g_ModelAuditoriums.capacity);
 	m_pTreeView->append_column_editable(_("multithread"), DB::g_ModelAuditoriums.multithread);
 	m_pTreeView->append_column_foreign_editable(_("building"), DB::g_ModelAuditoriums.building, DB::g_ModelBuildings, DB::g_ModelBuildings.name);
 
