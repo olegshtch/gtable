@@ -46,23 +46,28 @@ namespace DB
 
 	extern const ModelHours g_ModelHours;
 
+	extern const ModelEntity g_ModelBuildings;
+	
 	// id - идентификатор аудитории
 	// name - название
 	// multithread - многопоточность
-	class ModelAud : public ModelEntity
+	class ModelAuditoriums : public ModelEntity
 	{
 	public:
 		ORM::Field<bool> multithread;
+		ORM::Field<ORM::ForeignKey> building;
 			
-		ModelAud(const Glib::ustring& table_name)
+		ModelAuditoriums(const Glib::ustring& table_name)
 			:ModelEntity(table_name),
-			multithread("multithread")
+			multithread("multithread"),
+			building(g_ModelBuildings)
 		{
 			add(multithread);
+			add(building);
 		}
 	};
 
-	extern const ModelAud g_ModelAud;
+	extern const ModelAuditoriums g_ModelAuditoriums;
 
 	// id - идентификатор сущности
 	// name - название

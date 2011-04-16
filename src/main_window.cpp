@@ -64,6 +64,14 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelGroups.name);
 	m_pTreeView->append_column_foreign_editable(_("speciality"), DB::g_ModelGroups.speciality, DB::g_ModelSpecialities, DB::g_ModelSpecialities.abbr);
 
+	m_pTreeView = AddListView("TreeViewBuildings", DB::g_ModelBuildings);
+	m_pTreeView->append_column_editable(_("name"), DB::g_ModelBuildings.name);
+
+	m_pTreeView = AddListView("TreeViewAuditoriums", DB::g_ModelAuditoriums);
+	m_pTreeView->append_column_editable(_("name"), DB::g_ModelAuditoriums.name);
+	m_pTreeView->append_column_editable(_("multithread"), DB::g_ModelAuditoriums.multithread);
+	m_pTreeView->append_column_foreign_editable(_("building"), DB::g_ModelAuditoriums.building, DB::g_ModelBuildings, DB::g_ModelBuildings.name);
+
 	// Loadings -> Holydays
 	
 	m_refBuilder->get_widget("HolydaysCategory", m_HolydaysCategory);
