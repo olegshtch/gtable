@@ -85,6 +85,8 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	{
 		throw Glib::Error(1, 0, "Cann't load SheetHolydays");
 	}
+	m_SheetHolydays->signal_cell_data().connect(sigc::mem_fun(*this, &MainWindow::HolydaysCellData));
+	m_SheetHolydays->signal_cell_button_release().connect(sigc::mem_fun(*this, &MainWindow::HolydaysButtonRelease));
 
 	OnNew();
 
@@ -217,14 +219,36 @@ void MainWindow::SwitchHolydayCategory()
 
 void MainWindow::SwitchHolydayObject()
 {
-	long value = m_HolydaysObjectList->get_active()->get_value(m_ComboScheme.fId);
+	//long value = m_HolydaysObjectList->get_active()->get_value(m_ComboScheme.fId);
 	Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(m_ComboScheme);
 	Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(m_ComboScheme);
 	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
 	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
 	m_SheetHolydays->set_vert_model(vert_data);
 	m_SheetHolydays->set_horz_model(horz_data);
-
+	
 	show_all_children();
+}
+
+void MainWindow::HolydaysCellData(Gtk::CellRenderer *cell, long int row, long int column)
+{
+	Gtk::TreeIter obj_iter = m_HolydaysObjectList->get_active();
+	if(obj_iter)
+	{
+		Gtk::CellRendererText *renderer = reinterpret_cast<Gtk::CellRendererText*>(cell);
+		Glib::ustring category = m_HolydaysCategory->get_active_text();
+		long int value = obj_iter->get_value(m_ComboScheme.fId);
+		if(category == _("Teachers"))
+		{
+		}
+		else if(category == _("Groups"))
+		{
+		}
+	}
+}
+
+void MainWindow::HolydaysButtonRelease(long int row, long int column, GdkEventButton* event)
+{
+	
 }
 

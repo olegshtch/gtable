@@ -46,6 +46,8 @@ private:
 	Sheet *m_SheetHolydays;
 	void SwitchHolydayCategory();
 	void SwitchHolydayObject();
+	void HolydaysCellData(Gtk::CellRenderer *cell, long int row, long int column);
+	void HolydaysButtonRelease(long int row, long int column, GdkEventButton* event);
 
 	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 

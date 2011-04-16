@@ -23,11 +23,20 @@ public:
 	{
 		return signal_cell_data_;
 	}
+
+	typedef sigc::signal<void, long int, long int, GdkEventButton*> signal_cell_button_release_t;
+	signal_cell_button_release_t& signal_cell_button_release()
+	{
+		return signal_cell_button_release_;
+	}
 protected:
 	void on_label_data(Gtk::CellRenderer* cell, const Gtk::TreeModel::iterator& iter);
 	void on_cell_data(Gtk::CellRenderer* cell, const Gtk::TreeModel::iterator& iter, long int column_id);
 
+	bool on_button_release_event(GdkEventButton* event);
+
 	signal_cell_data_t signal_cell_data_;
+	signal_cell_button_release_t signal_cell_button_release_;
 private:
 	void Init();
 	void set_columns_count(size_t columns);

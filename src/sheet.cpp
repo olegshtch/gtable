@@ -64,6 +64,9 @@ void Sheet::Init()
 	set_enable_search(false);
 
 	m_LabelRenderer.property_background_gdk() = Gdk::Color("Gray");
+
+	Glib::RefPtr<Gtk::TreeSelection> selection = get_selection();
+	selection->set_mode(Gtk::SELECTION_NONE);
 	
 	show_all_children();
 }
@@ -94,5 +97,35 @@ void Sheet::set_columns_count(size_t columns)
 			}
 		}
 	}
+}
+
+bool Sheet::on_button_release_event(GdkEventButton* event)
+{
+	//std::cout << "Sheet::on_button_release_event" << event->x << " " << event->y << std::endl;
+	Gtk::TreeModel::Path path;
+	Gtk::TreeViewColumn *column;
+	int cell_x, cell_y;
+	get_path_at_pos(event->x, event->y, path, column, cell_x, cell_y);
+	Gtk::TreeIter iter = m_refVertModel->get_iter(path);
+	if(iter)
+	{
+		//std::cout << "row = " << iter->get_value(m_ColumnRecord.fText) << std::endl;
+		for(size_t i = 0; i < get_columns().size(); ++ i)
+		{
+			if(get_column(i) == column)
+			{
+				if(i == 0)
+				{
+					//std::cout << "column is Label" << std::endl;
+				}
+				else
+				{
+					//std::cout << "column = " << m_refHorzModel->children()[i - 1].get_value(m_ColumnRecord.fText) << std::endl;
+					signal_cell_button_release_.emit(iter->get_value(m_ColumnRecord.fId), m_refHorzModel->children()[i - 1].get_value(m_ColumnRecord.fId), event);
+				}
+			}
+		}
+	}
+	return true;
 }
 
