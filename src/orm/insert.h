@@ -13,13 +13,13 @@ namespace ORM
 	{
 	public:
 		InsertBase(Connection &db, const Table& table, const FieldBase& f1)
-			:QueryBase(db, "INSERT INTO " + table.GetTableName()),
+			:QueryBase(db, "INSERT INTO " + table.GetTableName() + " DEFAULT VALUES"),
 			m_Table(table)
 		{
 			m_Fields.push_back(&f1);
 		}
 		InsertBase(Connection &db, const Table& table, const FieldBase& f1, const FieldBase& f2)
-			:QueryBase(db, "INSERT INTO " + table.GetTableName()),
+			:QueryBase(db, "INSERT INTO " + table.GetTableName() + " DEFAULT VALUES"),
 			m_Table(table)
 		{
 			m_Fields.push_back(&f1);
@@ -27,7 +27,7 @@ namespace ORM
 		}
 
 		InsertBase(Connection &db, const Table& table, const FieldBase& f1, const FieldBase& f2, const FieldBase& f3)
-			:QueryBase(db, "INSERT INTO " + table.GetTableName()),
+			:QueryBase(db, "INSERT INTO " + table.GetTableName() + " DEFAULT VALUES"),
 			m_Table(table)
 		{
 			m_Fields.push_back(&f1);
@@ -36,7 +36,7 @@ namespace ORM
 		}
 
 		InsertBase(Connection &db, const Table& table)
-			:QueryBase(db, "INSERT INTO " + table.GetTableName()),
+			:QueryBase(db, "INSERT INTO " + table.GetTableName() + " DEFAULT VALUES"),
 			m_Table(table)
 		{
 			for(size_t i = 1; i < table.size(); ++ i)

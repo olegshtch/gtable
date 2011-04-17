@@ -22,6 +22,11 @@ namespace ORM
 			m_Query += " SET " + field.GetFieldName() + "=" + field.GetStrValue(row);
 			return *this;
 		}
+		template<class T> UpdateBase& Set(const Field<T>& field, const T& value)
+		{
+			m_Query += " SET " + field.GetFieldName() + "=" + Field<T>::ToString(value);
+			return *this;
+		}
 
 		void Where(const WhereBase& where)
 		{

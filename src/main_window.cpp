@@ -81,6 +81,20 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelBranch.name);
 	m_pTreeView->append_column_foreign_editable(_("category"), DB::g_ModelBranch.category, DB::g_ModelBranchCategory, DB::g_ModelBranchCategory.name);
 
+	m_pTreeView = AddListView("TreeViewLessonType", DB::g_ModelLessonType);
+	m_pTreeView->append_column_editable(_("name"), DB::g_ModelLessonType.name);
+	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelLessonType.abbr);
+
+	// Days -> Weeks
+	
+	m_DoubleWeek = 0;
+	m_refBuilder->get_widget("CheckBoxWeeks", m_DoubleWeek);
+	if(! m_DoubleWeek)
+	{
+		throw Glib::Error(1, 0, "Cann't load CheckBoxWeeks");
+	}
+	m_DoubleWeek->signal_toggled().connect(sigc::mem_fun(*this, &MainWindow::WeekToggle));
+
 	// Loadings -> Holydays
 	
 	m_refBuilder->get_widget("HolydaysCategory", m_HolydaysCategory);
@@ -107,6 +121,8 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 
 	OnNew();
 
+	m_DoubleWeek->property_active() = DB::DataBase::Instance().GetWeeks();
+
 	show_all_children();
 }
 
@@ -129,6 +145,8 @@ void MainWindow::OnOpen()
 	{
 		DB::DataBase::Instance().Open(dialog.get_filename());
 	}
+	m_DoubleWeek->property_active() = DB::DataBase::Instance().GetWeeks();
+
 }
 
 void MainWindow::OnSave()
@@ -299,5 +317,10 @@ void MainWindow::HolydaysButtonRelease(long int row, long int column, GdkEventBu
 		}
 
 	}	
+}
+
+void MainWindow::WeekToggle()
+{
+	DB::DataBase::Instance().SetWeeks(m_DoubleWeek->property_active());
 }
 

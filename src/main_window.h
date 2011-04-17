@@ -40,6 +40,10 @@ private:
 
 	ListView* AddListView(const Glib::ustring& name, const ORM::Table& scheme);
 
+	// Days -> Double week
+	Gtk::CheckButton *m_DoubleWeek;
+	void WeekToggle();
+
 	// Loadings -> Holydays
 	Gtk::ComboBoxEntry *m_HolydaysCategory;
 	Gtk::ComboBoxEntry *m_HolydaysObjectList;

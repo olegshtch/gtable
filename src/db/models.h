@@ -235,6 +235,25 @@ namespace DB
 	};
 
 	extern const ModelTeacherHolydays g_ModelTeacherHolydays;
+
+	class ModelWeek : public ORM::Table
+	{
+	public:
+		ORM::Field<bool> doubleweek;
+
+		ModelWeek(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			doubleweek("doubleweek")
+		{
+			add(doubleweek);
+		}
+	};
+
+	extern const ModelWeek g_ModelWeek;
+
+	typedef ModelFaculties ModelLessonType;
+
+	extern const ModelLessonType g_ModelLessonType;
 }
 
 #endif

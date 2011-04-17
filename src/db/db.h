@@ -35,6 +35,7 @@ namespace DB
 			m_Connection.~Connection();
 			new (&m_Connection) ORM::Connection(":memory:", true);	
 			ORM::Table::InitTables(m_Connection);
+			m_Connection.InsertInto(g_ModelWeek);
 		}
 		void Open(const Glib::ustring &dbname)
 		{
@@ -58,6 +59,9 @@ namespace DB
 
 		bool GetGroupHolydays(long int group_id, long int day_id, long int hour_id);
 		void SetGroupHolydays(long int group_id, long int day_id, long int hour_id, bool holyday);
+
+		bool GetWeeks();
+		void SetWeeks(bool weeks);
 
 	private:		
 		ORM::Connection m_Connection;

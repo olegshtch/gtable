@@ -15,5 +15,6 @@ const DB::ModelGroups DB::g_ModelGroups("Groups");
 const DB::ModelGroupHolydays DB::g_ModelGroupHolydays("GroupHolydays");
 const DB::ModelTeachers DB::g_ModelTeachers("Teachers");
 const DB::ModelTeacherHolydays DB::g_ModelTeacherHolydays("TeacherHolydays");
-
+const DB::ModelWeek DB::g_ModelWeek("Week");
+const DB::ModelLessonType DB::g_ModelLessonType("LessonType");
 

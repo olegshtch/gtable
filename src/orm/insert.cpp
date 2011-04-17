@@ -2,6 +2,7 @@
 
 void ORM::InsertBase::Values(const Gtk::TreeIter& row)
 {
+	m_Query = "INSERT INTO " + m_Table.GetTableName();
 	m_Query += " (";
 	for(size_t i = 0; i < m_Fields.size(); ++ i)
 	{

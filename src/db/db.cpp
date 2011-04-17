@@ -131,3 +131,19 @@ void DataBase::SetGroupHolydays(long int group_id, long int day_id, long int hou
 	}
 }
 
+bool DataBase::GetWeeks()
+{
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(g_ModelWeek);
+	m_Connection.Select(data)->From(g_ModelWeek);
+	if(data->children().size())
+	{
+		return data->children()[0].get_value(g_ModelWeek.doubleweek);
+	}
+	return false;
+}
+
+void DataBase::SetWeeks(bool weeks)
+{
+	m_Connection.Update(g_ModelWeek)->Set(g_ModelWeek.doubleweek, weeks);
+}
+

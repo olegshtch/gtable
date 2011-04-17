@@ -152,7 +152,11 @@ namespace ORM
 		}
 		Glib::ustring GetDefinition() const
 		{
-			return m_FieldName + " TINYINT(1) NOT NULL"; 
+			return m_FieldName + " TINYINT(1) NOT NULL DEFAULT 0"; 
+		}
+		static Glib::ustring ToString(bool value)
+		{
+			return value ? "1" : "0";
 		}
 	};
 
