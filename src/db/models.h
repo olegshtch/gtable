@@ -23,7 +23,22 @@ namespace DB
 	};
 
 	extern const ModelEntity g_ModelDays;
-	extern const ModelEntity g_ModelLessons;
+	extern const ModelEntity g_ModelBranchCategory;
+
+	class ModelBranch : public ModelEntity
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> category;
+
+		ModelBranch(const Glib::ustring& table_name)
+			:ModelEntity(table_name),
+			category(g_ModelBranchCategory)
+		{
+			add(category);
+		}
+	};
+
+	extern const ModelBranch g_ModelBranch;
 
 	// id - идентификатор сущности
 	// start - время начала

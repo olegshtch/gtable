@@ -30,3 +30,12 @@ void ListView::OnForeignEdited(const Glib::ustring& path, long int id, const ORM
 	m_refModel->get_iter(path)->set_value(*field, id);
 }
 
+void ListView::SelectionChanged()
+{
+	Gtk::TreeIter iter = get_selection()->get_selected();
+	if(iter)
+	{
+		signal_choose_object_.emit(iter->get_value(m_Scheme->fId));
+	}
+}
+

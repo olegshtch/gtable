@@ -73,6 +73,14 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column_editable(_("multithread"), DB::g_ModelAuditoriums.multithread);
 	m_pTreeView->append_column_foreign_editable(_("building"), DB::g_ModelAuditoriums.building, DB::g_ModelBuildings, DB::g_ModelBuildings.name);
 
+	m_pTreeView = AddListView("TreeViewBranchCategory", DB::g_ModelBranchCategory);
+	m_pTreeView->append_column_editable(_("name"), DB::g_ModelBranchCategory.name);
+	m_pTreeView->get_selection()->set_mode(Gtk::SELECTION_SINGLE);
+
+	m_pTreeView = AddListView("TreeViewBranch", DB::g_ModelBranch);
+	m_pTreeView->append_column_editable(_("name"), DB::g_ModelBranch.name);
+	m_pTreeView->append_column_foreign_editable(_("category"), DB::g_ModelBranch.category, DB::g_ModelBranchCategory, DB::g_ModelBranchCategory.name);
+
 	// Loadings -> Holydays
 	
 	m_refBuilder->get_widget("HolydaysCategory", m_HolydaysCategory);

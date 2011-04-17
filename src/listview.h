@@ -19,6 +19,7 @@ public:
 	{
 		property_can_focus() = true;
 		set_headers_visible(true);
+		get_selection()->signal_changed().connect(sigc::mem_fun(*this, &ListView::SelectionChanged));
 	}
 	~ListView()
 	{
@@ -48,7 +49,15 @@ public:
 		ref_selection->selected_foreach_iter(sigc::mem_fun(*this, &ListView::RemoveIter));
 	}
 	int append_column_foreign_editable(const Glib::ustring& str, const ORM::Field<ORM::ForeignKey>& field, const ORM::Table& foreign_table, const ORM::Field<Glib::ustring>& foreign_field);
+
+	typedef sigc::signal<void, long int> signal_choose_object_t;
+	signal_choose_object_t& signal_choose_object()
+	{
+		return signal_choose_object_;
+	}
+protected:
 	virtual void on_row_changed(const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter);
+	signal_choose_object_t signal_choose_object_;
 private:
 	const ORM::Table* m_Scheme;
 	Glib::RefPtr<ORM::Data> m_refModel;
@@ -61,7 +70,7 @@ private:
 		DB::DataBase::Instance().RemoveEntity(*m_Scheme, iter);
 		m_refModel->erase(iter);
 	}
-
+	void SelectionChanged();
 };
 
 #endif
