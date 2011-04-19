@@ -1,2 +1,2 @@
-EXTRA_DIST = DB.dia
+EXTRA_DIST = DB_current.dia
 

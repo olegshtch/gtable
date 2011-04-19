@@ -14,7 +14,9 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_HolydaysCategory(NULL),
 	m_HolydaysObjectList(NULL),
 	m_SheetHolydays(NULL),
-	m_pCurrentListView(NULL)
+	m_PlanSheet(NULL),
+	m_ComboBoxPlanSpeciality(NULL),
+	m_pCurrentLineEditor(NULL)
 {
 	m_refActionGroup = Glib::RefPtr<Gtk::ActionGroup>::cast_dynamic(m_refBuilder->get_object("ActionGroup"));
 
@@ -119,6 +121,22 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_SheetHolydays->signal_cell_data().connect(sigc::mem_fun(*this, &MainWindow::HolydaysCellData));
 	m_SheetHolydays->signal_cell_button_release().connect(sigc::mem_fun(*this, &MainWindow::HolydaysButtonRelease));
 
+	// Loadings -> Plan
+
+	m_refBuilder->get_widget_derived("PlanSheet", m_PlanSheet);
+	if(! m_PlanSheet)
+	{
+		throw Glib::Error(1, 0, "Cann't load PlanSheet");
+	}
+	m_refBuilder->get_widget("ComboBoxPlanSpeciality", m_ComboBoxPlanSpeciality);
+	if(! m_ComboBoxPlanSpeciality)
+	{
+		throw Glib::Error(1, 0, "Cann't load ComboBoxPlanSpeciality");
+	}
+	m_ComboBoxPlanSpeciality->signal_expose_event().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesExpose));
+	m_ComboBoxPlanSpeciality->set_model(ORM::Data::create(m_ComboScheme));
+	m_ComboBoxPlanSpeciality->pack_start(m_ComboScheme.fText);
+
 	OnNew();
 
 	m_DoubleWeek->property_active() = DB::DataBase::Instance().GetWeeks();
@@ -184,31 +202,31 @@ void MainWindow::OnEdit()
 
 void MainWindow::OnAppend()
 {
-	if(m_pCurrentListView)
+	if(m_pCurrentLineEditor)
 	{
-		m_pCurrentListView->add_empty_line();
+		m_pCurrentLineEditor->add_empty_line();
 		show_all_children();
 	}
 }
 
 void MainWindow::OnDelete()
 {
-	if(m_pCurrentListView)
+	if(m_pCurrentLineEditor)
 	{
-		m_pCurrentListView->remove_line();
+		m_pCurrentLineEditor->remove_line();
 	}
 }
 
-bool MainWindow::OnFocusIn(GdkEventFocus* event, ListView *list_view)
+bool MainWindow::OnFocusIn(GdkEventFocus* event, LineEditable *line_editor)
 {
-	m_pCurrentListView = list_view;
-	m_pCurrentListView->update_model();
+	m_pCurrentLineEditor = line_editor;
+	m_pCurrentLineEditor->update_model();
 	return false;
 }
 
 bool MainWindow::OnFocusOut(GdkEventFocus* event)
 {
-	m_pCurrentListView = 0;
+	m_pCurrentLineEditor = 0;
 	return false;
 }
 
@@ -222,7 +240,7 @@ ListView* MainWindow::AddListView(const Glib::ustring& name, const ORM::Table& s
 	}
 	res->set_scheme(scheme);
 	res->append_column(_("id"), scheme.fId);
-	res->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), res));
+	res->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), static_cast<LineEditable*>(res)));
 	res->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 	return res;
 }
@@ -322,5 +340,13 @@ void MainWindow::HolydaysButtonRelease(long int row, long int column, GdkEventBu
 void MainWindow::WeekToggle()
 {
 	DB::DataBase::Instance().SetWeeks(m_DoubleWeek->property_active());
+}
+
+bool MainWindow::PlanSpecialitiesExpose(GdkEventExpose* event)
+{
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(m_ComboScheme);
+	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelSpecialities, DB::g_ModelSpecialities.name, data);
+	m_ComboBoxPlanSpeciality->set_model(data);
+	return false;
 }
 

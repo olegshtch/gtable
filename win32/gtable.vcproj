@@ -21,6 +21,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\..\Program Files\gtkmm\MSVC\gtkmm-vc90-d-2_4.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -94,6 +95,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\..\Program Files\gtkmm\MSVC\gtkmm-vc90-2_4.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -232,6 +234,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\orm\count.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\orm\data.cpp"
 				>
 			</File>
@@ -241,6 +247,10 @@
 			</File>
 			<File
 				RelativePath="..\src\orm\delete.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\expr.h"
 				>
 			</File>
 			<File
@@ -260,7 +270,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\orm\insert.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\orm\primary_key.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\primary_key.h"
 				>
 			</File>
 			<File
@@ -268,7 +286,31 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\orm\query.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\scheme.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\select.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\orm\table.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\table.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\update.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\where.h"
 				>
 			</File>
 		</Filter>
@@ -277,11 +319,23 @@
 			>
 		</File>
 		<File
+			RelativePath="..\src\celleditableforeign.h"
+			>
+		</File>
+		<File
 			RelativePath="..\src\cellrendererforeign.cpp"
 			>
 		</File>
 		<File
 			RelativePath="..\src\cellrendererforeign.h"
+			>
+		</File>
+		<File
+			RelativePath="..\src\id_text_scheme.h"
+			>
+		</File>
+		<File
+			RelativePath="..\src\line_editable.h"
 			>
 		</File>
 		<File
@@ -310,6 +364,14 @@
 		</File>
 		<File
 			RelativePath="..\src\main_window.h"
+			>
+		</File>
+		<File
+			RelativePath="..\src\plan_sheet.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\src\plan_sheet.h"
 			>
 		</File>
 		<File

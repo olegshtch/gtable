@@ -9,13 +9,16 @@ table_SOURCES = ga/fitness.cpp \
 		logbuf.cpp \
 		main.cpp \
 		main_window.cpp \
+		plan_sheet.cpp \
 		sheet.cpp
 noinst_HEADERS = celleditableforeign.h \
 		 cellrendererforeign.h \
 		 id_text_scheme.h \
+		 line_editable.h \
 		 listview.h \
 		 logbuf.h \
 		 main_window.h \
+		 plan_sheet.h \
 		 shared.h \
 		 sheet.h
 

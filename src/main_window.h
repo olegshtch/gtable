@@ -11,6 +11,7 @@
 #include "id_text_scheme.h"
 #include "listview.h"
 #include "sheet.h"
+#include "plan_sheet.h"
 #include "db/db.h"
 
 class MainWindow : public Gtk::Window
@@ -35,7 +36,7 @@ private:
 
 	void ShowAllEntities();
 
-	bool OnFocusIn(GdkEventFocus* event, ListView *list_view);
+	bool OnFocusIn(GdkEventFocus* event, LineEditable *line_editor);
 	bool OnFocusOut(GdkEventFocus* event);
 
 	ListView* AddListView(const Glib::ustring& name, const ORM::Table& scheme);
@@ -53,9 +54,14 @@ private:
 	void HolydaysCellData(Gtk::CellRenderer *cell, long int row, long int column);
 	void HolydaysButtonRelease(long int row, long int column, GdkEventButton* event);
 
+	// Loadings -> Plan
+	PlanSheet *m_PlanSheet;
+	Gtk::ComboBox *m_ComboBoxPlanSpeciality;
+	bool PlanSpecialitiesExpose(GdkEventExpose* event);
+
 	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 
-	ListView *m_pCurrentListView;
+	LineEditable *m_pCurrentLineEditor;
 
 	IdTextScheme m_ComboScheme;
 };

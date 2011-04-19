@@ -73,8 +73,7 @@ bool DataBase::GetTeacherHolydays(long int teacher_id, long int day_id, long int
 	ORM::Field<long int> long_field("");
 	scheme.add(long_field);
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
-	const ORM::FieldBase& field = ORM::Count();
-	m_Connection.Select(data, field)->From(DB::g_ModelTeacherHolydays)->Where(ORM::Eq(DB::g_ModelTeacherHolydays.teacher, ORM::ForeignKey(teacher_id)) and ORM::Eq(DB::g_ModelTeacherHolydays.day, ORM::ForeignKey(day_id)) and ORM::Eq(DB::g_ModelTeacherHolydays.hour, ORM::ForeignKey(hour_id)));
+	m_Connection.Select(data, static_cast<ORM::Field<long int> >(ORM::Count()))->From(DB::g_ModelTeacherHolydays)->Where(ORM::Eq(DB::g_ModelTeacherHolydays.teacher, ORM::ForeignKey(teacher_id)) && ORM::Eq(DB::g_ModelTeacherHolydays.day, ORM::ForeignKey(day_id)) && ORM::Eq(DB::g_ModelTeacherHolydays.hour, ORM::ForeignKey(hour_id)));
 	if(data->children().size())
 	{
 		return static_cast<bool>(data->children()[0].get_value(long_field));
@@ -95,7 +94,7 @@ void DataBase::SetTeacherHolydays(long int teacher_id, long int day_id, long int
 	}
 	else
 	{
-		m_Connection.DeleteFrom(g_ModelTeacherHolydays)->Where(ORM::Eq(DB::g_ModelTeacherHolydays.teacher, ORM::ForeignKey(teacher_id)) and ORM::Eq(DB::g_ModelTeacherHolydays.day, ORM::ForeignKey(day_id)) and ORM::Eq(DB::g_ModelTeacherHolydays.hour, ORM::ForeignKey(hour_id)));
+		m_Connection.DeleteFrom(g_ModelTeacherHolydays)->Where(ORM::Eq(DB::g_ModelTeacherHolydays.teacher, ORM::ForeignKey(teacher_id)) && ORM::Eq(DB::g_ModelTeacherHolydays.day, ORM::ForeignKey(day_id)) && ORM::Eq(DB::g_ModelTeacherHolydays.hour, ORM::ForeignKey(hour_id)));
 	}
 }
 
@@ -105,8 +104,7 @@ bool DataBase::GetGroupHolydays(long int group_id, long int day_id, long int hou
 	ORM::Field<long int> long_field("");
 	scheme.add(long_field);
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
-	const ORM::FieldBase& field = ORM::Count();
-	m_Connection.Select(data, field)->From(DB::g_ModelGroupHolydays)->Where(ORM::Eq(DB::g_ModelGroupHolydays.group, ORM::ForeignKey(group_id)) and ORM::Eq(DB::g_ModelGroupHolydays.day, ORM::ForeignKey(day_id)) and ORM::Eq(DB::g_ModelGroupHolydays.hour, ORM::ForeignKey(hour_id)));
+	m_Connection.Select(data, static_cast<ORM::Field<long int> >(ORM::Count()))->From(DB::g_ModelGroupHolydays)->Where(ORM::Eq(DB::g_ModelGroupHolydays.group, ORM::ForeignKey(group_id)) && ORM::Eq(DB::g_ModelGroupHolydays.day, ORM::ForeignKey(day_id)) && ORM::Eq(DB::g_ModelGroupHolydays.hour, ORM::ForeignKey(hour_id)));
 	if(data->children().size())
 	{
 		return static_cast<bool>(data->children()[0].get_value(long_field));
@@ -127,7 +125,7 @@ void DataBase::SetGroupHolydays(long int group_id, long int day_id, long int hou
 	}
 	else
 	{
-		m_Connection.DeleteFrom(g_ModelGroupHolydays)->Where(ORM::Eq(DB::g_ModelGroupHolydays.group, ORM::ForeignKey(group_id)) and ORM::Eq(DB::g_ModelGroupHolydays.day, ORM::ForeignKey(day_id)) and ORM::Eq(DB::g_ModelGroupHolydays.hour, ORM::ForeignKey(hour_id)));
+		m_Connection.DeleteFrom(g_ModelGroupHolydays)->Where(ORM::Eq(DB::g_ModelGroupHolydays.group, ORM::ForeignKey(group_id)) && ORM::Eq(DB::g_ModelGroupHolydays.day, ORM::ForeignKey(day_id)) && ORM::Eq(DB::g_ModelGroupHolydays.hour, ORM::ForeignKey(hour_id)));
 	}
 }
 

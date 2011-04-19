@@ -7,8 +7,9 @@
 #include "orm/table.h"
 #include "orm/foreign_key.h"
 #include "db/db.h"
+#include "line_editable.h"
 
-class ListView : public Gtk::TreeView
+class ListView : public Gtk::TreeView, public LineEditable
 {
 public:
 	ListView(GtkTreeView *cobject, Glib::RefPtr<Gtk::Builder>&)
