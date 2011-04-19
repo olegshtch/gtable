@@ -17,4 +17,5 @@ const DB::ModelTeachers DB::g_ModelTeachers("Teachers");
 const DB::ModelTeacherHolydays DB::g_ModelTeacherHolydays("TeacherHolydays");
 const DB::ModelWeek DB::g_ModelWeek("Week");
 const DB::ModelLessonType DB::g_ModelLessonType("LessonType");
+const DB::ModelTeachingPlan DB::g_ModelTeachingPlan("TeachingPlan");
 

@@ -254,6 +254,30 @@ namespace DB
 	typedef ModelFaculties ModelLessonType;
 
 	extern const ModelLessonType g_ModelLessonType;
+
+	class ModelTeachingPlan : public ORM::Table
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> branch;
+		ORM::Field<ORM::ForeignKey> lesson_type;
+		ORM::Field<ORM::ForeignKey> speciality;
+		ORM::Field<long int> hours;
+
+		ModelTeachingPlan(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			branch(g_ModelBranch),
+			lesson_type(g_ModelLessonType),
+			speciality(g_ModelSpecialities),
+			hours("hours")
+		{
+			add(branch);
+			add(lesson_type);
+			add(speciality);
+			add(hours);
+		}
+	};
+
+	extern const ModelTeachingPlan g_ModelTeachingPlan;
 }
 
 #endif

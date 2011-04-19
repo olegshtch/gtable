@@ -581,7 +581,7 @@
                 <child type="tab">
                   <object class="GtkLabel" id="label17">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">Branch</property>
+                    <property name="label" translatable="yes">Branches</property>
                   </object>
                   <packing>
                     <property name="position">9</property>
@@ -750,7 +750,7 @@
                 <child type="tab">
                   <object class="GtkLabel" id="label15">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">Plan</property>
+                    <property name="label" translatable="yes">Teaching Plan</property>
                   </object>
                   <packing>
                     <property name="position">1</property>
