@@ -25,3 +25,8 @@ void PlanSheet::remove_line()
 void PlanSheet::update_model()
 {
 }
+
+void PlanSheet::set_speciality(long int id_speciality)
+{
+
+}

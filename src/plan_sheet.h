@@ -14,6 +14,8 @@ public:
 	void add_empty_line();
 	void remove_line();
 	void update_model();
+
+	void set_speciality(long int id_speciality);
 private:
 };
 

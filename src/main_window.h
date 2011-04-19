@@ -58,6 +58,7 @@ private:
 	PlanSheet *m_PlanSheet;
 	Gtk::ComboBox *m_ComboBoxPlanSpeciality;
 	bool PlanSpecialitiesExpose(GdkEventExpose* event);
+	void PlanSpecialitiesChanged();
 
 	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 

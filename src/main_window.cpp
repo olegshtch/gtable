@@ -136,6 +136,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_ComboBoxPlanSpeciality->signal_expose_event().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesExpose));
 	m_ComboBoxPlanSpeciality->set_model(ORM::Data::create(m_ComboScheme));
 	m_ComboBoxPlanSpeciality->pack_start(m_ComboScheme.fText);
+	m_ComboBoxPlanSpeciality->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesChanged));
 
 	OnNew();
 
@@ -348,5 +349,15 @@ bool MainWindow::PlanSpecialitiesExpose(GdkEventExpose* event)
 	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelSpecialities, DB::g_ModelSpecialities.name, data);
 	m_ComboBoxPlanSpeciality->set_model(data);
 	return false;
+}
+
+void MainWindow::PlanSpecialitiesChanged()
+{
+	Gtk::TreeIter iter = m_ComboBoxPlanSpeciality->get_active();
+	if(iter)
+	{
+		m_PlanSheet->set_speciality(iter->get_value(m_ComboScheme.fId));
+		m_PlanSheet->update_model();
+	}
 }
 
