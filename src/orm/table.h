@@ -40,6 +40,12 @@ namespace ORM
 			return m_TableName;
 		}
 
+		template <class T> void add(Field<T>& field)
+		{
+			Scheme::add(field);
+			field.SetTableName(m_TableName);
+		}
+
 		static void InitTables(ORM::Connection &db);
 	private:
 		Glib::ustring m_TableName;

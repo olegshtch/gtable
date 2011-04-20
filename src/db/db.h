@@ -63,6 +63,8 @@ namespace DB
 		bool GetWeeks();
 		void SetWeeks(bool weeks);
 
+		void GetTeachingBranch(Glib::RefPtr<ORM::Data> &data, long int id_speciality);
+
 	private:		
 		ORM::Connection m_Connection;
 	};

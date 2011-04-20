@@ -21,12 +21,17 @@ namespace ORM
 		virtual void SetStrValue(Gtk::TreeIter &it, const Glib::ustring& str) const = 0;
 		virtual Glib::ustring GetStrValue(const Gtk::TreeIter &it) const = 0;
 		virtual Glib::ustring GetDefinition() const = 0;
-		const Glib::ustring& GetFieldName() const
+		Glib::ustring GetFieldName() const
 		{
-			return m_FieldName;
+			return m_TableName.empty() ? m_FieldName : (m_TableName + "." + m_FieldName);
+		}
+		void SetTableName(const Glib::ustring& table_name)
+		{
+			m_TableName = table_name;
 		}
 	protected:
 		Glib::ustring m_FieldName;
+		Glib::ustring m_TableName;
 	};
 
 	template<class T> class Field : public Gtk::TreeModelColumn<T>, public FieldBase

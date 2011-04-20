@@ -26,6 +26,11 @@ namespace ORM
 			m_Query += m_Fields + " FROM " + table1.GetTableName();
 			return this;
 		}
+		SelectBase* From(const Table& table1, const Table& table2)
+		{
+			m_Query += m_Fields + " FROM " + table1.GetTableName() + "," + table2.GetTableName();
+			return this;
+		}
 
 		void Where(const WhereBase& where)
 		{

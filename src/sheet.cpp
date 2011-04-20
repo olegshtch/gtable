@@ -106,26 +106,31 @@ bool Sheet::on_button_release_event(GdkEventButton* event)
 	Gtk::TreeViewColumn *column;
 	int cell_x, cell_y;
 	get_path_at_pos(event->x, event->y, path, column, cell_x, cell_y);
-	Gtk::TreeIter iter = m_refVertModel->get_iter(path);
-	if(iter)
+	if(path)
 	{
-		//std::cout << "row = " << iter->get_value(m_ColumnRecord.fText) << std::endl;
-		for(size_t i = 0; i < get_columns().size(); ++ i)
+		Gtk::TreeIter iter = m_refVertModel->get_iter(path);
+		if(iter)
 		{
-			if(get_column(i) == column)
+			//std::cout << "row = " << iter->get_value(m_ColumnRecord.fText) << std::endl;
+			for(size_t i = 0; i < get_columns().size(); ++ i)
 			{
-				if(i == 0)
+				if(get_column(i) == column)
 				{
-					//std::cout << "column is Label" << std::endl;
-				}
-				else
-				{
-					//std::cout << "column = " << m_refHorzModel->children()[i - 1].get_value(m_ColumnRecord.fText) << std::endl;
-					signal_cell_button_release_.emit(iter->get_value(m_ColumnRecord.fId), m_refHorzModel->children()[i - 1].get_value(m_ColumnRecord.fId), event);
+					if(i == 0)
+					{
+						//std::cout << "column is Label" << std::endl;
+						signal_label_button_release_.emit(iter, event);
+					}
+					else
+					{
+						//std::cout << "column = " << m_refHorzModel->children()[i - 1].get_value(m_ColumnRecord.fText) << std::endl;
+						signal_cell_button_release_.emit(iter->get_value(m_ColumnRecord.fId), m_refHorzModel->children()[i - 1].get_value(m_ColumnRecord.fId), event);
+						return true;
+					}
 				}
 			}
 		}
 	}
-	return true;
+	return false;
 }
 

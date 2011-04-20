@@ -145,3 +145,8 @@ void DataBase::SetWeeks(bool weeks)
 	m_Connection.Update(g_ModelWeek)->Set(g_ModelWeek.doubleweek, weeks);
 }
 
+void DataBase::GetTeachingBranch(Glib::RefPtr<ORM::Data> &data, long int id_speciality)
+{
+	m_Connection.Select(data, g_ModelTeachingBranch.fId, g_ModelBranch.name)->From(g_ModelTeachingBranch, g_ModelBranch)->Where(ORM::Eq(g_ModelTeachingBranch.speciality, ORM::ForeignKey(id_speciality)) && ORM::Eq(g_ModelTeachingBranch.branch, g_ModelBranch.fId));
+}
+

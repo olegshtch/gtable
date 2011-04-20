@@ -36,6 +36,10 @@ namespace ORM
 			:WhereBase(field.GetFieldName() + "=" + field.GetStrValue(row))
 		{
 		}
+		Eq(const FieldBase& field, const FieldBase& field2)
+			:WhereBase(field.GetFieldName() + "=" + field2.GetFieldName())
+		{
+		}
 		template<class T> Eq(const Field<T>& field, const T& value)
 			:WhereBase(field.GetFieldName() + "=" + Field<T>::ToString(value))
 		{

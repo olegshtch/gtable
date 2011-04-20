@@ -16,8 +16,16 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_SheetHolydays(NULL),
 	m_PlanSheet(NULL),
 	m_ComboBoxPlanSpeciality(NULL),
-	m_pCurrentLineEditor(NULL)
+	m_pCurrentLineEditor(NULL),
+	m_StatusBar(NULL)
 {
+	m_refBuilder->get_widget("StatusBar", m_StatusBar);
+	if(! m_StatusBar)
+	{
+		throw Glib::Error(1, 0, "Cann't load StatusBar");
+	}
+	Glib::add_exception_handler(sigc::mem_fun(*this, &MainWindow::OnException));
+
 	m_refActionGroup = Glib::RefPtr<Gtk::ActionGroup>::cast_dynamic(m_refBuilder->get_object("ActionGroup"));
 
 	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("FileNew")),sigc::mem_fun(*this, &MainWindow::OnNew));
@@ -32,6 +40,10 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 
 	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ActionAppend")),sigc::mem_fun(*this, &MainWindow::OnAppend));
 	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ActionDelete")),sigc::mem_fun(*this, &MainWindow::OnDelete));
+
+	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ScheduleNew")),sigc::mem_fun(*this, &MainWindow::OnScheduleNew));
+	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ScheduleCopy")),sigc::mem_fun(*this, &MainWindow::OnScheduleCopy));
+	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ScheduleDelete")),sigc::mem_fun(*this, &MainWindow::OnScheduleDelete));
 
 	// connect Lists
 	
@@ -74,6 +86,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column_editable(_("capacity"), DB::g_ModelAuditoriums.capacity);
 	m_pTreeView->append_column_editable(_("multithread"), DB::g_ModelAuditoriums.multithread);
 	m_pTreeView->append_column_foreign_editable(_("building"), DB::g_ModelAuditoriums.building, DB::g_ModelBuildings, DB::g_ModelBuildings.name);
+	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelAuditoriums.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
 
 	m_pTreeView = AddListView("TreeViewBranchCategory", DB::g_ModelBranchCategory);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelBranchCategory.name);
@@ -358,6 +371,36 @@ void MainWindow::PlanSpecialitiesChanged()
 	{
 		m_PlanSheet->set_speciality(iter->get_value(m_ComboScheme.fId));
 		m_PlanSheet->update_model();
+	}
+}
+
+void MainWindow::OnScheduleNew()
+{
+}
+
+void MainWindow::OnScheduleCopy()
+{
+}
+
+void MainWindow::OnScheduleDelete()
+{
+}
+
+void MainWindow::OnException()
+{
+	try
+	{
+		throw;
+	}
+	catch(std::exception& e)
+	{
+		m_StatusBar->remove_all_messages();
+		m_StatusBar->push(e.what());
+	}
+	catch(Glib::Exception& e)
+	{
+		m_StatusBar->remove_all_messages();
+		m_StatusBar->push(e.what());
 	}
 }
 

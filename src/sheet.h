@@ -29,6 +29,12 @@ public:
 	{
 		return signal_cell_button_release_;
 	}
+
+	typedef sigc::signal<void, const Gtk::TreeIter&, GdkEventButton*> signal_label_button_release_t;
+	signal_label_button_release_t& signal_label_button_release()
+	{
+		return signal_label_button_release_;
+	}
 protected:
 	void on_label_data(Gtk::CellRenderer* cell, const Gtk::TreeModel::iterator& iter);
 	void on_cell_data(Gtk::CellRenderer* cell, const Gtk::TreeModel::iterator& iter, long int column_id);
@@ -37,11 +43,13 @@ protected:
 
 	signal_cell_data_t signal_cell_data_;
 	signal_cell_button_release_t signal_cell_button_release_;
+	signal_label_button_release_t signal_label_button_release_;
+
+	IdTextScheme m_ColumnRecord;
 private:
 	void Init();
 	void set_columns_count(size_t columns);
 
-	IdTextScheme m_ColumnRecord;
 	Glib::RefPtr<ORM::Data> m_refVertModel;
 	Glib::RefPtr<ORM::Data> m_refHorzModel;
 	Gtk::CellRendererText m_CellRenderer;

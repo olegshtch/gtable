@@ -34,6 +34,12 @@ private:
 	void OnAppend();
 	void OnDelete();
 
+	void OnScheduleNew();
+	void OnScheduleCopy();
+	void OnScheduleDelete();
+
+	void OnException();
+
 	void ShowAllEntities();
 
 	bool OnFocusIn(GdkEventFocus* event, LineEditable *line_editor);
@@ -63,6 +69,8 @@ private:
 	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 
 	LineEditable *m_pCurrentLineEditor;
+
+	Gtk::Statusbar *m_StatusBar;
 
 	IdTextScheme m_ComboScheme;
 };

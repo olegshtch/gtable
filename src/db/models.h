@@ -63,30 +63,6 @@ namespace DB
 
 	extern const ModelEntity g_ModelBuildings;
 	
-	// id - идентификатор аудитории
-	// name - название
-	// multithread - многопоточность
-	class ModelAuditoriums : public ModelEntity
-	{
-	public:
-		ORM::Field<long> capacity;
-		ORM::Field<bool> multithread;
-		ORM::Field<ORM::ForeignKey> building;
-			
-		ModelAuditoriums(const Glib::ustring& table_name)
-			:ModelEntity(table_name),
-			capacity("capacity"),
-			multithread("multithread"),
-			building(g_ModelBuildings)
-		{
-			add(capacity);
-			add(multithread);
-			add(building);
-		}
-	};
-
-	extern const ModelAuditoriums g_ModelAuditoriums;
-
 	// id - идентификатор сущности
 	// name - название
 	// abbr - сокращение
@@ -123,6 +99,36 @@ namespace DB
 	};
 
 	extern const ModelChairs g_ModelChairs;
+
+	// id - идентификатор аудитории
+	// name - название
+	// capacity - вместимость
+	// multithread - многопоточность
+	// building - корпус
+	// chair - кафедра
+	class ModelAuditoriums : public ModelEntity
+	{
+	public:
+		ORM::Field<long> capacity;
+		ORM::Field<bool> multithread;
+		ORM::Field<ORM::ForeignKey> building;
+		ORM::Field<ORM::ForeignKey> chair;
+			
+		ModelAuditoriums(const Glib::ustring& table_name)
+			:ModelEntity(table_name),
+			capacity("capacity"),
+			multithread("multithread"),
+			building(g_ModelBuildings),
+			chair(g_ModelChairs)
+		{
+			add(capacity);
+			add(multithread);
+			add(building);
+			add(chair);
+		}
+	};
+
+	extern const ModelAuditoriums g_ModelAuditoriums;
 
 	// id - идентификатор специальности
 	// name - название
@@ -255,24 +261,39 @@ namespace DB
 
 	extern const ModelLessonType g_ModelLessonType;
 
+	class ModelTeachingBranch : public ORM::Table
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> speciality;
+		ORM::Field<ORM::ForeignKey> branch;
+
+		ModelTeachingBranch(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			speciality(g_ModelSpecialities),
+			branch(g_ModelBranch)
+		{
+			add(speciality);
+			add(branch);
+		}
+	};
+
+	extern const ModelTeachingBranch g_ModelTeachingBranch;
+
 	class ModelTeachingPlan : public ORM::Table
 	{
 	public:
-		ORM::Field<ORM::ForeignKey> branch;
+		ORM::Field<ORM::ForeignKey> teaching_branch;
 		ORM::Field<ORM::ForeignKey> lesson_type;
-		ORM::Field<ORM::ForeignKey> speciality;
 		ORM::Field<long int> hours;
 
 		ModelTeachingPlan(const Glib::ustring& table_name)
 			:ORM::Table(table_name),
-			branch(g_ModelBranch),
+			teaching_branch(g_ModelTeachingBranch),
 			lesson_type(g_ModelLessonType),
-			speciality(g_ModelSpecialities),
 			hours("hours")
 		{
-			add(branch);
+			add(teaching_branch);
 			add(lesson_type);
-			add(speciality);
 			add(hours);
 		}
 	};
