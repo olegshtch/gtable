@@ -150,3 +150,13 @@ void DataBase::GetTeachingBranch(Glib::RefPtr<ORM::Data> &data, long int id_spec
 	m_Connection.Select(data, g_ModelTeachingBranch.fId, g_ModelBranch.name)->From(g_ModelTeachingBranch, g_ModelBranch)->Where(ORM::Eq(g_ModelTeachingBranch.speciality, ORM::ForeignKey(id_speciality)) && ORM::Eq(g_ModelTeachingBranch.branch, g_ModelBranch.fId));
 }
 
+void DataBase::ListNewBranchForSpeciality(Glib::RefPtr<ORM::Data> &data, long int id_speciality)
+{
+	m_Connection.Select(data, g_ModelBranch.fId, g_ModelBranch.name)->From(g_ModelBranch);
+}
+
+void DataBase::AppendNewBranchForSpeciality(long int id_speciality, long int id_branch)
+{
+	m_Connection.InsertInto(g_ModelTeachingBranch, g_ModelTeachingBranch.branch, g_ModelTeachingBranch.speciality)->Values(g_ModelTeachingBranch.branch.ToString(id_branch) + "," + g_ModelTeachingBranch.speciality.ToString(id_speciality));
+}
+

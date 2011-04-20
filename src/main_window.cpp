@@ -141,6 +141,9 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	{
 		throw Glib::Error(1, 0, "Cann't load PlanSheet");
 	}
+	m_PlanSheet->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), static_cast<LineEditable*>(m_PlanSheet)));
+	m_PlanSheet->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
+
 	m_refBuilder->get_widget("ComboBoxPlanSpeciality", m_ComboBoxPlanSpeciality);
 	if(! m_ComboBoxPlanSpeciality)
 	{

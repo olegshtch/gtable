@@ -50,6 +50,7 @@ namespace ORM
 		}
 
 		void Values(const Gtk::TreeIter& row);
+		void Values(const Glib::ustring& values); //remove this evil!!!
 	private:
 		const Table& m_Table;
 		std::vector<const FieldBase*> m_Fields;

@@ -64,6 +64,8 @@ namespace DB
 		void SetWeeks(bool weeks);
 
 		void GetTeachingBranch(Glib::RefPtr<ORM::Data> &data, long int id_speciality);
+		void ListNewBranchForSpeciality(Glib::RefPtr<ORM::Data> &data, long int id_speciality);
+		void AppendNewBranchForSpeciality(long int id_speciality, long int id_branch);
 
 	private:		
 		ORM::Connection m_Connection;

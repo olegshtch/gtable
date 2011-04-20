@@ -19,12 +19,12 @@ namespace ORM
 
 		UpdateBase& Set(const FieldBase& field, const Gtk::TreeIter& row)
 		{
-			m_Query += " SET " + field.GetFieldName() + "=" + field.GetStrValue(row);
+			m_Query += " SET " + field.GetSmallFieldName() + "=" + field.GetStrValue(row);
 			return *this;
 		}
 		template<class T> UpdateBase& Set(const Field<T>& field, const T& value)
 		{
-			m_Query += " SET " + field.GetFieldName() + "=" + Field<T>::ToString(value);
+			m_Query += " SET " + field.GetSmallFieldName() + "=" + Field<T>::ToString(value);
 			return *this;
 		}
 

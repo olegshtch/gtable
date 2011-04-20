@@ -52,6 +52,14 @@ namespace ORM
 		{
 			return std::auto_ptr<InsertBase>(new InsertBase(*this, table));
 		}
+		std::auto_ptr<InsertBase> InsertInto(const Table& table, const FieldBase& f1)
+		{
+			return std::auto_ptr<InsertBase>(new InsertBase(*this, table, f1));
+		}
+		std::auto_ptr<InsertBase> InsertInto(const Table& table, const FieldBase& f1, const FieldBase& f2)
+		{
+			return std::auto_ptr<InsertBase>(new InsertBase(*this, table, f1, f2));
+		}
 
 		// Update family
 		std::auto_ptr<UpdateBase> Update(const Table& table)

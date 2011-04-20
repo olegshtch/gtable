@@ -1,4 +1,5 @@
 #include <gtkmm/dialog.h>
+#include <gtkmm/stock.h>
 #include "plan_sheet.h"
 #include "db/db.h"
 
@@ -23,15 +24,22 @@ PlanSheet::~PlanSheet()
 
 void PlanSheet::add_empty_line()
 {
-	Gtk::Dialog dialog;
-	Gtk::ComboBox combo;
+	Gtk::Dialog dialog(_("Choose branch:"));
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(m_ColumnRecord);
+	DB::DataBase::Instance().ListNewBranchForSpeciality(data, m_IdSpeciality);
+	Gtk::ComboBox combo(data);
+	combo.pack_start(m_ColumnRecord.fText);
 	dialog.get_vbox()->pack_start(combo);
+	dialog.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
+	dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
 	dialog.show_all_children();
+	dialog.show();
 	if(dialog.run() == Gtk::RESPONSE_OK)
 	{
 		Gtk::TreeIter iter = combo.get_active();
 		if(iter)
 		{
+			DB::DataBase::Instance().AppendNewBranchForSpeciality(m_IdSpeciality, iter->get_value(m_ColumnRecord.fId));
 		}
 	}
 }

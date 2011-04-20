@@ -25,6 +25,10 @@ namespace ORM
 		{
 			return m_TableName.empty() ? m_FieldName : (m_TableName + "." + m_FieldName);
 		}
+		const Glib::ustring& GetSmallFieldName() const
+		{
+			return m_FieldName;
+		}
 		void SetTableName(const Glib::ustring& table_name)
 		{
 			m_TableName = table_name;
