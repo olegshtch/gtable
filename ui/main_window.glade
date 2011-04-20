@@ -878,7 +878,7 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkComboBox" id="combobox1">
+                              <object class="GtkComboBox" id="ComboBoxScheduleGroup">
                                 <property name="visible">True</property>
                               </object>
                               <packing>

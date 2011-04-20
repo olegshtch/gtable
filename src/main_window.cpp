@@ -16,6 +16,8 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_SheetHolydays(NULL),
 	m_PlanSheet(NULL),
 	m_ComboBoxPlanSpeciality(NULL),
+	m_ScheduleGroup(NULL),
+	m_ComboBoxScheduleGroup(NULL),
 	m_pCurrentLineEditor(NULL),
 	m_StatusBar(NULL)
 {
@@ -24,7 +26,6 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	{
 		throw Glib::Error(1, 0, "Cann't load StatusBar");
 	}
-	Glib::add_exception_handler(sigc::mem_fun(*this, &MainWindow::OnException));
 
 	m_refActionGroup = Glib::RefPtr<Gtk::ActionGroup>::cast_dynamic(m_refBuilder->get_object("ActionGroup"));
 
@@ -143,6 +144,8 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	}
 	m_PlanSheet->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), static_cast<LineEditable*>(m_PlanSheet)));
 	m_PlanSheet->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
+	m_PlanSheet->signal_cell_data().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesCellData));
+	m_PlanSheet->signal_cell_button_release().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesButtonRelease));
 
 	m_refBuilder->get_widget("ComboBoxPlanSpeciality", m_ComboBoxPlanSpeciality);
 	if(! m_ComboBoxPlanSpeciality)
@@ -154,11 +157,31 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_ComboBoxPlanSpeciality->pack_start(m_ComboScheme.fText);
 	m_ComboBoxPlanSpeciality->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesChanged));
 
+	// Schedule -> Group
+	
+	m_refBuilder->get_widget_derived("ScheduleGroup", m_ScheduleGroup);
+	if(! m_ScheduleGroup)
+	{
+		throw Glib::Error(1, 0, "Cann't load ScheduleGroup");
+	}
+	m_refBuilder->get_widget("ComboBoxScheduleGroup", m_ComboBoxScheduleGroup);
+	m_ScheduleGroup->signal_cell_data().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupCellData));
+	if(! m_ComboBoxScheduleGroup)
+	{
+		throw Glib::Error(1, 0, "Cann't load ComboBoxScheduleGroup");
+	}
+	m_ComboBoxScheduleGroup->signal_expose_event().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupExpose));
+	m_ComboBoxScheduleGroup->set_model(ORM::Data::create(m_ComboScheme));
+	m_ComboBoxScheduleGroup->pack_start(m_ComboScheme.fText);
+	m_ComboBoxScheduleGroup->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupChanged));
+
 	OnNew();
 
 	m_DoubleWeek->property_active() = DB::DataBase::Instance().GetWeeks();
 
 	show_all_children();
+
+	Glib::add_exception_handler(sigc::mem_fun(*this, &MainWindow::OnException));
 }
 
 MainWindow::~MainWindow()
@@ -374,6 +397,73 @@ void MainWindow::PlanSpecialitiesChanged()
 	{
 		m_PlanSheet->set_speciality(iter->get_value(m_ComboScheme.fId));
 		m_PlanSheet->update_model();
+	}
+}
+
+void MainWindow::PlanSpecialitiesCellData(Gtk::CellRenderer *cell, long int id_teaching_branch, long int id_lesson_type)
+{
+	Gtk::CellRendererText *renderer = reinterpret_cast<Gtk::CellRendererText *>(cell);
+	long value = DB::DataBase::Instance().GetTeachingPlanHours(id_teaching_branch, id_lesson_type);
+	if(value > 0)
+	{
+		renderer->property_text() = ORM::Field<long>::ToString(value);
+	}
+	else
+	{
+		renderer->property_text() = "";
+	}
+}
+
+void MainWindow::PlanSpecialitiesButtonRelease(long int id_teaching_branch, long int id_lesson_type, GdkEventButton* event)
+{
+	long value = DB::DataBase::Instance().GetTeachingPlanHours(id_teaching_branch, id_lesson_type);
+	switch(event->button)
+	{
+		case 1:
+			DB::DataBase::Instance().EditTeachingPlanHours(id_teaching_branch, id_lesson_type, value + 1);
+			break;
+		case 3:
+			DB::DataBase::Instance().EditTeachingPlanHours(id_teaching_branch, id_lesson_type, (value > 0) ? (value - 1) : 0);
+			break;
+	}
+	m_PlanSheet->get_bin_window()->invalidate(true);
+}
+
+bool MainWindow::ScheduleGroupExpose(GdkEventExpose* event)
+{
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(m_ComboScheme);
+	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelGroups, DB::g_ModelGroups.name, data);
+	m_ComboBoxScheduleGroup->set_model(data);
+	return false;
+}
+
+void MainWindow::ScheduleGroupChanged()
+{
+	Gtk::TreeIter iter = m_ComboBoxScheduleGroup->get_active();
+	if(iter)
+	{
+		Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(m_ComboScheme);
+		Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(m_ComboScheme);
+		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
+		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
+		m_ScheduleGroup->set_vert_model(vert_data);
+		m_ScheduleGroup->set_horz_model(horz_data);
+	}
+}
+
+// yet fake!!!
+void MainWindow::ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour, long int id_day)
+{
+	Gtk::CellRendererText *renderer = reinterpret_cast<Gtk::CellRendererText *>(cell);
+	if((id_hour >= 4) && (id_hour <= 6) && (id_day >= 1) && (id_day <= 5))
+	{
+		renderer->property_markup() = Glib::ustring::compose("<b>%1</b><i>%2</i>", id_hour, id_day);
+		renderer->set_fixed_size(150, 100);
+	}
+	else
+	{
+		renderer->property_markup() = "";
+		renderer->set_fixed_size(-1, -1);
 	}
 }
 

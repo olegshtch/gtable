@@ -39,7 +39,7 @@ void DataBase::EditEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
 {
 	for(size_t i = 1; i < ent.size(); ++ i)
 	{
-		m_Connection.Update(ent)->Set(ent.GetField(i), row).Where(ORM::Eq(ent.fId, row));
+		m_Connection.Update(ent)->Set(ent.GetField(i), row)->Where(ORM::Eq(ent.fId, row));
 	}
 }
 
@@ -157,6 +157,46 @@ void DataBase::ListNewBranchForSpeciality(Glib::RefPtr<ORM::Data> &data, long in
 
 void DataBase::AppendNewBranchForSpeciality(long int id_speciality, long int id_branch)
 {
-	m_Connection.InsertInto(g_ModelTeachingBranch, g_ModelTeachingBranch.branch, g_ModelTeachingBranch.speciality)->Values(g_ModelTeachingBranch.branch.ToString(id_branch) + "," + g_ModelTeachingBranch.speciality.ToString(id_speciality));
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(g_ModelTeachingBranch);
+	Gtk::TreeIter iter = data->append();
+	iter->set_value(g_ModelTeachingBranch.branch, id_branch);
+	iter->set_value(g_ModelTeachingBranch.speciality, id_speciality);
+	m_Connection.InsertInto(g_ModelTeachingBranch, g_ModelTeachingBranch.branch, g_ModelTeachingBranch.speciality)->Values(iter);
+}
+
+long DataBase::GetTeachingPlanHours(long int id_teaching_branch, long int id_lesson_type)
+{
+	ORM::Scheme scheme;
+	ORM::Field<long int> field("");
+	scheme.add(field);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+	m_Connection.Select(data, g_ModelTeachingPlan.hours)->From(g_ModelTeachingPlan, g_ModelTeachingBranch)->Where(ORM::Eq(g_ModelTeachingPlan.teaching_branch, ORM::ForeignKey(id_teaching_branch)) && ORM::Eq(g_ModelTeachingPlan.lesson_type, ORM::ForeignKey(id_lesson_type)));
+	if(data->children().size() > 0)
+	{
+		return data->children()[0].get_value(field);
+	}
+	return 0;
+}
+
+void DataBase::EditTeachingPlanHours(long int id_teaching_branch, long int id_lesson_type, long hours)
+{
+	ORM::Scheme scheme;
+	ORM::Field<long int> field("");
+	scheme.add(field);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+	m_Connection.Select(data, g_ModelTeachingPlan.hours)->From(g_ModelTeachingPlan, g_ModelTeachingBranch)->Where(ORM::Eq(g_ModelTeachingPlan.teaching_branch, ORM::ForeignKey(id_teaching_branch)) && ORM::Eq(g_ModelTeachingPlan.lesson_type, ORM::ForeignKey(id_lesson_type)));
+	if(data->children().size() > 0)
+	{
+		m_Connection.Update(g_ModelTeachingPlan)->Set(g_ModelTeachingPlan.hours, hours)->Where(ORM::Eq(g_ModelTeachingPlan.teaching_branch, ORM::ForeignKey(id_teaching_branch)) && ORM::Eq(g_ModelTeachingPlan.lesson_type, ORM::ForeignKey(id_lesson_type)));
+	}
+	else
+	{
+		data = ORM::Data::create(g_ModelTeachingPlan);
+		Gtk::TreeIter iter = data->append();
+		iter->set_value(g_ModelTeachingPlan.teaching_branch, id_teaching_branch);
+		iter->set_value(g_ModelTeachingPlan.lesson_type, id_lesson_type);
+		iter->set_value(g_ModelTeachingPlan.hours, hours);
+		m_Connection.InsertInto(g_ModelTeachingPlan)->Values(iter);
+	}
 }
 

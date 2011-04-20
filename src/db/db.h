@@ -67,6 +67,9 @@ namespace DB
 		void ListNewBranchForSpeciality(Glib::RefPtr<ORM::Data> &data, long int id_speciality);
 		void AppendNewBranchForSpeciality(long int id_speciality, long int id_branch);
 
+		long GetTeachingPlanHours(long int id_teaching_branch, long int id_lesson_type);
+		void EditTeachingPlanHours(long int id_teaching_branch, long int id_lesson_type, long hours);
+
 	private:		
 		ORM::Connection m_Connection;
 	};

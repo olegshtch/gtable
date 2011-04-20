@@ -65,6 +65,16 @@ private:
 	Gtk::ComboBox *m_ComboBoxPlanSpeciality;
 	bool PlanSpecialitiesExpose(GdkEventExpose* event);
 	void PlanSpecialitiesChanged();
+	void PlanSpecialitiesCellData(Gtk::CellRenderer *cell, long int id_branch, long int id_lesson_type);
+	void PlanSpecialitiesButtonRelease(long int row, long int column, GdkEventButton* event);
+
+	// Schedule -> Group
+	Sheet *m_ScheduleGroup;
+	Gtk::ComboBox *m_ComboBoxScheduleGroup;
+	bool ScheduleGroupExpose(GdkEventExpose* event);
+	void ScheduleGroupChanged();
+
+	void ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour, long int id_day);
 
 	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 

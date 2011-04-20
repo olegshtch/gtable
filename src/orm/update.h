@@ -17,15 +17,15 @@ namespace ORM
 		{
 		}
 
-		UpdateBase& Set(const FieldBase& field, const Gtk::TreeIter& row)
+		UpdateBase* Set(const FieldBase& field, const Gtk::TreeIter& row)
 		{
 			m_Query += " SET " + field.GetSmallFieldName() + "=" + field.GetStrValue(row);
-			return *this;
+			return this;
 		}
-		template<class T> UpdateBase& Set(const Field<T>& field, const T& value)
+		template<class T> UpdateBase* Set(const Field<T>& field, const T& value)
 		{
 			m_Query += " SET " + field.GetSmallFieldName() + "=" + Field<T>::ToString(value);
-			return *this;
+			return this;
 		}
 
 		void Where(const WhereBase& where)
