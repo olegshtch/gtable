@@ -333,6 +333,21 @@ namespace DB
 	};
 
 	extern const ModelGroupCategory g_ModelGroupCategory;
+
+	class ModelSubgroups : ModelEntity
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> group_category;
+
+		ModelSubgroups(const Glib::ustring& table_name)
+			:ModelEntity(table_name),
+			group_category(g_ModelGroupCategory)
+		{
+			add(group_category);
+		}
+	};
+
+	extern const ModelSubgroups g_ModelSubgroups;
 }
 
 #endif
