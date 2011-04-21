@@ -157,6 +157,21 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_ComboBoxPlanSpeciality->pack_start(m_ComboScheme.fText);
 	m_ComboBoxPlanSpeciality->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesChanged));
 
+	// Loadings -> Teaching lesson
+	m_refBuilder->get_widget("TreeViewTeachedLesson", m_TeachingLesson);
+	if(! m_TeachingLesson)
+	{
+		throw Glib::Error(1, 0, "Cann't load TreeViewTeachedLesson");
+	}
+
+	m_refBuilder->get_widget("TeachedLessonGroup", m_ComboBoxTeachingLesson);
+	if(! m_ComboBoxTeachingLesson)
+	{
+		throw Glib::Error(1, 0, "Cann't load TeachedLessonGroup");
+	}
+	m_ComboBoxTeachingLesson->signal_expose().connect(sigc::mem_fun(*this, &MainWindow::TeachingLessonGroupExpose));
+	m_ComboBoxTeachingLesson->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::TeachingLessonGroupChanged));
+
 	// Schedule -> Group
 	
 	m_refBuilder->get_widget_derived("ScheduleGroup", m_ScheduleGroup);
@@ -458,6 +473,18 @@ void MainWindow::ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour
 	renderer->property_markup() = "";
 }
 
+bool MainWindow::TeachingLessonGroupExpose(GdkEventExpose* event)
+{
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(m_ComboScheme);
+	DB::DataBase::Instance().GetSubgroupsList(data);
+	m_ComboBoxTeachingLesson->set_model(data);
+	return false;
+}
+
+void MainWindow::TeachingLessonGroupChanged()
+{
+}
+
 void MainWindow::OnScheduleNew()
 {
 }
@@ -479,11 +506,13 @@ void MainWindow::OnException()
 	catch(std::exception& e)
 	{
 		//m_StatusBar->remove_all_messages();
+		std::cerr << e.what() << std::endl;
 		m_StatusBar->push(e.what());
 	}
 	catch(Glib::Exception& e)
 	{
 		//m_StatusBar->remove_all_messages();
+		std::cerr << e.what() << std::endl;
 		m_StatusBar->push(e.what());
 	}
 }

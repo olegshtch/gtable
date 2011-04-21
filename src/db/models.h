@@ -334,7 +334,7 @@ namespace DB
 
 	extern const ModelGroupCategory g_ModelGroupCategory;
 
-	class ModelSubgroups : ModelEntity
+	class ModelSubgroups : public ModelEntity
 	{
 	public:
 		ORM::Field<ORM::ForeignKey> group_category;
@@ -348,6 +348,27 @@ namespace DB
 	};
 
 	extern const ModelSubgroups g_ModelSubgroups;
+
+	class ModelLessons : public ORM::Table
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> teacher;
+		ORM::Field<ORM::ForeignKey> teaching_plan;
+		ORM::Field<ORM::ForeignKey> subgroup;
+
+		ModelLessons(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			teacher(g_ModelTeachers),
+			teaching_plan(g_ModelTeachingPlan),
+			subgroup(g_ModelSubgroups)
+		{
+			add(teacher);
+			add(teaching_plan);
+			add(subgroup);
+		}
+	};
+
+	extern const ModelLessons g_ModelLessons;
 }
 
 #endif

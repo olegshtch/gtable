@@ -21,4 +21,5 @@ const DB::ModelTeachingBranch DB::g_ModelTeachingBranch("TeachingBranch");
 const DB::ModelTeachingPlan DB::g_ModelTeachingPlan("TeachingPlan");
 const DB::ModelGroupCategory DB::g_ModelGroupCategory("GroupCategory");
 const DB::ModelSubgroups DB::g_ModelSubgroups("Subgroups");
+const DB::ModelLessons DB::g_ModelLessons("Lessons");
 

@@ -30,13 +30,7 @@ namespace DB
 			return *s_Ptr;
 		}
 
-		void New()
-		{
-			m_Connection.~Connection();
-			new (&m_Connection) ORM::Connection(":memory:", true);	
-			ORM::Table::InitTables(m_Connection);
-			m_Connection.InsertInto(g_ModelWeek);
-		}
+		void New();
 		void Open(const Glib::ustring &dbname)
 		{
 			m_Connection.~Connection();
@@ -70,6 +64,7 @@ namespace DB
 		long GetTeachingPlanHours(long int id_teaching_branch, long int id_lesson_type);
 		void EditTeachingPlanHours(long int id_teaching_branch, long int id_lesson_type, long hours);
 
+		void GetSubgroupsList(Glib::RefPtr<ORM::Data>& data);
 	private:		
 		ORM::Connection m_Connection;
 	};

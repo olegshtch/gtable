@@ -25,6 +25,16 @@ DataBase::DataBase(const Glib::ustring &db)
 	atexit(Free);
 }
 
+void DataBase::New()
+{
+	m_Connection.~Connection();
+	new (&m_Connection) ORM::Connection(":memory:", true);	
+	ORM::Table::InitTables(m_Connection);
+	m_Connection.InsertInto(g_ModelWeek);
+	m_Connection.CreateTrigger("groupcat_trigger", "AFTER INSERT ON " + g_ModelGroups.GetTableName() + " BEGIN INSERT INTO " + g_ModelGroupCategory.GetTableName() + "(" + g_ModelGroupCategory.name.GetSmallFieldName() + "," + g_ModelGroupCategory.group.GetSmallFieldName() + "," + g_ModelGroupCategory.full.GetSmallFieldName() + ") VALUES (\"\", NEW." + g_ModelGroups.fId.GetSmallFieldName() + ", 1); END");
+	m_Connection.CreateTrigger("subgroup_trigger", "AFTER INSERT ON " + g_ModelGroupCategory.GetTableName() + " BEGIN INSERT INTO " + g_ModelSubgroups.GetTableName() + "(" + g_ModelSubgroups.name.GetSmallFieldName() + "," + g_ModelSubgroups.group_category.GetSmallFieldName() + ") VALUES (\"\", NEW." + g_ModelGroupCategory.fId.GetSmallFieldName() + "); END");
+}
+
 void DataBase::AppendEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
 {
 	m_Connection.InsertInto(ent)->Values(row);
@@ -198,5 +208,10 @@ void DataBase::EditTeachingPlanHours(long int id_teaching_branch, long int id_le
 		iter->set_value(g_ModelTeachingPlan.hours, hours);
 		m_Connection.InsertInto(g_ModelTeachingPlan)->Values(iter);
 	}
+}
+
+void DataBase::GetSubgroupsList(Glib::RefPtr<ORM::Data>& data)
+{
+	m_Connection.Select(data, g_ModelSubgroups.fId, static_cast<ORM::Field<Glib::ustring>(ORM::Expr<Glib::ustring>("")))->From(g_ModelSubgroups)->Where(ORM::Eq(g_ModelSubgroups.group_category, g_ModelGroupCategory.fId) && ORM::Eq(g_ModelGroupCategory.group, g_ModelGroups.fId));
 }
 

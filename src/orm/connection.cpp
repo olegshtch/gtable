@@ -18,6 +18,8 @@ ORM::Connection::Connection(const Glib::ustring &file, bool create_new)
 		throw Glib::Error(1, 0, sqlite3_errmsg(m_SQLite));
 	}
 
+	sqlite3_trace(m_SQLite, ORM::Connection::Trace, NULL);
+
 	SQLExec0("PRAGMA foreign_key = ON");
 	SQLExec0("PRAGMA recursive_triggers = ON");
 }
@@ -137,5 +139,10 @@ void ORM::Connection::SQLExecOwn(const Glib::ustring &sql, int (*callback)(void*
 		sqlite3_free(err_msg);
 		throw Glib::Error(1, 0, msg);
 	}
+}
+
+void ORM::Connection::Trace(void *, const char *sql)
+{
+	std::clog << "Trace: " << sql << std::endl;
 }
 

@@ -31,6 +31,11 @@ namespace ORM
 			SQLExec0(table.GetSqlCreateString());
 		}
 
+		void CreateTrigger(const Glib::ustring& name, const Glib::ustring& body)
+		{
+			SQLExec0("CREATE TRIGGER " + name + " " + body);
+		}
+
 		// Select family
 		std::auto_ptr<SelectBase> Select(Glib::RefPtr<Data> &data)
 		{
@@ -80,6 +85,7 @@ namespace ORM
 	private:
 		static int CallBack0(void *self_ptr, int argc, char **argv, char **col_name);
 		static int CallBack(void *self_ptr, int argc, char **argv, char **col_name);
+		static void Trace(void *, const char *sql);
 		sqlite3 *m_SQLite;
 	};
 }

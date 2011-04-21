@@ -68,6 +68,12 @@ private:
 	void PlanSpecialitiesCellData(Gtk::CellRenderer *cell, long int id_branch, long int id_lesson_type);
 	void PlanSpecialitiesButtonRelease(long int row, long int column, GdkEventButton* event);
 
+	// Loadings -> Teaching lesson
+	Gtk::TreeView *m_TeachingLesson;
+	Gtk::ComboBox *m_ComboBoxTeachingLesson;
+	bool TeachingLessonGroupExpose(GdkEventExpose* event);
+	void TeachingLessonGroupChanged();
+
 	// Schedule -> Group
 	Sheet *m_ScheduleGroup;
 	Gtk::ComboBox *m_ComboBoxScheduleGroup;
