@@ -25,16 +25,17 @@ namespace ORM
 
 	class Table;
 
-	template<> class Field<ForeignKey> : public Field<PrimaryKey>
+	template<> class Field<ForeignKey> : public Field<long int>
 	{
 	public:
-		Field(const Table& tbl);
+		Field(const Table& tbl, bool not_null = true);
+		Field(const Glib::ustring& field_name, const Table& tbl, bool not_null = true);
 		~Field()
 		{
 		}
 		Glib::ustring GetDefinition() const
 		{
-			return m_FieldName + " REFERENCES " + m_ForeignTable + " (" + m_FieldName + ") ON DELETE CASCADE ON UPDATE CASCADE NOT NULL";
+			return m_FieldName + " REFERENCES " + m_ForeignTable + " (id_" + m_ForeignTable + ") ON DELETE CASCADE ON UPDATE CASCADE " + (m_NotNull ? "NOT NULL" : "");
 		}
 		static Glib::ustring ToString(const ForeignKey& value)
 		{
@@ -42,6 +43,7 @@ namespace ORM
 		}
 	private:
 		const Glib::ustring& m_ForeignTable;
+		bool m_NotNull;
 	};
 }
 

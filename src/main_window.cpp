@@ -491,12 +491,12 @@ void MainWindow::OnException()
 	}
 	catch(std::exception& e)
 	{
-		m_StatusBar->remove_all_messages();
+		//m_StatusBar->remove_all_messages();
 		m_StatusBar->push(e.what());
 	}
 	catch(Glib::Exception& e)
 	{
-		m_StatusBar->remove_all_messages();
+		//m_StatusBar->remove_all_messages();
 		m_StatusBar->push(e.what());
 	}
 }

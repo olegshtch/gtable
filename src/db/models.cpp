@@ -19,4 +19,5 @@ const DB::ModelWeek DB::g_ModelWeek("Week");
 const DB::ModelLessonType DB::g_ModelLessonType("LessonType");
 const DB::ModelTeachingBranch DB::g_ModelTeachingBranch("TeachingBranch");
 const DB::ModelTeachingPlan DB::g_ModelTeachingPlan("TeachingPlan");
+const DB::ModelGroupCategory DB::g_ModelGroupCategory("GroupCategory");
 

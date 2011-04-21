@@ -257,7 +257,17 @@ namespace DB
 
 	extern const ModelWeek g_ModelWeek;
 
-	typedef ModelFaculties ModelLessonType;
+	class ModelLessonType : public ModelFaculties
+	{
+		ORM::Field<ORM::ForeignKey> before;
+	public:
+		ModelLessonType(const Glib::ustring& table_name)
+			:ModelFaculties(table_name),
+			before("before", *this, false)
+		{
+			add(before);
+		}
+	};
 
 	extern const ModelLessonType g_ModelLessonType;
 
@@ -299,6 +309,30 @@ namespace DB
 	};
 
 	extern const ModelTeachingPlan g_ModelTeachingPlan;
+
+	class ModelGroupCategory : public ORM::Table
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> lesson;
+		ORM::Field<ORM::ForeignKey> group;
+		ORM::Field<Glib::ustring> name;
+		ORM::Field<bool> full;
+
+		ModelGroupCategory(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			lesson(g_ModelTeachingPlan, false),
+			group(g_ModelGroups),
+			name("name"),
+			full("full")
+		{
+			add(lesson);
+			add(group);
+			add(name);
+			add(full);
+		}
+	};
+
+	extern const ModelGroupCategory g_ModelGroupCategory;
 }
 
 #endif

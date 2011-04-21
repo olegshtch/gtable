@@ -25,7 +25,7 @@ namespace ORM
 
 	class Table;
 
-	template<> class Field<PrimaryKey> : public Gtk::TreeModelColumn<long>, public FieldBase
+	template<> class Field<PrimaryKey> : public Gtk::TreeModelColumn<long int>, public FieldBase
 	{
 	public:
 		Field(const Table& tbl);
