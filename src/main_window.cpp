@@ -8,6 +8,12 @@
 #include "orm/expr.h"
 #include "db/models.h"
 
+const char *fake[5][3] = {{"=====\nЭкология/лаб\nХаврель А.И.\n35а", "Орг. и план./лк\nТитенок А.В.\nД", ""},
+	{"БЖД/лк\nФилин С.С.\n51", "Прог. моб. систем/лк\nПотапов Л.А.\n231\n=====\nПрог. моб. систем/лаб\nПотапов Л.А.\n409", "Прог. .NET/лаб\nКоростелёв Д.А\n420"},
+	{"МСЗИ/лк\nДергачёв К.В.\n219", "МСЗИ/лаб\nДергачёв К.В.\n414\n=====\nБЖД/лаб\nКорсакова И.М.\n52", "=====\nОрг. и план./практ\nКалинина Е.А.\nА331"},
+	{"ЧМВ/лк\nДергачёв К.В.\n219", "Спец. главы ИС/лк\nПодвесовский А.Г.\n219\n=====\nЭкология/лк\nХаврель А.И.\n51", ""},
+	{"Спец. главы ИС/лаб\nПодвесовский А.Г.\n409\n=====\nЧМВ/лаб\nДергачёв К.В.\n420", "Прог. .NET/лк\nКоростелёв Д.А.\n219"}};
+
 MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& builder)
 	:Gtk::Window(cobject),
 	m_refBuilder(builder),
@@ -457,13 +463,11 @@ void MainWindow::ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour
 	Gtk::CellRendererText *renderer = reinterpret_cast<Gtk::CellRendererText *>(cell);
 	if((id_hour >= 4) && (id_hour <= 6) && (id_day >= 1) && (id_day <= 5))
 	{
-		renderer->property_markup() = Glib::ustring::compose("<b>%1</b><i>%2</i>", id_hour, id_day);
-		renderer->set_fixed_size(150, 100);
+		renderer->property_markup() = fake[id_day - 1][id_hour - 4];
 	}
 	else
 	{
 		renderer->property_markup() = "";
-		renderer->set_fixed_size(-1, -1);
 	}
 }
 
