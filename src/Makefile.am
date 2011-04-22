@@ -10,7 +10,8 @@ table_SOURCES = ga/fitness.cpp \
 		main.cpp \
 		main_window.cpp \
 		plan_sheet.cpp \
-		sheet.cpp
+		sheet.cpp \
+		teaching_lesson.cpp
 noinst_HEADERS = celleditableforeign.h \
 		 cellrendererforeign.h \
 		 id_text_scheme.h \
@@ -20,7 +21,8 @@ noinst_HEADERS = celleditableforeign.h \
 		 main_window.h \
 		 plan_sheet.h \
 		 shared.h \
-		 sheet.h
+		 sheet.h \
+		 teaching_lesson.h
 
 AM_CXXFLAGS = \
 	-I$(top_srcdir) \

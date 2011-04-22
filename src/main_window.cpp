@@ -485,7 +485,7 @@ bool MainWindow::TeachingLessonGroupExpose(GdkEventExpose* event)
 
 void MainWindow::TeachingLessonGroupChanged()
 {
-
+	
 }
 
 void MainWindow::OnScheduleNew()
