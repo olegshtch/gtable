@@ -1,4 +1,4 @@
-#include "connection.h"
+#include "queryable.h"
 
 ORM::QueryBase::~QueryBase()
 {

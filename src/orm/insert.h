@@ -12,13 +12,13 @@ namespace ORM
 	class InsertBase : public QueryBase
 	{
 	public:
-		InsertBase(Connection &db, const Table& table, const FieldBase& f1)
+		InsertBase(Queryable &db, const Table& table, const FieldBase& f1)
 			:QueryBase(db, "INSERT INTO " + table.GetTableName() + " DEFAULT VALUES"),
 			m_Table(table)
 		{
 			m_Fields.push_back(&f1);
 		}
-		InsertBase(Connection &db, const Table& table, const FieldBase& f1, const FieldBase& f2)
+		InsertBase(Queryable &db, const Table& table, const FieldBase& f1, const FieldBase& f2)
 			:QueryBase(db, "INSERT INTO " + table.GetTableName() + " DEFAULT VALUES"),
 			m_Table(table)
 		{
@@ -26,7 +26,7 @@ namespace ORM
 			m_Fields.push_back(&f2);
 		}
 
-		InsertBase(Connection &db, const Table& table, const FieldBase& f1, const FieldBase& f2, const FieldBase& f3)
+		InsertBase(Queryable &db, const Table& table, const FieldBase& f1, const FieldBase& f2, const FieldBase& f3)
 			:QueryBase(db, "INSERT INTO " + table.GetTableName() + " DEFAULT VALUES"),
 			m_Table(table)
 		{
@@ -35,7 +35,7 @@ namespace ORM
 			m_Fields.push_back(&f3);
 		}
 
-		InsertBase(Connection &db, const Table& table)
+		InsertBase(Queryable &db, const Table& table)
 			:QueryBase(db, "INSERT INTO " + table.GetTableName() + " DEFAULT VALUES"),
 			m_Table(table)
 		{

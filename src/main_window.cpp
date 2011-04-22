@@ -169,7 +169,9 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	{
 		throw Glib::Error(1, 0, "Cann't load TeachedLessonGroup");
 	}
-	m_ComboBoxTeachingLesson->signal_expose().connect(sigc::mem_fun(*this, &MainWindow::TeachingLessonGroupExpose));
+	m_ComboBoxTeachingLesson->signal_expose_event().connect(sigc::mem_fun(*this, &MainWindow::TeachingLessonGroupExpose));
+	m_ComboBoxTeachingLesson->set_model(ORM::Data::create(m_ComboScheme));
+	m_ComboBoxTeachingLesson->pack_start(m_ComboScheme.fText);
 	m_ComboBoxTeachingLesson->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::TeachingLessonGroupChanged));
 
 	// Schedule -> Group
@@ -483,6 +485,7 @@ bool MainWindow::TeachingLessonGroupExpose(GdkEventExpose* event)
 
 void MainWindow::TeachingLessonGroupChanged()
 {
+
 }
 
 void MainWindow::OnScheduleNew()

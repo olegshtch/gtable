@@ -5,6 +5,7 @@
 #include "models.h"
 #include "../orm/count.h"
 #include "../orm/field.h"
+#include "../orm/case.h"
 
 using namespace DB;
 
@@ -212,6 +213,7 @@ void DataBase::EditTeachingPlanHours(long int id_teaching_branch, long int id_le
 
 void DataBase::GetSubgroupsList(Glib::RefPtr<ORM::Data>& data)
 {
-	m_Connection.Select(data, g_ModelSubgroups.fId, static_cast<ORM::Field<Glib::ustring>(ORM::Expr<Glib::ustring>("")))->From(g_ModelSubgroups)->Where(ORM::Eq(g_ModelSubgroups.group_category, g_ModelGroupCategory.fId) && ORM::Eq(g_ModelGroupCategory.group, g_ModelGroups.fId));
+	ORM::Field<Glib::ustring> name = ORM::Case<Glib::ustring>(ORM::Expr<bool>(g_ModelGroupCategory.full), g_ModelGroups.name).Else(ORM::Expr<Glib::ustring>(g_ModelGroups.name) + ":" + g_ModelGroupCategory.name + "#" + g_ModelSubgroups.name);
+	m_Connection.Select(data, g_ModelSubgroups.fId, name)->From(g_ModelSubgroups, g_ModelGroupCategory, g_ModelGroups)->Where(ORM::Eq(g_ModelSubgroups.group_category, g_ModelGroupCategory.fId) && ORM::Eq(g_ModelGroupCategory.group, g_ModelGroups.fId));
 }
 

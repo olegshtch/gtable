@@ -6,7 +6,8 @@ liborm_a_SOURCES = connection.cpp \
 	primary_key.cpp \
 	query.cpp \
 	table.cpp
-noinst_HEADERS = connection.h \
+noinst_HEADERS = case.h \
+	connection.h \
 	count.h \
 	data.h \
 	delete.h \
@@ -16,6 +17,7 @@ noinst_HEADERS = connection.h \
 	insert.h \
 	primary_key.h \
 	query.h \
+	queryable.h \
 	scheme.h \
 	select.h \
 	table.h \

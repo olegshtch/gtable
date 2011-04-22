@@ -9,7 +9,7 @@ namespace ORM
 	class UpdateBase : public QueryBase
 	{
 	public:
-		UpdateBase(Connection& db, const Table& table)
+		UpdateBase(Queryable& db, const Table& table)
 			:QueryBase(db, "UPDATE " + table.GetTableName())
 		{
 		}

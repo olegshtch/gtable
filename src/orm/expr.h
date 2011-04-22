@@ -8,6 +8,7 @@ namespace ORM
 	template<class T> class Expr
 	{
 		friend class Field<T>;
+		template<class T1> friend class Case;
 	public:
 		Expr(const Field<T>& field)
 			:m_Expr(field.GetFieldName())
@@ -42,6 +43,7 @@ namespace ORM
 	template<> class Expr<Glib::ustring>
 	{
 		friend class Field<Glib::ustring>;
+		template<class T> friend class Case;
 	public:
 		Expr(const Field<Glib::ustring>& field)
 			:m_Expr(field.GetFieldName())
@@ -78,7 +80,10 @@ namespace ORM
 		{
 			return Field<Glib::ustring>(m_Expr);
 		}
-	private:
+	protected:
+		Expr()
+		{
+		}
 		Glib::ustring m_Expr;
 	};
 }

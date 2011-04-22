@@ -12,7 +12,7 @@ namespace ORM
 	class SelectBase : public QueryBase
 	{
 	public:
-		SelectBase(Connection &db, Glib::RefPtr<Data>& data, const Glib::ustring& fields)
+		SelectBase(Queryable &db, Glib::RefPtr<Data>& data, const Glib::ustring& fields)
 			:QueryBase(db, "SELECT ", data),
 			m_Fields(fields)
 		{
@@ -29,6 +29,11 @@ namespace ORM
 		SelectBase* From(const Table& table1, const Table& table2)
 		{
 			m_Query += m_Fields + " FROM " + table1.GetTableName() + "," + table2.GetTableName();
+			return this;
+		}
+		SelectBase* From(const Table& table1, const Table& table2, const Table& table3)
+		{
+			m_Query += m_Fields + " FROM " + table1.GetTableName() + "," + table2.GetTableName() + "," + table3.GetTableName();
 			return this;
 		}
 

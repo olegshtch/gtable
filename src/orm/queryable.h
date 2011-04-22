@@ -1,0 +1,89 @@
+#ifndef _ORM_QUERYABLE_H_
+#define _ORM_QUERYABLE_H_
+
+#include <memory>
+#include "data.h"
+#include "table.h"
+#include "select.h"
+#include "insert.h"
+#include "update.h"
+#include "delete.h"
+
+namespace ORM
+{
+	const bool IF_NOT_EXIST = false;
+	const bool IF_EXIST = true;
+
+	class Queryable
+	{
+	public:
+		Queryable()
+		{
+		}
+		virtual ~Queryable()
+		{
+		}
+
+		void CreateTable(const Table &table, bool is_exist = IF_EXIST)
+		{
+			if(is_exist)
+			{
+				SQLExec0("DROP TABLE IF EXISTS " + table.GetTableName());
+			}
+			SQLExec0(table.GetSqlCreateString());
+		}
+
+		void CreateTrigger(const Glib::ustring& name, const Glib::ustring& body)
+		{
+			SQLExec0("CREATE TRIGGER " + name + " " + body);
+		}
+
+		// Select family
+		std::auto_ptr<SelectBase> Select(Glib::RefPtr<Data> &data)
+		{
+			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, "*"));
+		}
+		
+		std::auto_ptr<SelectBase> Select(Glib::RefPtr<Data> &data, const FieldBase& f1)
+		{
+			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, f1.GetFieldName()));
+		}
+
+		std::auto_ptr<SelectBase> Select(Glib::RefPtr<Data> &data, const FieldBase& f1, const FieldBase& f2)
+		{
+			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, f1.GetFieldName() + "," + f2.GetFieldName()));
+		}
+
+		// Insert family
+		std::auto_ptr<InsertBase> InsertInto(const Table& table)
+		{
+			return std::auto_ptr<InsertBase>(new InsertBase(*this, table));
+		}
+		std::auto_ptr<InsertBase> InsertInto(const Table& table, const FieldBase& f1)
+		{
+			return std::auto_ptr<InsertBase>(new InsertBase(*this, table, f1));
+		}
+		std::auto_ptr<InsertBase> InsertInto(const Table& table, const FieldBase& f1, const FieldBase& f2)
+		{
+			return std::auto_ptr<InsertBase>(new InsertBase(*this, table, f1, f2));
+		}
+
+		// Update family
+		std::auto_ptr<UpdateBase> Update(const Table& table)
+		{
+			return std::auto_ptr<UpdateBase>(new UpdateBase(*this, table));
+		}
+
+		// Delete family
+		std::auto_ptr<DeleteBase> DeleteFrom(const Table& table)
+		{
+			return std::auto_ptr<DeleteBase>(new DeleteBase(*this, table));
+		}
+
+		virtual void SQLExec0(const Glib::ustring &sql) = 0;
+		virtual void SQLExec(const Glib::ustring &sql, Glib::RefPtr<Data>& data) = 0;
+	};
+}
+
+#endif
+

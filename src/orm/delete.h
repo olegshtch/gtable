@@ -8,7 +8,7 @@ namespace ORM
 	class DeleteBase : public QueryBase
 	{
 	public:
-		DeleteBase(Connection &db, const Table& table)
+		DeleteBase(Queryable &db, const Table& table)
 			:QueryBase(db, "DELETE FROM " + table.GetTableName())
 		{
 		}
