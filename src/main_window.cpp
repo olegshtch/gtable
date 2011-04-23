@@ -100,6 +100,8 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView = AddListView("TreeViewLessonType", DB::g_ModelLessonType);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelLessonType.name);
 	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelLessonType.abbr);
+	m_pTreeView->append_column_foreign_editable(_("before"), DB::g_ModelLessonType.before, DB::g_ModelLessonType, DB::g_ModelLessonType.abbr);
+	m_pTreeView->append_column_editable(_("multithread"), DB::g_ModelLessonType.multithread);
 
 	// Days -> Weeks
 	

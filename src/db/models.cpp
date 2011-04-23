@@ -22,4 +22,9 @@ const DB::ModelTeachingPlan DB::g_ModelTeachingPlan("TeachingPlan");
 const DB::ModelGroupCategory DB::g_ModelGroupCategory("GroupCategory");
 const DB::ModelSubgroups DB::g_ModelSubgroups("Subgroups");
 const DB::ModelLessons DB::g_ModelLessons("Lessons");
+const DB::ModelAuditoriumTypes DB::g_ModelAuditoriumTypes("AuditoriumTypes");
+const DB::ModelTypeAuditorium DB::g_ModelTypeAuditorium("TypeAuditorium");
+const DB::ModelSuitableAuditorium DB::g_ModelSuitableAuditorium("SuitableAuditorium");
+const DB::ModelSchedulesList DB::g_ModelSchedulesList("SchedulesList");
+
 

@@ -65,6 +65,8 @@ namespace DB
 		void EditTeachingPlanHours(long int id_teaching_branch, long int id_lesson_type, long hours);
 
 		void GetSubgroupsList(Glib::RefPtr<ORM::Data>& data);
+		void GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::PrimaryKey& id_subgroup);
+		void SetLessonsTeacher(long int id_lesson, long int id_teacher);
 	private:		
 		ORM::Connection m_Connection;
 	};

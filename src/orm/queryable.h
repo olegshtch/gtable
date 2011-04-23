@@ -53,6 +53,10 @@ namespace ORM
 		{
 			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, f1.GetFieldName() + "," + f2.GetFieldName()));
 		}
+		std::auto_ptr<SelectBase> Select(Glib::RefPtr<Data> &data, const FieldBase& f1, const FieldBase& f2, const FieldBase& f3)
+		{
+			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, f1.GetFieldName() + "," + f2.GetFieldName() + "," + f3.GetFieldName()));
+		}
 
 		// Insert family
 		std::auto_ptr<InsertBase> InsertInto(const Table& table)

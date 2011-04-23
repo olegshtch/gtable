@@ -138,6 +138,7 @@ namespace DB
 	{
 	public:
 		ORM::Field<ORM::ForeignKey> chair;
+
 		ModelSpecialities(const Glib::ustring& table_name)
 			:ModelFaculties(table_name),
 			chair(g_ModelChairs)
@@ -259,13 +260,17 @@ namespace DB
 
 	class ModelLessonType : public ModelFaculties
 	{
-		ORM::Field<ORM::ForeignKey> before;
 	public:
+		ORM::Field<ORM::ForeignKey> before;
+		ORM::Field<bool> multithread;
+
 		ModelLessonType(const Glib::ustring& table_name)
 			:ModelFaculties(table_name),
-			before("before", *this, false)
+			before("before", *this, false),
+			multithread("multithread")
 		{
 			add(before);
+			add(multithread);
 		}
 	};
 
@@ -369,6 +374,82 @@ namespace DB
 	};
 
 	extern const ModelLessons g_ModelLessons;
+
+	typedef ModelEntity ModelAuditoriumTypes;
+
+	extern const ModelAuditoriumTypes g_ModelAuditoriumTypes;
+
+	class ModelTypeAuditorium : public ORM::Table
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> auditorium;
+		ORM::Field<ORM::ForeignKey> type;
+
+		ModelTypeAuditorium(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			auditorium(g_ModelAuditoriums),
+			type(g_ModelAuditoriumTypes)
+		{
+			add(auditorium);
+			add(type);
+		}
+	};
+
+	extern const ModelTypeAuditorium g_ModelTypeAuditorium;
+
+	class ModelSuitableAuditorium : public ORM::Table
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> branch;
+		ORM::Field<ORM::ForeignKey> auditorium_type;
+		ORM::Field<ORM::ForeignKey> lesson_type;
+
+		ModelSuitableAuditorium(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			branch(g_ModelBranch),
+			auditorium_type(g_ModelTypeAuditorium),
+			lesson_type(g_ModelLessonType)
+		{
+			add(branch);
+			add(auditorium_type);
+			add(lesson_type);
+		}
+	};
+
+	extern const ModelSuitableAuditorium g_ModelSuitableAuditorium;
+
+	typedef ModelEntity ModelSchedulesList;
+
+	extern const ModelSchedulesList g_ModelSchedulesList;
+
+	class ModelSchedule : public ORM::Table
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> schedule;
+		ORM::Field<ORM::ForeignKey> auditorium;
+		ORM::Field<ORM::ForeignKey> day;
+		ORM::Field<ORM::ForeignKey> hour;
+		ORM::Field<ORM::ForeignKey> lesson;
+		ORM::Field<long int> week;
+
+		ModelSchedule(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			schedule(g_ModelSchedulesList),
+			auditorium(g_ModelAuditoriums),
+			day(g_ModelDays),
+			hour(g_ModelHours),
+			lesson(g_ModelLessons),
+			week("week")
+		{
+			add(schedule);
+			add(auditorium);
+			add(day);
+			add(hour);
+			add(lesson);
+			add(week);
+		}
+
+	};
 }
 
 #endif

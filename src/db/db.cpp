@@ -217,3 +217,13 @@ void DataBase::GetSubgroupsList(Glib::RefPtr<ORM::Data>& data)
 	m_Connection.Select(data, g_ModelSubgroups.fId, name)->From(g_ModelSubgroups, g_ModelGroupCategory, g_ModelGroups)->Where(ORM::Eq(g_ModelSubgroups.group_category, g_ModelGroupCategory.fId) && ORM::Eq(g_ModelGroupCategory.group, g_ModelGroups.fId));
 }
 
+void DataBase::GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::PrimaryKey& id_subgroup)
+{
+	ORM::Field<Glib::ustring> name = ORM::Expr<Glib::ustring>(g_ModelBranch.name) + "\\" + g_ModelLessonType.name;
+	m_Connection.Select(data, g_ModelLessons.fId, name, g_ModelLessons.teacher)->From(g_ModelLessons, g_ModelBranch, g_ModelLessonType, g_ModelSubgroups)->Where(ORM::Eq(g_ModelSubgroups.fId, id_subgroup));
+}
+
+void DataBase::SetLessonsTeacher(long int id_lesson, long int id_teacher)
+{
+}
+
