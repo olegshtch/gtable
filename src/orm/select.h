@@ -7,8 +7,6 @@
 
 namespace ORM
 {
-	class Connection;
-
 	class SelectBase : public QueryBase
 	{
 	public:

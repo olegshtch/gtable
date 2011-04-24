@@ -8,18 +8,18 @@ namespace ORM
 	template<class T> class Case : public Expr<T>
 	{
 	public:
-		template<class T1> Case(const Expr<T1>& when, const Expr<T>& then)
+		Case(const ExprBase& when, const Expr<T>& then)
 		{
-			Expr<T>::m_Expr = "CASE WHEN " + when.m_Expr + " THEN " + then.m_Expr;
+			this->GetExpr() = "CASE WHEN " + when.GetQuery() + " THEN " + then.GetQuery();
 		}
-		template<class T1> Case& When(const Expr<T1>& when, const Expr<T>& then)
+		Case& When(const ExprBase& when, const Expr<T>& then)
 		{
-			Expr<T>::m_Expr += " WHEN " + when.m_Expr + " THEN " + then.m_Expr;
+			this->GetExpr() += " WHEN " + when.GetQuery() + " THEN " + then.GetQuery();
 			return *this;
 		}
 		const Case& Else(const Expr<T>& els)
 		{
-			Expr<T>::m_Expr += " ELSE " + els.m_Expr + " END";
+			this->GetExpr() += " ELSE " + els.GetQuery() + " END";
 			return *this;
 		}
 	private:

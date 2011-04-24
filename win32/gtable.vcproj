@@ -226,6 +226,10 @@
 			Name="ORM"
 			>
 			<File
+				RelativePath="..\src\orm\case.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\orm\connection.cpp"
 				>
 			</File>
@@ -287,6 +291,10 @@
 			</File>
 			<File
 				RelativePath="..\src\orm\query.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\queryable.h"
 				>
 			</File>
 			<File
@@ -384,6 +392,14 @@
 		</File>
 		<File
 			RelativePath="..\src\sheet.h"
+			>
+		</File>
+		<File
+			RelativePath="..\src\teaching_lesson.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\src\teaching_lesson.h"
 			>
 		</File>
 	</Files>

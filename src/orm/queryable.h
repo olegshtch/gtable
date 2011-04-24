@@ -8,6 +8,7 @@
 #include "insert.h"
 #include "update.h"
 #include "delete.h"
+#include "expr.h"
 
 namespace ORM
 {
@@ -44,18 +45,19 @@ namespace ORM
 			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, "*"));
 		}
 		
-		std::auto_ptr<SelectBase> Select(Glib::RefPtr<Data> &data, const FieldBase& f1)
+		std::auto_ptr<SelectBase> Select(Glib::RefPtr<Data> &data, const ExprBase& f1)
 		{
-			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, f1.GetFieldName()));
+			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, f1.GetQuery()));
 		}
 
-		std::auto_ptr<SelectBase> Select(Glib::RefPtr<Data> &data, const FieldBase& f1, const FieldBase& f2)
+		std::auto_ptr<SelectBase> Select(Glib::RefPtr<Data> &data, const ExprBase& f1, const ExprBase& f2)
 		{
-			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, f1.GetFieldName() + "," + f2.GetFieldName()));
+			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, f1.GetQuery() + "," + f2.GetQuery()));
 		}
-		std::auto_ptr<SelectBase> Select(Glib::RefPtr<Data> &data, const FieldBase& f1, const FieldBase& f2, const FieldBase& f3)
+
+		std::auto_ptr<SelectBase> Select(Glib::RefPtr<Data> &data, const ExprBase& f1, const ExprBase& f2, const ExprBase& f3)
 		{
-			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, f1.GetFieldName() + "," + f2.GetFieldName() + "," + f3.GetFieldName()));
+			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, f1.GetQuery() + "," + f2.GetQuery() + "," + f3.GetQuery()));
 		}
 
 		// Insert family

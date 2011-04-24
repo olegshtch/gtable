@@ -5,63 +5,84 @@
 
 namespace ORM
 {
-	template<class T> class Expr
+	class ExprBase
 	{
-		friend class Field<T>;
-		template<class T1> friend class Case;
 	public:
-		Expr(const Field<T>& field)
-			:m_Expr(field.GetFieldName())
-		{
-		}
-
-		Expr(const Expr<T>& expr)
+		ExprBase(const ExprBase& expr)
 			:m_Expr(expr.m_Expr)
 		{
 		}
+		ExprBase(const FieldBase& field)
+			:m_Expr(field.GetFieldName())
+		{
+		}
+		Glib::ustring GetQuery() const
+		{
+			return m_Expr;
+		}
+		~ExprBase()
+		{
+		}
+	protected:
+		ExprBase(const Glib::ustring& expr)
+			:m_Expr(expr)
+		{
+		}
+		Glib::ustring m_Expr;
+	};
+
+	template<class T> class Expr : public ExprBase
+	{
+	public:
+		Expr(const Field<T>& field)
+			:ExprBase(field.GetFieldName())
+		{
+		}
+
+/*		Expr(const Expr<T>& expr)
+			:ExprBase(expr.m_Expr)
+		{
+		}*/
 
 		Expr(const T& value)
-			:m_Expr(Field<T>::ToString(value))
+			:ExprBase(Field<T>::ToString(value))
 		{
 		}
 
 		~Expr()
 		{
 		}
-
-		operator Field<T>() const
-		{
-			return Field<T>(m_Expr);
-		}
 	protected:
+		Glib::ustring& GetExpr()
+		{
+			return this->m_Expr;
+		}
 		Expr()
+			:ExprBase("")
 		{
 		}
-		Glib::ustring m_Expr;
 	};
 
-	template<> class Expr<Glib::ustring>
+	template<> class Expr<Glib::ustring> : public ExprBase
 	{
-		friend class Field<Glib::ustring>;
-		template<class T> friend class Case;
 	public:
 		Expr(const Field<Glib::ustring>& field)
-			:m_Expr(field.GetFieldName())
+			:ExprBase(field.GetFieldName())
 		{
 		}
 
-		Expr(const Expr<Glib::ustring>& expr)
-			:m_Expr(expr.m_Expr)
+/*		Expr(const Expr<Glib::ustring>& expr)
+			:ExprBase(expr.m_Expr)
 		{
-		}
+		}*/
 
 		Expr(const Glib::ustring& value)
-			:m_Expr(Field<Glib::ustring>::ToString(value))
+			:ExprBase(Field<Glib::ustring>::ToString(value))
 		{
 		}
 
 		Expr(const char* value)
-			:m_Expr(Field<Glib::ustring>::ToString(value))
+			:ExprBase(Field<Glib::ustring>::ToString(value))
 		{
 		}
 
@@ -75,16 +96,15 @@ namespace ORM
 			res.m_Expr += " || " + expr.m_Expr;
 			return res;
 		}
-
-		operator Field<Glib::ustring>() const
-		{
-			return Field<Glib::ustring>(m_Expr);
-		}
 	protected:
+		Glib::ustring& GetExpr()
+		{
+			return this->m_Expr;
+		}
 		Expr()
+			:ExprBase("")
 		{
 		}
-		Glib::ustring m_Expr;
 	};
 }
 

@@ -28,12 +28,15 @@ namespace DB
 	class ModelBranch : public ModelEntity
 	{
 	public:
+		ORM::Field<Glib::ustring> abbr;
 		ORM::Field<ORM::ForeignKey> category;
 
 		ModelBranch(const Glib::ustring& table_name)
 			:ModelEntity(table_name),
+			abbr("abbr"),
 			category(g_ModelBranchCategory)
 		{
+			add(abbr);
 			add(category);
 		}
 	};

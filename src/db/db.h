@@ -43,10 +43,10 @@ namespace DB
 
 		void AppendEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
 		void ListEntity(const ORM::Table& ent, Glib::RefPtr<ORM::Data> &list_store);
-		void ListEntitiesText(const ORM::Table& ent, const ORM::Field<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data);
+		void ListEntitiesText(const ORM::Table& ent, const ORM::Expr<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data);
 		void EditEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
 		void RemoveEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
-		Glib::ustring GetTextById(const ORM::Table& ent, const ORM::Field<Glib::ustring>& field, long id);
+		Glib::ustring GetTextById(const ORM::Table& ent, const ORM::Expr<Glib::ustring>& field, long id);
 
 		bool GetTeacherHolydays(long int teacher_id, long int day_id, long int hour_id);
 		void SetTeacherHolydays(long int teacher_id, long int day_id, long int hour_id, bool holyday);
@@ -65,7 +65,7 @@ namespace DB
 		void EditTeachingPlanHours(long int id_teaching_branch, long int id_lesson_type, long hours);
 
 		void GetSubgroupsList(Glib::RefPtr<ORM::Data>& data);
-		void GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::PrimaryKey& id_subgroup);
+		void GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::ForeignKey& id_subgroup);
 		void SetLessonsTeacher(long int id_lesson, long int id_teacher);
 	private:		
 		ORM::Connection m_Connection;

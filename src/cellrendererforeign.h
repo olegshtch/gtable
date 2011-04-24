@@ -6,12 +6,13 @@
 #include "celleditableforeign.h"
 #include "orm/foreign_key.h"
 #include "orm/data.h"
+#include "orm/expr.h"
 #include "id_text_scheme.h"
 
 class CellRendererForeign : public Gtk::CellRendererCombo
 {
 public:
-	CellRendererForeign(const ORM::Field<ORM::ForeignKey>& field, const ORM::Table& foreign_table, const ORM::Field<Glib::ustring>& foreign_field)
+	CellRendererForeign(const ORM::Field<ORM::ForeignKey>& field, const ORM::Table& foreign_table, const ORM::Expr<Glib::ustring>& foreign_field)
 		:Glib::ObjectBase(typeid(CellRendererForeign)),
 		m_ComboData(ORM::Data::create(m_Scheme)),
 		m_Field(field),
@@ -43,7 +44,7 @@ private:
 
 	const ORM::Field<ORM::ForeignKey>& m_Field;
 	const ORM::Table& m_ForeignTable;
-	const ORM::Field<Glib::ustring>& m_ForeignField;
+	ORM::Expr<Glib::ustring> m_ForeignField;
 	CellEditableForeign* m_Editable;
 
 	virtual void on_editing_done();

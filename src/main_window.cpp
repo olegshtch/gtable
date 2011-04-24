@@ -95,6 +95,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 
 	m_pTreeView = AddListView("TreeViewBranch", DB::g_ModelBranch);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelBranch.name);
+	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelBranch.abbr);
 	m_pTreeView->append_column_foreign_editable(_("category"), DB::g_ModelBranch.category, DB::g_ModelBranchCategory, DB::g_ModelBranchCategory.name);
 
 	m_pTreeView = AddListView("TreeViewLessonType", DB::g_ModelLessonType);
@@ -160,7 +161,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_ComboBoxPlanSpeciality->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesChanged));
 
 	// Loadings -> Teaching lesson
-	m_refBuilder->get_widget("TreeViewTeachedLesson", m_TeachingLesson);
+	m_refBuilder->get_widget_derived("TreeViewTeachedLesson", m_TeachingLesson);
 	if(! m_TeachingLesson)
 	{
 		throw Glib::Error(1, 0, "Cann't load TreeViewTeachedLesson");
@@ -487,7 +488,11 @@ bool MainWindow::TeachingLessonGroupExpose(GdkEventExpose* event)
 
 void MainWindow::TeachingLessonGroupChanged()
 {
-	
+	Gtk::TreeIter iter = m_ComboBoxTeachingLesson->get_active();
+	if(iter)
+	{
+		m_TeachingLesson->SetSubgroup(iter->get_value(m_ComboScheme.fId));
+	}
 }
 
 void MainWindow::OnScheduleNew()

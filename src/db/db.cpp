@@ -54,7 +54,7 @@ void DataBase::EditEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
 	}
 }
 
-Glib::ustring DataBase::GetTextById(const ORM::Table& ent, const ORM::Field<Glib::ustring>& field, long id)
+Glib::ustring DataBase::GetTextById(const ORM::Table& ent, const ORM::Expr<Glib::ustring>& field, long id)
 {
 	ORM::Scheme scheme;
 	ORM::Field<Glib::ustring> str_field("");
@@ -68,9 +68,9 @@ Glib::ustring DataBase::GetTextById(const ORM::Table& ent, const ORM::Field<Glib
 	return "{null}";
 }
 
-void DataBase::ListEntitiesText(const ORM::Table& ent, const ORM::Field<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data)
+void DataBase::ListEntitiesText(const ORM::Table& ent, const ORM::Expr<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data)
 {
-	m_Connection.Select(data, ent.fId, field)->From(ent);
+	m_Connection.Select(data, ORM::Expr<ORM::PrimaryKey>(ent.fId), field)->From(ent);
 }
 
 void DataBase::RemoveEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
@@ -84,7 +84,7 @@ bool DataBase::GetTeacherHolydays(long int teacher_id, long int day_id, long int
 	ORM::Field<long int> long_field("");
 	scheme.add(long_field);
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
-	m_Connection.Select(data, static_cast<ORM::Field<long int> >(ORM::Count()))->From(DB::g_ModelTeacherHolydays)->Where(ORM::Eq(DB::g_ModelTeacherHolydays.teacher, ORM::ForeignKey(teacher_id)) && ORM::Eq(DB::g_ModelTeacherHolydays.day, ORM::ForeignKey(day_id)) && ORM::Eq(DB::g_ModelTeacherHolydays.hour, ORM::ForeignKey(hour_id)));
+	m_Connection.Select(data, ORM::Count())->From(DB::g_ModelTeacherHolydays)->Where(ORM::Eq(DB::g_ModelTeacherHolydays.teacher, ORM::ForeignKey(teacher_id)) && ORM::Eq(DB::g_ModelTeacherHolydays.day, ORM::ForeignKey(day_id)) && ORM::Eq(DB::g_ModelTeacherHolydays.hour, ORM::ForeignKey(hour_id)));
 	if(data->children().size())
 	{
 		return static_cast<bool>(data->children()[0].get_value(long_field));
@@ -115,7 +115,7 @@ bool DataBase::GetGroupHolydays(long int group_id, long int day_id, long int hou
 	ORM::Field<long int> long_field("");
 	scheme.add(long_field);
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
-	m_Connection.Select(data, static_cast<ORM::Field<long int> >(ORM::Count()))->From(DB::g_ModelGroupHolydays)->Where(ORM::Eq(DB::g_ModelGroupHolydays.group, ORM::ForeignKey(group_id)) && ORM::Eq(DB::g_ModelGroupHolydays.day, ORM::ForeignKey(day_id)) && ORM::Eq(DB::g_ModelGroupHolydays.hour, ORM::ForeignKey(hour_id)));
+	m_Connection.Select(data, ORM::Count())->From(DB::g_ModelGroupHolydays)->Where(ORM::Eq(DB::g_ModelGroupHolydays.group, ORM::ForeignKey(group_id)) && ORM::Eq(DB::g_ModelGroupHolydays.day, ORM::ForeignKey(day_id)) && ORM::Eq(DB::g_ModelGroupHolydays.hour, ORM::ForeignKey(hour_id)));
 	if(data->children().size())
 	{
 		return static_cast<bool>(data->children()[0].get_value(long_field));
@@ -213,14 +213,26 @@ void DataBase::EditTeachingPlanHours(long int id_teaching_branch, long int id_le
 
 void DataBase::GetSubgroupsList(Glib::RefPtr<ORM::Data>& data)
 {
-	ORM::Field<Glib::ustring> name = ORM::Case<Glib::ustring>(ORM::Expr<bool>(g_ModelGroupCategory.full), g_ModelGroups.name).Else(ORM::Expr<Glib::ustring>(g_ModelGroups.name) + ":" + g_ModelGroupCategory.name + "#" + g_ModelSubgroups.name);
+	ORM::Expr<Glib::ustring> name = ORM::Case<Glib::ustring>(ORM::Expr<bool>(g_ModelGroupCategory.full), g_ModelGroups.name).Else(ORM::Expr<Glib::ustring>(g_ModelGroups.name) + ":" + g_ModelGroupCategory.name + "#" + g_ModelSubgroups.name);
 	m_Connection.Select(data, g_ModelSubgroups.fId, name)->From(g_ModelSubgroups, g_ModelGroupCategory, g_ModelGroups)->Where(ORM::Eq(g_ModelSubgroups.group_category, g_ModelGroupCategory.fId) && ORM::Eq(g_ModelGroupCategory.group, g_ModelGroups.fId));
 }
 
-void DataBase::GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::PrimaryKey& id_subgroup)
+void DataBase::GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::ForeignKey& id_subgroup)
 {
-	ORM::Field<Glib::ustring> name = ORM::Expr<Glib::ustring>(g_ModelBranch.name) + "\\" + g_ModelLessonType.name;
-	m_Connection.Select(data, g_ModelLessons.fId, name, g_ModelLessons.teacher)->From(g_ModelLessons, g_ModelBranch, g_ModelLessonType, g_ModelSubgroups)->Where(ORM::Eq(g_ModelSubgroups.fId, id_subgroup));
+	//get speciality
+	long int id_speciality = -1l;
+	ORM::Scheme scheme;
+	ORM::Field<long int> field("");
+	scheme.add(field);
+	Glib::RefPtr<ORM::Data> spec_data = ORM::Data::create(scheme);
+	m_Connection.Select(spec_data, g_ModelGroups.speciality)->From(g_ModelGroups, g_ModelGroupCategory, g_ModelSubgroups)->Where(ORM::Eq(g_ModelSubgroups.fId, ORM::PrimaryKey(id_subgroup)) && ORM::Eq(g_ModelSubgroups.group_category, g_ModelGroupCategory.fId) && ORM::Eq(g_ModelGroupCategory.group, g_ModelGroups.fId));
+	if(spec_data->children().size() > 0)
+	{
+		id_speciality = spec_data->children()[0].get_value(field);
+	}
+
+	//ORM::Field<Glib::ustring> name = ORM::Expr<Glib::ustring>(g_ModelBranch.name) + "\\" + g_ModelLessonType.name;
+	//m_Connection.Select(data, g_ModelLessons.fId, name, g_ModelLessons.teacher)->From(g_ModelLessons, g_ModelBranch, g_ModelLessonType)->Where(ORM::Eq(g_ModelLessons.subgroup, id_subgroup));
 }
 
 void DataBase::SetLessonsTeacher(long int id_lesson, long int id_teacher)

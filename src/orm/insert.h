@@ -7,7 +7,7 @@
 
 namespace ORM
 {
-	class Connection;
+	class Subquery;
 
 	class InsertBase : public QueryBase
 	{
@@ -50,6 +50,7 @@ namespace ORM
 		}
 
 		void Values(const Gtk::TreeIter& row);
+		void Select(const Subquery& subquery);
 	private:
 		const Table& m_Table;
 		std::vector<const FieldBase*> m_Fields;

@@ -12,6 +12,7 @@
 #include "listview.h"
 #include "sheet.h"
 #include "plan_sheet.h"
+#include "teaching_lesson.h"
 #include "db/db.h"
 
 class MainWindow : public Gtk::Window
@@ -69,7 +70,7 @@ private:
 	void PlanSpecialitiesButtonRelease(long int row, long int column, GdkEventButton* event);
 
 	// Loadings -> Teaching lesson
-	Gtk::TreeView *m_TeachingLesson;
+	TeachingLesson *m_TeachingLesson;
 	Gtk::ComboBox *m_ComboBoxTeachingLesson;
 	bool TeachingLessonGroupExpose(GdkEventExpose* event);
 	void TeachingLessonGroupChanged();

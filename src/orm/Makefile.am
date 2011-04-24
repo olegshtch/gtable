@@ -20,6 +20,7 @@ noinst_HEADERS = case.h \
 	queryable.h \
 	scheme.h \
 	select.h \
+	subquery.h \
 	table.h \
 	update.h \
 	where.h
