@@ -43,6 +43,7 @@ private:
 
 	Gtk::TreeViewColumn m_TeacherColumn;
 	CellRendererForeign m_TeacherRenderer;
+	long int m_IdSubgroup;
 };
 
 #endif

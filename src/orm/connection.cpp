@@ -121,7 +121,10 @@ int ORM::Connection::CallBack(void *self_ptr, int argc, char **argv, char **col_
 	Gtk::TreeIter it = data->append();
 	for(int index = 0; index < argc; index ++)
 	{
-		data->GetField(index).SetStrValue(it, argv[index]);
+		if(argv[index])
+		{
+			data->GetField(index).SetStrValue(it, argv[index]);
+		}
 		std::clog << " [" << col_name[index] << "]=" << argv[index];
 	}
 	std::clog << std::endl;

@@ -13,6 +13,11 @@ Glib::ustring ORM::Table::GetSqlCreateString() const
 		query += (*it)->GetDefinition();
 		query += ",";
 	}
+	for(std::vector<Glib::ustring>::const_iterator constraint = m_Constraints.begin(); constraint != m_Constraints.end(); ++ constraint)
+	{
+		query += (*constraint);
+		query += ",";
+	}
 	query.replace(query.size() - 1, 1, 1, ')');
 	return query;
 }

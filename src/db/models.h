@@ -19,6 +19,7 @@ namespace DB
 			name("name")
 		{
 			add(name);
+			Unique(name);
 		}
 	};
 
@@ -38,6 +39,7 @@ namespace DB
 		{
 			add(abbr);
 			add(category);
+			Unique(abbr);
 		}
 	};
 
@@ -59,6 +61,7 @@ namespace DB
 		{
 			add(start);
 			add(finish);
+			Unique(start, finish);
 		}
 	};
 
@@ -79,6 +82,7 @@ namespace DB
 			abbr("abbr")
 		{
 			add(abbr);
+			Unique(abbr);
 		}
 	};
 
@@ -189,6 +193,7 @@ namespace DB
 			add(group);
 			add(day);
 			add(hour);
+			Unique(group, day, hour);
 		}
 	};
 
@@ -241,6 +246,7 @@ namespace DB
 			add(teacher);
 			add(day);
 			add(hour);
+			Unique(teacher, day, hour);
 		}
 	};
 
@@ -256,6 +262,7 @@ namespace DB
 			doubleweek("doubleweek")
 		{
 			add(doubleweek);
+			Unique(doubleweek);
 		}
 	};
 
@@ -292,6 +299,7 @@ namespace DB
 		{
 			add(speciality);
 			add(branch);
+			Unique(speciality, branch);
 		}
 	};
 
@@ -313,30 +321,29 @@ namespace DB
 			add(teaching_branch);
 			add(lesson_type);
 			add(hours);
+			Unique(teaching_branch, lesson_type);
 		}
 	};
 
 	extern const ModelTeachingPlan g_ModelTeachingPlan;
 
-	class ModelGroupCategory : public ORM::Table
+	class ModelGroupCategory : public ModelEntity
 	{
 	public:
 		ORM::Field<ORM::ForeignKey> lesson;
 		ORM::Field<ORM::ForeignKey> group;
-		ORM::Field<Glib::ustring> name;
 		ORM::Field<bool> full;
 
 		ModelGroupCategory(const Glib::ustring& table_name)
-			:ORM::Table(table_name),
+			:ModelEntity(table_name),
 			lesson(g_ModelTeachingPlan, false),
 			group(g_ModelGroups),
-			name("name"),
 			full("full")
 		{
 			add(lesson);
 			add(group);
-			add(name);
 			add(full);
+			Unique(lesson, group);
 		}
 	};
 
@@ -366,13 +373,14 @@ namespace DB
 
 		ModelLessons(const Glib::ustring& table_name)
 			:ORM::Table(table_name),
-			teacher(g_ModelTeachers),
+			teacher(g_ModelTeachers, false),
 			teaching_plan(g_ModelTeachingPlan),
 			subgroup(g_ModelSubgroups)
 		{
 			add(teacher);
 			add(teaching_plan);
 			add(subgroup);
+			Unique(subgroup, teaching_plan);
 		}
 	};
 
@@ -395,6 +403,7 @@ namespace DB
 		{
 			add(auditorium);
 			add(type);
+			Unique(auditorium, type);
 		}
 	};
 
@@ -416,6 +425,7 @@ namespace DB
 			add(branch);
 			add(auditorium_type);
 			add(lesson_type);
+			Unique(branch, auditorium_type, lesson_type);
 		}
 	};
 

@@ -39,6 +39,11 @@ namespace ORM
 			m_Query += m_Fields + " FROM " + table1.GetTableName() + "," + table2.GetTableName() + "," + table3.GetTableName() + "," + table4.GetTableName();
 			return this;
 		}
+		SelectBase* From(const Table& table1, const Table& table2, const Table& table3, const Table& table4, const Table& table5)
+		{
+			m_Query += m_Fields + " FROM " + table1.GetTableName() + "," + table2.GetTableName() + "," + table3.GetTableName() + "," + table4.GetTableName() + "," + table5.GetTableName();
+			return this;
+		}
 
 		void Where(const WhereBase& where)
 		{

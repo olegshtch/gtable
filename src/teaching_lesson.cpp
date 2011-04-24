@@ -21,15 +21,18 @@ TeachingLesson::TeachingLesson(GtkTreeView *cobject, const Glib::RefPtr<Gtk::Bui
 
 void TeachingLesson::SetSubgroup(long int id_subgroup)
 {
+	m_IdSubgroup = id_subgroup;
 	DB::DataBase::Instance().GetLessonsForSubgroup(m_Model, id_subgroup);
 }
 
 void TeachingLesson::OnTeacherEdited(const Glib::ustring& path, long int id)
 {
+	std::cout << "TeachingLesson::OnTeacherEdited" << std::endl;
 	Gtk::TreeIter iter = m_Model->get_iter(path);
 	if(iter)
 	{
 		DB::DataBase::Instance().SetLessonsTeacher(iter->get_value(m_LessonColumnRecord.fId), id);
 	}
+	DB::DataBase::Instance().GetLessonsForSubgroup(m_Model, m_IdSubgroup);
 }
 

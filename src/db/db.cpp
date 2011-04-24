@@ -6,6 +6,7 @@
 #include "../orm/count.h"
 #include "../orm/field.h"
 #include "../orm/case.h"
+#include "../orm/subquery.h"
 
 using namespace DB;
 
@@ -220,7 +221,7 @@ void DataBase::GetSubgroupsList(Glib::RefPtr<ORM::Data>& data)
 void DataBase::GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::ForeignKey& id_subgroup)
 {
 	//get speciality
-	long int id_speciality = -1l;
+	ORM::ForeignKey id_speciality = -1l;
 	ORM::Scheme scheme;
 	ORM::Field<long int> field("");
 	scheme.add(field);
@@ -231,11 +232,16 @@ void DataBase::GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::F
 		id_speciality = spec_data->children()[0].get_value(field);
 	}
 
-	//ORM::Field<Glib::ustring> name = ORM::Expr<Glib::ustring>(g_ModelBranch.name) + "\\" + g_ModelLessonType.name;
-	//m_Connection.Select(data, g_ModelLessons.fId, name, g_ModelLessons.teacher)->From(g_ModelLessons, g_ModelBranch, g_ModelLessonType)->Where(ORM::Eq(g_ModelLessons.subgroup, id_subgroup));
+	ORM::Subquery lessons;
+	lessons.Select(data, g_ModelTeachingPlan.fId, ORM::Expr<ORM::ForeignKey>(id_subgroup))->From(g_ModelTeachingPlan, g_ModelTeachingBranch)->Where(ORM::Eq(g_ModelTeachingPlan.teaching_branch, g_ModelTeachingBranch.fId) && ORM::Eq(g_ModelTeachingBranch.speciality, id_speciality) && ORM::Greater(g_ModelTeachingPlan.hours, 0l));
+	m_Connection.InsertInto(g_ModelLessons, g_ModelLessons.teaching_plan, g_ModelLessons.subgroup)->Select(lessons);
+
+	ORM::Expr<Glib::ustring> name = ORM::Expr<Glib::ustring>(g_ModelBranch.name) + "\\" + g_ModelLessonType.name;
+	m_Connection.Select(data, g_ModelLessons.fId, name, g_ModelLessons.teacher)->From(g_ModelLessons, g_ModelTeachingPlan, g_ModelBranch, g_ModelLessonType, g_ModelTeachingBranch)->Where(ORM::Eq(g_ModelLessons.subgroup, id_subgroup) && ORM::Eq(g_ModelLessons.teaching_plan, g_ModelTeachingPlan.fId) && ORM::Eq(g_ModelTeachingPlan.teaching_branch, g_ModelTeachingBranch.fId) && ORM::Eq(g_ModelTeachingPlan.lesson_type, g_ModelLessonType.fId) && ORM::Eq(g_ModelTeachingBranch.branch, g_ModelBranch.fId) && ORM::Greater(g_ModelTeachingPlan.hours, 0l));
 }
 
-void DataBase::SetLessonsTeacher(long int id_lesson, long int id_teacher)
+void DataBase::SetLessonsTeacher(ORM::PrimaryKey id_lesson, ORM::ForeignKey id_teacher)
 {
+	m_Connection.Update(g_ModelLessons)->Set(g_ModelLessons.teacher, id_teacher)->Where(ORM::Eq(g_ModelLessons.fId, id_lesson));
 }
 

@@ -48,6 +48,15 @@ namespace ORM
 		{
 		}
 	};
+
+	class Greater : public WhereBase
+	{
+	public:
+		template<class T> Greater(const Field<T>& field, const T& value)
+			:WhereBase(field.GetFieldName() + ">" + Field<T>::ToString(value))
+		{
+		}
+	};
 }
 
 #endif 
