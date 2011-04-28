@@ -247,6 +247,19 @@ void DataBase::SetLessonsTeacher(ORM::PrimaryKey id_lesson, ORM::ForeignKey id_t
 
 void DataBase::ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>& data)
 {
-	
+	data->clear();
+
+	ORM::Scheme scheme;
+	ORM::Field<ORM::PrimaryKey> id(g_ModelLessons);
+	//ORM::Field<Glib::ustring> auditory_name("auditory");
+	ORM::Field<Glib::ustring> teacher_name("teacher");
+	ORM::Field<Glib::ustring> lesson_name("lesson");
+	scheme.add(id);
+	//scheme.add(auditory_name);
+	scheme.add(teacher_name);
+	scheme.add(lesson_name);
+	Glib::RefPtr<ORM::Data> lesson_list = ORM::Data::create(scheme);
+
+	m_Connection.Select(lesson_list, g_ModelLessons.fId, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + DB::g_ModelTeachers.firstname + " " + DB::g_ModelTeachers.thirdname, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name)->From(g_ModelLessons, g_ModelTeachers, g_ModelBranch, g_ModelLessonType);
 }
 

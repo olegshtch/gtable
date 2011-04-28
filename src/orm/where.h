@@ -2,6 +2,7 @@
 #define _ORM_WHERE_H_
 
 #include <glibmm/ustring.h>
+#include "expr.h"
 
 namespace ORM
 {
@@ -56,6 +57,14 @@ namespace ORM
 			:WhereBase(field.GetFieldName() + ">" + Field<T>::ToString(value))
 		{
 		}
+	};
+
+	class Subquery;
+
+	class NotIn : public WhereBase
+	{
+	public:
+		NotIn(const ExprBase& expr, const Subquery& subquery);
 	};
 }
 

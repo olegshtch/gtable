@@ -331,7 +331,7 @@ void MainWindow::SwitchHolydayCategory()
 	if(choose == _("Teachers"))
 	{
 		// fill HolydayObjectList by teachers
-		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelTeachers, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + DB::g_ModelTeachers.firstname + " " + DB::g_ModelTeachers.thirdname), data);
+		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelTeachers, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + DB::g_ModelTeachers.firstname + " " + DB::g_ModelTeachers.thirdname, data);
 		m_HolydaysObjectList->set_model(data);
 		m_HolydaysObjectList->set_text_column(m_ComboScheme.fText);
 	}

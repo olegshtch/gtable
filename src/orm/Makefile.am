@@ -5,7 +5,8 @@ liborm_a_SOURCES = connection.cpp \
 	insert.cpp \
 	primary_key.cpp \
 	query.cpp \
-	table.cpp
+	table.cpp \
+	where.cpp
 noinst_HEADERS = case.h \
 	connection.h \
 	count.h \
