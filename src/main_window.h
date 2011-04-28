@@ -78,9 +78,9 @@ private:
 	// Schedule -> Group
 	Sheet *m_ScheduleGroup;
 	Gtk::ComboBox *m_ComboBoxScheduleGroup;
+	Gtk::TreeView *m_ScheduleGroupOther;
 	bool ScheduleGroupExpose(GdkEventExpose* event);
 	void ScheduleGroupChanged();
-
 	void ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour, long int id_day);
 
 	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;

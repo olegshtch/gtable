@@ -67,6 +67,8 @@ namespace DB
 		void GetSubgroupsList(Glib::RefPtr<ORM::Data>& data);
 		void GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::ForeignKey& id_subgroup);
 		void SetLessonsTeacher(ORM::PrimaryKey id_lesson, ORM::ForeignKey id_teacher);
+
+		void ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>& data);
 	private:		
 		ORM::Connection m_Connection;
 	};

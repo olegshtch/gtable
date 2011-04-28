@@ -245,3 +245,8 @@ void DataBase::SetLessonsTeacher(ORM::PrimaryKey id_lesson, ORM::ForeignKey id_t
 	m_Connection.Update(g_ModelLessons)->Set(g_ModelLessons.teacher, id_teacher)->Where(ORM::Eq(g_ModelLessons.fId, id_lesson));
 }
 
+void DataBase::ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>& data)
+{
+	
+}
+

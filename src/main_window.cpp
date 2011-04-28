@@ -18,6 +18,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_ComboBoxPlanSpeciality(NULL),
 	m_ScheduleGroup(NULL),
 	m_ComboBoxScheduleGroup(NULL),
+	m_ScheduleGroupOther(NULL),
 	m_pCurrentLineEditor(NULL),
 	m_StatusBar(NULL)
 {
@@ -88,6 +89,9 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column_editable(_("multithread"), DB::g_ModelAuditoriums.multithread);
 	m_pTreeView->append_column_foreign_editable(_("building"), DB::g_ModelAuditoriums.building, DB::g_ModelBuildings, DB::g_ModelBuildings.name);
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelAuditoriums.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
+
+	m_pTreeView = AddListView("TreeViewAuditoriumTypes", DB::g_ModelAuditoriumTypes);
+	m_pTreeView->append_column_editable(_("property"), DB::g_ModelAuditoriumTypes.name);
 
 	m_pTreeView = AddListView("TreeViewBranchCategory", DB::g_ModelBranchCategory);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelBranchCategory.name);
@@ -177,6 +181,11 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_ComboBoxTeachingLesson->pack_start(m_ComboScheme.fText);
 	m_ComboBoxTeachingLesson->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::TeachingLessonGroupChanged));
 
+	// Loadings -> Auditorium Lessons
+	
+	m_pTreeView = AddListView("TreeViewAllAuditoriumTypes", DB::g_ModelAuditoriumTypes);
+	m_pTreeView->append_column_editable(_("property"), DB::g_ModelAuditoriumTypes.name);
+
 	// Schedule -> Group
 	
 	m_refBuilder->get_widget_derived("ScheduleGroup", m_ScheduleGroup);
@@ -194,6 +203,16 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_ComboBoxScheduleGroup->set_model(ORM::Data::create(m_ComboScheme));
 	m_ComboBoxScheduleGroup->pack_start(m_ComboScheme.fText);
 	m_ComboBoxScheduleGroup->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupChanged));
+
+	m_refBuilder->get_widget("TreeViewGroupLessonsOther", m_ScheduleGroupOther);
+	if(! m_ScheduleGroupOther)
+	{
+		throw Glib::Error(1, 0, "Cann't load ComboBoxScheduleGroup");
+	}
+	m_ScheduleGroupOther->set_model(ORM::Data::create(m_ComboScheme));
+	m_ScheduleGroupOther->set_headers_visible(false);
+	m_ScheduleGroupOther->append_column(_(""), m_ComboScheme.fText);
+	m_ScheduleGroupOther->get_selection()->set_mode(Gtk::SELECTION_SINGLE);
 
 	OnNew();
 
@@ -468,13 +487,21 @@ void MainWindow::ScheduleGroupChanged()
 		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
 		m_ScheduleGroup->set_vert_model(vert_data);
 		m_ScheduleGroup->set_horz_model(horz_data);
+
+		Glib::RefPtr<ORM::Data> other_data = ORM::Data::create(m_ComboScheme);
+		DB::DataBase::Instance().ListGroupOtherLessons(iter->get_value(m_ComboScheme.fId), other_data);
+		m_ScheduleGroupOther->set_model(other_data);
 	}
 }
 
-// yet fake!!!
 void MainWindow::ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour, long int id_day)
 {
 	Gtk::CellRendererText *renderer = reinterpret_cast<Gtk::CellRendererText *>(cell);
+	Gtk::TreeIter iter = m_ComboBoxScheduleGroup->get_active();
+	if(iter)
+	{
+		long int id_group = iter->get_value(m_ComboScheme.fId);
+	}
 	renderer->property_markup() = "";
 }
 
