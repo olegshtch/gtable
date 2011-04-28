@@ -8,7 +8,7 @@
 #include <gtkmm/actiongroup.h>
 #include <gtkmm/builder.h>
 #include <gtkmm/comboboxentry.h>
-#include "id_text_scheme.h"
+#include "db/id_text_scheme.h"
 #include "listview.h"
 #include "sheet.h"
 #include "plan_sheet.h"
@@ -88,8 +88,6 @@ private:
 	LineEditable *m_pCurrentLineEditor;
 
 	Gtk::Statusbar *m_StatusBar;
-
-	IdTextScheme m_ComboScheme;
 };
 
 #endif

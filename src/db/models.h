@@ -327,19 +327,22 @@ namespace DB
 
 	extern const ModelTeachingPlan g_ModelTeachingPlan;
 
-	class ModelGroupCategory : public ModelEntity
+	class ModelGroupCategory : public ORM::Table
 	{
 	public:
+		ORM::Field<Glib::ustring> name;
 		ORM::Field<ORM::ForeignKey> lesson;
 		ORM::Field<ORM::ForeignKey> group;
 		ORM::Field<bool> full;
 
 		ModelGroupCategory(const Glib::ustring& table_name)
-			:ModelEntity(table_name),
+			:ORM::Table(table_name),
+			name("name"),
 			lesson(g_ModelTeachingPlan, false),
 			group(g_ModelGroups),
 			full("full")
 		{
+			add(name);
 			add(lesson);
 			add(group);
 			add(full);
@@ -349,15 +352,18 @@ namespace DB
 
 	extern const ModelGroupCategory g_ModelGroupCategory;
 
-	class ModelSubgroups : public ModelEntity
+	class ModelSubgroups : public ORM::Table
 	{
 	public:
+		ORM::Field<Glib::ustring> name;
 		ORM::Field<ORM::ForeignKey> group_category;
 
 		ModelSubgroups(const Glib::ustring& table_name)
-			:ModelEntity(table_name),
+			:ORM::Table(table_name),
+			name("name"),
 			group_category(g_ModelGroupCategory)
 		{
+			add(name);
 			add(group_category);
 		}
 	};

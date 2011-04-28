@@ -25,10 +25,10 @@ PlanSheet::~PlanSheet()
 void PlanSheet::add_empty_line()
 {
 	Gtk::Dialog dialog(_("Choose branch:"));
-	Glib::RefPtr<ORM::Data> data = ORM::Data::create(m_ColumnRecord);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
 	DB::DataBase::Instance().ListNewBranchForSpeciality(data, m_IdSpeciality);
 	Gtk::ComboBox combo(data);
-	combo.pack_start(m_ColumnRecord.fText);
+	combo.pack_start(DB::g_IdTextScheme.fText);
 	dialog.get_vbox()->pack_start(combo);
 	dialog.add_button(Gtk::Stock::OK, Gtk::RESPONSE_OK);
 	dialog.add_button(Gtk::Stock::CANCEL, Gtk::RESPONSE_CANCEL);
@@ -39,7 +39,7 @@ void PlanSheet::add_empty_line()
 		Gtk::TreeIter iter = combo.get_active();
 		if(iter)
 		{
-			DB::DataBase::Instance().AppendNewBranchForSpeciality(m_IdSpeciality, iter->get_value(m_ColumnRecord.fId));
+			DB::DataBase::Instance().AppendNewBranchForSpeciality(m_IdSpeciality, iter->get_value(DB::g_IdTextScheme.fId));
 		}
 	}
 }
@@ -50,11 +50,11 @@ void PlanSheet::remove_line()
 
 void PlanSheet::update_model()
 {
-	Glib::RefPtr<ORM::Data> data = ORM::Data::create(m_ColumnRecord);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
 	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelLessonType, DB::g_ModelLessonType.abbr, data);
 	set_horz_model(data);
 
-	data = ORM::Data::create(m_ColumnRecord);
+	data = ORM::Data::create(DB::g_IdTextScheme);
 	DB::DataBase::Instance().GetTeachingBranch(data, m_IdSpeciality);
 	set_vert_model(data);
 }
@@ -70,7 +70,7 @@ void PlanSheet::BranchEdited(const Glib::ustring& path, long int id)
 
 void PlanSheet::on_label_data(Gtk::CellRenderer* cell, const Gtk::TreeModel::iterator& iter)
 {
-	m_BranchRenderer.property_text() = iter->get_value(m_ColumnRecord.fText);
+	m_BranchRenderer.property_text() = iter->get_value(DB::g_IdTextScheme.fText);
 }
 
 void PlanSheet::on_label_button_release(const Gtk::TreeIter& iter, GdkEventButton* event)

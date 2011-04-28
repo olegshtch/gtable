@@ -33,7 +33,7 @@ void DataBase::New()
 	new (&m_Connection) ORM::Connection(":memory:", true);	
 	ORM::Table::InitTables(m_Connection);
 	m_Connection.InsertInto(g_ModelWeek);
-	m_Connection.CreateTrigger("groupcat_trigger", "AFTER INSERT ON " + g_ModelGroups.GetTableName() + " BEGIN INSERT INTO " + g_ModelGroupCategory.GetTableName() + "(" + g_ModelGroupCategory.name.GetSmallFieldName() + "," + g_ModelGroupCategory.group.GetSmallFieldName() + "," + g_ModelGroupCategory.full.GetSmallFieldName() + ") VALUES (\"\", NEW." + g_ModelGroups.fId.GetSmallFieldName() + ", 1); END");
+	m_Connection.CreateTrigger("groupcat_trigger", "AFTER INSERT ON " + g_ModelGroups.GetTableName() + " BEGIN INSERT OR FAIL INTO " + g_ModelGroupCategory.GetTableName() + "(" + g_ModelGroupCategory.name.GetSmallFieldName() + "," + g_ModelGroupCategory.group.GetSmallFieldName() + "," + g_ModelGroupCategory.full.GetSmallFieldName() + ") VALUES (\"\", NEW." + g_ModelGroups.fId.GetSmallFieldName() + ", 1); END");
 	m_Connection.CreateTrigger("subgroup_trigger", "AFTER INSERT ON " + g_ModelGroupCategory.GetTableName() + " BEGIN INSERT INTO " + g_ModelSubgroups.GetTableName() + "(" + g_ModelSubgroups.name.GetSmallFieldName() + "," + g_ModelSubgroups.group_category.GetSmallFieldName() + ") VALUES (\"\", NEW." + g_ModelGroupCategory.fId.GetSmallFieldName() + "); END");
 }
 
@@ -262,6 +262,22 @@ void DataBase::ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>&
 	scheme.add(hours);
 	Glib::RefPtr<ORM::Data> lesson_list = ORM::Data::create(scheme);
 
-	m_Connection.Select(lesson_list, g_ModelLessons.fId, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + ORM::substr(DB::g_ModelTeachers.firstname, 1, 1) + ". " + ORM::substr(DB::g_ModelTeachers.thirdname, 1, 1) + ".", ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name, g_ModelTeachingPlan.hours)->From(g_ModelLessons)->NaturalJoin(g_ModelTeachingPlan)->NaturalJoin(g_ModelLessonType)->NaturalJoin(g_ModelBranch)->NaturalJoin(g_ModelTeachingBranch)->NaturalJoin(g_ModelTeachers)->Where(ORM::Greater(g_ModelTeachingPlan.hours, 0L));
+	m_Connection.Select(lesson_list
+		, g_ModelLessons.fId
+		, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + ORM::substr(DB::g_ModelTeachers.firstname, 1, 1) + ". " + ORM::substr(DB::g_ModelTeachers.thirdname, 1, 1) + "."
+		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name, g_ModelTeachingPlan.hours)
+		->From(g_ModelLessons, g_ModelGroupCategory)
+		->NaturalJoin(g_ModelTeachingPlan)
+		->NaturalJoin(g_ModelLessonType)
+		->NaturalJoin(g_ModelBranch)
+		->NaturalJoin(g_ModelTeachingBranch)
+		->NaturalJoin(g_ModelTeachers)
+		->NaturalJoin(g_ModelSubgroups)
+		->Where(ORM::Greater(g_ModelTeachingPlan.hours, 0L) && ORM::Eq(g_ModelGroupCategory.group, ORM::ForeignKey(id_group)));
+
+	for(Gtk::TreeIter it = lesson_list->children().begin(); it != lesson_list->children().end(); ++ it)
+	{
+		Gtk::TreeIter iter = data->append();
+	}
 }
 

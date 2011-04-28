@@ -160,8 +160,8 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 		throw Glib::Error(1, 0, "Cann't load ComboBoxPlanSpeciality");
 	}
 	m_ComboBoxPlanSpeciality->signal_expose_event().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesExpose));
-	m_ComboBoxPlanSpeciality->set_model(ORM::Data::create(m_ComboScheme));
-	m_ComboBoxPlanSpeciality->pack_start(m_ComboScheme.fText);
+	m_ComboBoxPlanSpeciality->set_model(ORM::Data::create(DB::g_IdTextScheme));
+	m_ComboBoxPlanSpeciality->pack_start(DB::g_IdTextScheme.fText);
 	m_ComboBoxPlanSpeciality->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesChanged));
 
 	// Loadings -> Teaching lesson
@@ -177,8 +177,8 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 		throw Glib::Error(1, 0, "Cann't load TeachedLessonGroup");
 	}
 	m_ComboBoxTeachingLesson->signal_expose_event().connect(sigc::mem_fun(*this, &MainWindow::TeachingLessonGroupExpose));
-	m_ComboBoxTeachingLesson->set_model(ORM::Data::create(m_ComboScheme));
-	m_ComboBoxTeachingLesson->pack_start(m_ComboScheme.fText);
+	m_ComboBoxTeachingLesson->set_model(ORM::Data::create(DB::g_IdTextScheme));
+	m_ComboBoxTeachingLesson->pack_start(DB::g_IdTextScheme.fText);
 	m_ComboBoxTeachingLesson->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::TeachingLessonGroupChanged));
 
 	// Loadings -> Auditorium Lessons
@@ -200,8 +200,8 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 		throw Glib::Error(1, 0, "Cann't load ComboBoxScheduleGroup");
 	}
 	m_ComboBoxScheduleGroup->signal_expose_event().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupExpose));
-	m_ComboBoxScheduleGroup->set_model(ORM::Data::create(m_ComboScheme));
-	m_ComboBoxScheduleGroup->pack_start(m_ComboScheme.fText);
+	m_ComboBoxScheduleGroup->set_model(ORM::Data::create(DB::g_IdTextScheme));
+	m_ComboBoxScheduleGroup->pack_start(DB::g_IdTextScheme.fText);
 	m_ComboBoxScheduleGroup->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupChanged));
 
 	m_refBuilder->get_widget("TreeViewGroupLessonsOther", m_ScheduleGroupOther);
@@ -209,9 +209,9 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	{
 		throw Glib::Error(1, 0, "Cann't load ComboBoxScheduleGroup");
 	}
-	m_ScheduleGroupOther->set_model(ORM::Data::create(m_ComboScheme));
+	m_ScheduleGroupOther->set_model(ORM::Data::create(DB::g_IdTextScheme));
 	m_ScheduleGroupOther->set_headers_visible(false);
-	m_ScheduleGroupOther->append_column(_(""), m_ComboScheme.fText);
+	m_ScheduleGroupOther->append_column(_(""), DB::g_IdTextScheme.fText);
 	m_ScheduleGroupOther->get_selection()->set_mode(Gtk::SELECTION_SINGLE);
 
 	OnNew();
@@ -327,20 +327,20 @@ ListView* MainWindow::AddListView(const Glib::ustring& name, const ORM::Table& s
 void MainWindow::SwitchHolydayCategory()
 {
 	Glib::ustring choose = m_HolydaysCategory->get_active_text();
-	Glib::RefPtr<ORM::Data> data = ORM::Data::create(m_ComboScheme);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
 	if(choose == _("Teachers"))
 	{
 		// fill HolydayObjectList by teachers
 		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelTeachers, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + DB::g_ModelTeachers.firstname + " " + DB::g_ModelTeachers.thirdname, data);
 		m_HolydaysObjectList->set_model(data);
-		m_HolydaysObjectList->set_text_column(m_ComboScheme.fText);
+		m_HolydaysObjectList->set_text_column(DB::g_IdTextScheme.fText);
 	}
 	else if(choose == _("Groups"))
 	{
 		// fill HolydayObjectList by groups
 		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelGroups, DB::g_ModelGroups.name, data);
 		m_HolydaysObjectList->set_model(data);
-		m_HolydaysObjectList->set_text_column(m_ComboScheme.fText);
+		m_HolydaysObjectList->set_text_column(DB::g_IdTextScheme.fText);
 	}
 	else
 	{
@@ -352,8 +352,8 @@ void MainWindow::SwitchHolydayCategory()
 void MainWindow::SwitchHolydayObject()
 {
 	//long value = m_HolydaysObjectList->get_active()->get_value(m_ComboScheme.fId);
-	Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(m_ComboScheme);
-	Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(m_ComboScheme);
+	Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(DB::g_IdTextScheme);
+	Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(DB::g_IdTextScheme);
 	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
 	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
 	m_SheetHolydays->set_vert_model(vert_data);
@@ -369,7 +369,7 @@ void MainWindow::HolydaysCellData(Gtk::CellRenderer *cell, long int row, long in
 	{
 		Gtk::CellRendererText *renderer = reinterpret_cast<Gtk::CellRendererText*>(cell);
 		Glib::ustring category = m_HolydaysCategory->get_active_text();
-		long int value = obj_iter->get_value(m_ComboScheme.fId);
+		long int value = obj_iter->get_value(DB::g_IdTextScheme.fId);
 		if(category == _("Teachers"))
 		{
 			if(DB::DataBase::Instance().GetTeacherHolydays(value, column, row))
@@ -401,7 +401,7 @@ void MainWindow::HolydaysButtonRelease(long int row, long int column, GdkEventBu
 	if(obj_iter)
 	{
 		Glib::ustring category = m_HolydaysCategory->get_active_text();
-		long int value = obj_iter->get_value(m_ComboScheme.fId);
+		long int value = obj_iter->get_value(DB::g_IdTextScheme.fId);
 		if(category == _("Teachers"))
 		{
 			DB::DataBase::Instance().SetTeacherHolydays(value, column, row, ! DB::DataBase::Instance().GetTeacherHolydays(value, column, row));
@@ -423,7 +423,7 @@ void MainWindow::WeekToggle()
 
 bool MainWindow::PlanSpecialitiesExpose(GdkEventExpose* event)
 {
-	Glib::RefPtr<ORM::Data> data = ORM::Data::create(m_ComboScheme);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
 	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelSpecialities, DB::g_ModelSpecialities.name, data);
 	m_ComboBoxPlanSpeciality->set_model(data);
 	return false;
@@ -434,7 +434,7 @@ void MainWindow::PlanSpecialitiesChanged()
 	Gtk::TreeIter iter = m_ComboBoxPlanSpeciality->get_active();
 	if(iter)
 	{
-		m_PlanSheet->set_speciality(iter->get_value(m_ComboScheme.fId));
+		m_PlanSheet->set_speciality(iter->get_value(DB::g_IdTextScheme.fId));
 		m_PlanSheet->update_model();
 	}
 }
@@ -470,7 +470,7 @@ void MainWindow::PlanSpecialitiesButtonRelease(long int id_teaching_branch, long
 
 bool MainWindow::ScheduleGroupExpose(GdkEventExpose* event)
 {
-	Glib::RefPtr<ORM::Data> data = ORM::Data::create(m_ComboScheme);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
 	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelGroups, DB::g_ModelGroups.name, data);
 	m_ComboBoxScheduleGroup->set_model(data);
 	return false;
@@ -481,15 +481,15 @@ void MainWindow::ScheduleGroupChanged()
 	Gtk::TreeIter iter = m_ComboBoxScheduleGroup->get_active();
 	if(iter)
 	{
-		Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(m_ComboScheme);
-		Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(m_ComboScheme);
+		Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(DB::g_IdTextScheme);
+		Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(DB::g_IdTextScheme);
 		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
 		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
 		m_ScheduleGroup->set_vert_model(vert_data);
 		m_ScheduleGroup->set_horz_model(horz_data);
 
-		Glib::RefPtr<ORM::Data> other_data = ORM::Data::create(m_ComboScheme);
-		DB::DataBase::Instance().ListGroupOtherLessons(iter->get_value(m_ComboScheme.fId), other_data);
+		Glib::RefPtr<ORM::Data> other_data = ORM::Data::create(DB::g_IdTextScheme);
+		DB::DataBase::Instance().ListGroupOtherLessons(iter->get_value(DB::g_IdTextScheme.fId), other_data);
 		m_ScheduleGroupOther->set_model(other_data);
 	}
 }
@@ -500,14 +500,14 @@ void MainWindow::ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour
 	Gtk::TreeIter iter = m_ComboBoxScheduleGroup->get_active();
 	if(iter)
 	{
-		long int id_group = iter->get_value(m_ComboScheme.fId);
+		long int id_group = iter->get_value(DB::g_IdTextScheme.fId);
 	}
 	renderer->property_markup() = "";
 }
 
 bool MainWindow::TeachingLessonGroupExpose(GdkEventExpose* event)
 {
-	Glib::RefPtr<ORM::Data> data = ORM::Data::create(m_ComboScheme);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
 	DB::DataBase::Instance().GetSubgroupsList(data);
 	m_ComboBoxTeachingLesson->set_model(data);
 	return false;
@@ -518,7 +518,7 @@ void MainWindow::TeachingLessonGroupChanged()
 	Gtk::TreeIter iter = m_ComboBoxTeachingLesson->get_active();
 	if(iter)
 	{
-		m_TeachingLesson->SetSubgroup(iter->get_value(m_ComboScheme.fId));
+		m_TeachingLesson->SetSubgroup(iter->get_value(DB::g_IdTextScheme.fId));
 	}
 }
 

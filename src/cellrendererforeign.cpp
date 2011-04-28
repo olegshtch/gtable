@@ -6,7 +6,7 @@ Gtk::CellEditable* CellRendererForeign::start_editing_vfunc(GdkEvent* event, Gtk
 {
 	std::cout << "CellRendererForeign::start_editing_vfunc" << std::endl;
 	DB::DataBase::Instance().ListEntitiesText(m_ForeignTable, m_ForeignField, m_ComboData);
-	m_Editable = Gtk::manage(new CellEditableForeign(path, m_ComboData, m_Scheme.fText));
+	m_Editable = Gtk::manage(new CellEditableForeign(path, m_ComboData, DB::g_IdTextScheme.fText));
 	m_Editable->signal_editing_done().connect(sigc::mem_fun(*this, &CellRendererForeign::on_editing_done));
 	m_Editable->show();
 
@@ -22,9 +22,6 @@ void CellRendererForeign::ForeignKeyAsString(Gtk::CellRenderer *cell, const Gtk:
 
 void CellRendererForeign::on_editing_done()
 {
-	std::cout << "CellRendererForeign::on_editing_done" << std::endl;
-	std::cout << "\tid=" << m_Editable->get_iter()->get_value(m_Scheme.fId) << std::endl;
-	std::cout << "\tpath=" << m_Editable->get_path() << std::endl;
-	signal_edited_.emit(m_Editable->get_path(), m_Editable->get_iter()->get_value(m_Scheme.fId));
+	signal_edited_.emit(m_Editable->get_path(), m_Editable->get_iter()->get_value(DB::g_IdTextScheme.fId));
 }
 

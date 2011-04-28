@@ -1,10 +1,11 @@
 #include <iostream>
 #include "sheet.h"
+#include "db/id_text_scheme.h"
 
 Sheet::Sheet()
 	:Glib::ObjectBase(typeid(Sheet)),
-	m_refVertModel(ORM::Data::create(m_ColumnRecord)),
-	m_refHorzModel(ORM::Data::create(m_ColumnRecord))
+	m_refVertModel(ORM::Data::create(DB::g_IdTextScheme)),
+	m_refHorzModel(ORM::Data::create(DB::g_IdTextScheme))
 {
 	Init();
 }
@@ -12,8 +13,8 @@ Sheet::Sheet()
 Sheet::Sheet(GtkTreeView *cobject, const Glib::RefPtr<Gtk::Builder>& builder)
 	:Glib::ObjectBase(typeid(Sheet)),
 	Gtk::TreeView(cobject),
-	m_refVertModel(ORM::Data::create(m_ColumnRecord)),
-	m_refHorzModel(ORM::Data::create(m_ColumnRecord))
+	m_refVertModel(ORM::Data::create(DB::g_IdTextScheme)),
+	m_refHorzModel(ORM::Data::create(DB::g_IdTextScheme))
 {
 	Init();
 }
@@ -28,7 +29,7 @@ void Sheet::set_horz_model(const Glib::RefPtr<ORM::Data>& horz_model)
 	set_columns_count(horz_model->children().size());
 	for(size_t i = 0; i < horz_model->children().size(); ++ i)
 	{
-		get_column(i + 1)->set_title(horz_model->children()[i].get_value(m_ColumnRecord.fText));
+		get_column(i + 1)->set_title(horz_model->children()[i].get_value(DB::g_IdTextScheme.fText));
 	}
 }
 
@@ -42,13 +43,13 @@ void Sheet::set_vert_model(const Glib::RefPtr<ORM::Data>& vert_model)
 void Sheet::on_label_data(Gtk::CellRenderer* cell, const Gtk::TreeModel::iterator& iter)
 {
 	//std::cout << "Sheet::on_label_data" << std::endl;
-	m_LabelRenderer.property_text() = iter->get_value(m_ColumnRecord.fText);
+	m_LabelRenderer.property_text() = iter->get_value(DB::g_IdTextScheme.fText);
 }
 
 void Sheet::on_cell_data(Gtk::CellRenderer* cell, const Gtk::TreeModel::iterator& iter, long int column_id)
 {
 	//std::cout << "Sheet::on_cell_data" << std::endl;
-	long row_id = iter->get_value(m_ColumnRecord.fId);
+	long row_id = iter->get_value(DB::g_IdTextScheme.fId);
 	//m_CellRenderer.property_text() = Glib::ustring::format(row_id, ":", column_id);
 	signal_cell_data_.emit(cell, row_id, column_id);
 }
@@ -84,7 +85,7 @@ void Sheet::set_columns_count(size_t columns)
 			for(; delta != 0; ++ delta)
 			{
 				Gtk::TreeViewColumn *tree_view_column = new Gtk::TreeViewColumn(Glib::ustring(), m_CellRenderer);
-				tree_view_column->set_cell_data_func(m_CellRenderer, sigc::bind(sigc::mem_fun(*this, &Sheet::on_cell_data), m_refHorzModel->children()[static_cast<long>(columns) + delta].get_value(m_ColumnRecord.fId)));
+				tree_view_column->set_cell_data_func(m_CellRenderer, sigc::bind(sigc::mem_fun(*this, &Sheet::on_cell_data), m_refHorzModel->children()[static_cast<long>(columns) + delta].get_value(DB::g_IdTextScheme.fId)));
 				append_column(*Gtk::manage(tree_view_column));
 			}
 		}
@@ -124,7 +125,7 @@ bool Sheet::on_button_release_event(GdkEventButton* event)
 					else
 					{
 						//std::cout << "column = " << m_refHorzModel->children()[i - 1].get_value(m_ColumnRecord.fText) << std::endl;
-						signal_cell_button_release_.emit(iter->get_value(m_ColumnRecord.fId), m_refHorzModel->children()[i - 1].get_value(m_ColumnRecord.fId), event);
+						signal_cell_button_release_.emit(iter->get_value(DB::g_IdTextScheme.fId), m_refHorzModel->children()[i - 1].get_value(DB::g_IdTextScheme.fId), event);
 						return true;
 					}
 				}

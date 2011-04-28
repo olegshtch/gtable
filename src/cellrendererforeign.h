@@ -7,14 +7,14 @@
 #include "orm/foreign_key.h"
 #include "orm/data.h"
 #include "orm/expr.h"
-#include "id_text_scheme.h"
+#include "db/id_text_scheme.h"
 
 class CellRendererForeign : public Gtk::CellRendererCombo
 {
 public:
 	CellRendererForeign(const ORM::Field<ORM::ForeignKey>& field, const ORM::Table& foreign_table, const ORM::Expr<Glib::ustring>& foreign_field)
 		:Glib::ObjectBase(typeid(CellRendererForeign)),
-		m_ComboData(ORM::Data::create(m_Scheme)),
+		m_ComboData(ORM::Data::create(DB::g_IdTextScheme)),
 		m_Field(field),
 		m_ForeignTable(foreign_table),
 		m_ForeignField(foreign_field),
@@ -22,7 +22,7 @@ public:
 	{
 		property_editable() = true;
 		property_model() = m_ComboData;
-		property_text_column() = m_Scheme.fText.index();
+		property_text_column() = DB::g_IdTextScheme.fText.index();
 	}
 	virtual ~CellRendererForeign()
 	{
@@ -39,7 +39,6 @@ protected:
 
 	signal_edited_t signal_edited_;
 private:
-	const IdTextScheme m_Scheme;
 	Glib::RefPtr<ORM::Data> m_ComboData;
 
 	const ORM::Field<ORM::ForeignKey>& m_Field;

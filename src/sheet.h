@@ -6,7 +6,6 @@
 #include <gtkmm/builder.h>
 #include <vector>
 #include "orm/data.h"
-#include "id_text_scheme.h"
 
 class Sheet : public Gtk::TreeView
 {
@@ -44,8 +43,6 @@ protected:
 	signal_cell_data_t signal_cell_data_;
 	signal_cell_button_release_t signal_cell_button_release_;
 	signal_label_button_release_t signal_label_button_release_;
-
-	IdTextScheme m_ColumnRecord;
 private:
 	void Init();
 	void set_columns_count(size_t columns);

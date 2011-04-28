@@ -14,7 +14,6 @@ table_SOURCES = ga/fitness.cpp \
 		teaching_lesson.cpp
 noinst_HEADERS = celleditableforeign.h \
 		 cellrendererforeign.h \
-		 id_text_scheme.h \
 		 line_editable.h \
 		 listview.h \
 		 logbuf.h \
