@@ -26,7 +26,7 @@ private:
 		ORM::Field<ORM::ForeignKey> fTeacher;
 
 		LessonColumnRecord()
-			:fId(DB::g_ModelLessons),
+			:fId(),
 			fLesson(""),
 			fTeacher(DB::g_ModelTeachers)
 		{

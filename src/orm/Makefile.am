@@ -3,7 +3,6 @@ liborm_a_SOURCES = connection.cpp \
 	data.cpp \
 	foreign_key.cpp \
 	insert.cpp \
-	primary_key.cpp \
 	query.cpp \
 	table.cpp \
 	where.cpp

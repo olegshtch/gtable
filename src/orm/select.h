@@ -45,6 +45,12 @@ namespace ORM
 			return this;
 		}
 
+		SelectBase* NaturalJoin(const Table& table)
+		{
+			m_Query += " NATURAL JOIN " + table.GetTableName();
+			return this;
+		}
+
 		void Where(const WhereBase& where)
 		{
 			m_Query += " WHERE " + where.GetQuery();

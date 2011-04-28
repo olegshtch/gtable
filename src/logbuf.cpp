@@ -26,9 +26,7 @@ int LogBuf::overflow(int c)
 		//std::cout << "Overflow ";
 #ifndef WIN32
 		std::cout.write("\x1b[32m", 5);
-#endif
 		std::cout.write(&ch, 1);
-#ifndef WIN32
 		std::cout.write("\x1b[0m", 4);
 #endif
 	}
@@ -38,7 +36,9 @@ int LogBuf::overflow(int c)
 int LogBuf::sync()
 {
 	//std::cout << "Flush" << std::endl;
+#ifndef WIN32
 	std::cout.flush();
+#endif
 	return 0;
 }
 
@@ -47,9 +47,7 @@ std::streamsize LogBuf::xsputn(const char *s, std::streamsize n)
 	//std::cout << "Out n=" << n << " s=\"";
 #ifndef WIN32
 	std::cout.write("\x1b[32m", 5);
-#endif
 	std::cout.write(s, n);
-#ifndef WIN32
 	std::cout.write("\x1b[0m", 4);
 #endif
 	//std::cout << "\"" << std::endl;

@@ -250,16 +250,18 @@ void DataBase::ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>&
 	data->clear();
 
 	ORM::Scheme scheme;
-	ORM::Field<ORM::PrimaryKey> id(g_ModelLessons);
+	ORM::Field<ORM::PrimaryKey> id;
 	//ORM::Field<Glib::ustring> auditory_name("auditory");
 	ORM::Field<Glib::ustring> teacher_name("teacher");
 	ORM::Field<Glib::ustring> lesson_name("lesson");
+	ORM::Field<long int> hours("hours");
 	scheme.add(id);
 	//scheme.add(auditory_name);
 	scheme.add(teacher_name);
 	scheme.add(lesson_name);
+	scheme.add(hours);
 	Glib::RefPtr<ORM::Data> lesson_list = ORM::Data::create(scheme);
 
-	m_Connection.Select(lesson_list, g_ModelLessons.fId, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + DB::g_ModelTeachers.firstname + " " + DB::g_ModelTeachers.thirdname, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name)->From(g_ModelLessons, g_ModelTeachers, g_ModelBranch, g_ModelLessonType);
+	m_Connection.Select(lesson_list, g_ModelLessons.fId, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + ORM::substr(DB::g_ModelTeachers.firstname, 1, 1) + ". " + ORM::substr(DB::g_ModelTeachers.thirdname, 1, 1) + ".", ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name, g_ModelTeachingPlan.hours)->From(g_ModelLessons)->NaturalJoin(g_ModelTeachingPlan)->NaturalJoin(g_ModelLessonType)->NaturalJoin(g_ModelBranch)->NaturalJoin(g_ModelTeachingBranch)->NaturalJoin(g_ModelTeachers)->Where(ORM::Greater(g_ModelTeachingPlan.hours, 0L));
 }
 

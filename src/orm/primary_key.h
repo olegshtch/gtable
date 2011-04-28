@@ -28,7 +28,10 @@ namespace ORM
 	template<> class Field<PrimaryKey> : public Gtk::TreeModelColumn<long int>, public FieldBase
 	{
 	public:
-		Field(const Table& tbl);
+		Field()
+			:FieldBase("id")
+		{
+		}
 		~Field()
 		{
 		}
@@ -55,6 +58,11 @@ namespace ORM
 			std::stringstream stream;
 			stream << value;
 			return stream.str();
+		}
+		virtual void SetTableName(const Glib::ustring& table_name)
+		{
+			m_TableName = table_name;
+			m_FieldName = "id_" + table_name;
 		}
 	};
 }

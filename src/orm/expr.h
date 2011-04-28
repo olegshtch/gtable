@@ -65,6 +65,7 @@ namespace ORM
 
 	template<> class Expr<Glib::ustring> : public ExprBase
 	{
+		friend Expr<Glib::ustring> substr(const Expr<Glib::ustring>& expr, long pos, long len);
 	public:
 		Expr(const Field<Glib::ustring>& field)
 			:ExprBase(field.GetFieldName())
@@ -106,6 +107,13 @@ namespace ORM
 		{
 		}
 	};
+
+	Expr<Glib::ustring> inline substr(const Expr<Glib::ustring>& expr, long pos, long len)
+	{
+		Expr<Glib::ustring> res;
+		res.GetExpr() = "substr(" + expr.GetQuery() + "," + Field<long int>::ToString(pos) + "," + Field<long int>::ToString(len) + ")";
+		return res;
+	}
 }
 
 #endif

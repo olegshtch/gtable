@@ -14,7 +14,7 @@ namespace ORM
 	public:
 		Table(const Glib::ustring& table_name)
 			:m_TableName(table_name),
-			fId(*this)
+			fId()
 		{
 			if(! s_Tables)
 			{

@@ -41,6 +41,10 @@ namespace ORM
 		{
 			return Field<PrimaryKey>::ToString(static_cast<long>(value));
 		}
+		virtual void SetTableName(const Glib::ustring& table_name)
+		{
+			m_TableName = table_name;
+		}
 	private:
 		const Glib::ustring& m_ForeignTable;
 		bool m_NotNull;
