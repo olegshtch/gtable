@@ -47,6 +47,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ScheduleNew")),sigc::mem_fun(*this, &MainWindow::OnScheduleNew));
 	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ScheduleCopy")),sigc::mem_fun(*this, &MainWindow::OnScheduleCopy));
 	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ScheduleDelete")),sigc::mem_fun(*this, &MainWindow::OnScheduleDelete));
+	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ScheduleRun")),sigc::mem_fun(*this, &MainWindow::OnScheduleRun));
 
 	// connect Lists
 	
@@ -549,7 +550,7 @@ void MainWindow::ScheduleGroupChooseAud(long int aud_id)
 	if(m_ScheduleGroupSelectedOther)
 	{
 		long int lesson_id = m_ScheduleGroupSelectedOther->get_value(DB::g_IdTextScheme.fId);
-		DB::DataBase::Instance().SetLessonIntoTimetable(lesson_id, aud_id, m_ScheduleIdDay, m_ScheduleIdHour);
+		DB::DataBase::Instance().SetLessonIntoTimetable(lesson_id, aud_id, m_ScheduleIdHour, m_ScheduleIdDay);
 	}
 }
 
@@ -580,6 +581,11 @@ void MainWindow::OnScheduleCopy()
 
 void MainWindow::OnScheduleDelete()
 {
+}
+
+void MainWindow::OnScheduleRun()
+{
+	
 }
 
 void MainWindow::OnException()

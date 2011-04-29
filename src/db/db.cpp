@@ -356,7 +356,7 @@ Glib::ustring DataBase::GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::F
 		->NaturalJoin(g_ModelBranch)
 		->NaturalJoin(g_ModelTeachingBranch)
 		->NaturalJoin(g_ModelSubgroups)
-		->Where(ORM::Eq(g_ModelSchedule.day, id_day) && ORM::Eq(g_ModelSchedule.hour, id_hour) && ORM::Eq(g_ModelGroupCategory.group, id_group) && ORM::Eq(g_ModelLessonType.fId, g_ModelTeachingPlan.lesson_type) && ORM::Eq(g_ModelTeachers.fId, g_ModelLessons.teacher) && ORM::Eq(g_ModelTeachingPlan.fId, g_ModelLessons.teaching_plan) && ORM::Eq(g_ModelLessons.subgroup, g_ModelSubgroups.fId) && ORM::Eq(g_ModelSubgroups.group_category, g_ModelGroupCategory.fId) && ORM::Eq(g_ModelTeachingPlan.lesson_type, g_ModelLessonType.fId) && ORM::Eq(g_ModelSchedule.lesson, g_ModelLessons.fId));
+		->Where(ORM::Eq(g_ModelSchedule.day, id_day) && ORM::Eq(g_ModelSchedule.hour, id_hour) && ORM::Eq(g_ModelGroupCategory.group, id_group) && ORM::Eq(g_ModelTeachingPlan.fId, g_ModelLessons.teaching_plan) && ORM::Eq(g_ModelSchedule.lesson, g_ModelLessons.fId));
 
 	if(data->children().size() == 0)
 	{

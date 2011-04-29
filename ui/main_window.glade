@@ -87,6 +87,19 @@
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Schedule</property>
                 <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu2">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem5">
+                        <property name="visible">True</property>
+                        <property name="related_action">ScheduleRun</property>
+                        <property name="use_action_appearance">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
             <child>
@@ -1571,5 +1584,9 @@
   </object>
   <object class="GtkAction" id="ScheduleDelete">
     <property name="stock_id">gtk-delete</property>
+  </object>
+  <object class="GtkAction" id="ScheduleRun">
+    <property name="label">Solve</property>
+    <property name="stock_id">gtk-media-play</property>
   </object>
 </interface>

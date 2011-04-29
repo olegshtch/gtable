@@ -2,6 +2,7 @@ SUBDIRS = db ga orm
 bin_PROGRAMS = table
 table_SOURCES = ga/fitness.cpp \
 		ga/ga.cpp \
+		ga/graph.cpp \
 		ga/individual.cpp \
 		celleditableforeign.cpp \
 		cellrendererforeign.cpp \

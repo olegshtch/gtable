@@ -38,6 +38,7 @@ private:
 	void OnScheduleNew();
 	void OnScheduleCopy();
 	void OnScheduleDelete();
+	void OnScheduleRun();
 
 	void OnException();
 
