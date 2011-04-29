@@ -79,9 +79,17 @@ private:
 	Sheet *m_ScheduleGroup;
 	Gtk::ComboBox *m_ComboBoxScheduleGroup;
 	Gtk::TreeView *m_ScheduleGroupOther;
+	Gtk::TreeIter m_ScheduleGroupSelectedOther;
+	long int m_ScheduleIdGroup;
+	long int m_ScheduleIdDay;
+	long int m_ScheduleIdHour;
+	Gtk::Menu m_ScheduleMenu;
 	bool ScheduleGroupExpose(GdkEventExpose* event);
 	void ScheduleGroupChanged();
 	void ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour, long int id_day);
+	void ScheduleGroupSelectedOther();
+	void ScheduleGroupCellButtonRelease(long int row_id, long int col_id, GdkEventButton* event);
+	void ScheduleGroupChooseAud(long int aud_id);
 
 	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 

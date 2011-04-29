@@ -26,5 +26,5 @@ const DB::ModelAuditoriumTypes DB::g_ModelAuditoriumTypes("AuditoriumTypes");
 const DB::ModelTypeAuditorium DB::g_ModelTypeAuditorium("TypeAuditorium");
 const DB::ModelSuitableAuditorium DB::g_ModelSuitableAuditorium("SuitableAuditorium");
 const DB::ModelSchedulesList DB::g_ModelSchedulesList("SchedulesList");
-
+const DB::ModelSchedule DB::g_ModelSchedule("Schedule");
 

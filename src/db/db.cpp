@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include "db.h"
 #include "models.h"
+#include "id_text_scheme.h"
 #include "../orm/count.h"
 #include "../orm/field.h"
 #include "../orm/case.h"
@@ -34,7 +35,7 @@ void DataBase::New()
 	ORM::Table::InitTables(m_Connection);
 	m_Connection.InsertInto(g_ModelWeek);
 	m_Connection.CreateTrigger("groupcat_trigger", "AFTER INSERT ON " + g_ModelGroups.GetTableName() + " BEGIN INSERT OR FAIL INTO " + g_ModelGroupCategory.GetTableName() + "(" + g_ModelGroupCategory.name.GetSmallFieldName() + "," + g_ModelGroupCategory.group.GetSmallFieldName() + "," + g_ModelGroupCategory.full.GetSmallFieldName() + ") VALUES (\"\", NEW." + g_ModelGroups.fId.GetSmallFieldName() + ", 1); END");
-	m_Connection.CreateTrigger("subgroup_trigger", "AFTER INSERT ON " + g_ModelGroupCategory.GetTableName() + " BEGIN INSERT INTO " + g_ModelSubgroups.GetTableName() + "(" + g_ModelSubgroups.name.GetSmallFieldName() + "," + g_ModelSubgroups.group_category.GetSmallFieldName() + ") VALUES (\"\", NEW." + g_ModelGroupCategory.fId.GetSmallFieldName() + "); END");
+	m_Connection.CreateTrigger("subgroup_trigger", "AFTER INSERT ON " + g_ModelGroupCategory.GetTableName() + " BEGIN INSERT OR FAIL INTO " + g_ModelSubgroups.GetTableName() + "(" + g_ModelSubgroups.name.GetSmallFieldName() + "," + g_ModelSubgroups.group_category.GetSmallFieldName() + ") VALUES (\"\", NEW." + g_ModelGroupCategory.fId.GetSmallFieldName() + "); END");
 }
 
 void DataBase::AppendEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
@@ -277,7 +278,97 @@ void DataBase::ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>&
 
 	for(Gtk::TreeIter it = lesson_list->children().begin(); it != lesson_list->children().end(); ++ it)
 	{
-		Gtk::TreeIter iter = data->append();
+		for(long h = it->get_value(hours); h > 0; -- h)
+		{
+			Gtk::TreeIter iter = data->append();
+			iter->set_value(g_IdTextScheme.fId, it->get_value(id));
+			iter->set_value(g_IdTextScheme.fText, it->get_value(lesson_name) + "\n" + it->get_value(teacher_name));
+		}
 	}
+
+	//exclude lessons already in timetable
+}
+
+void DataBase::GetAuditoriumListForLesson(Glib::RefPtr<ORM::Data>& data, ORM::PrimaryKey lesson_id, ORM::ForeignKey day_id, ORM::ForeignKey hour_id)
+{
+	//subquery for acceptable auditorium(with same teacher, branch, lesson_type)
+	ORM::Subquery subquery_accept;
+	subquery_accept.Select(data
+		, g_ModelSchedule.auditorium)
+		->From(g_ModelSchedule, g_ModelLessons)
+		->NaturalJoin(g_ModelTeachers)
+		->NaturalJoin(g_ModelBranch)
+		->NaturalJoin(g_ModelLessonType);
+
+	//subquery for busy auditorium (all busy exclude same teacher, branch, lesson_type)
+	ORM::Subquery subquery_busy;
+	subquery_busy.Select(data
+		, g_ModelSchedule.auditorium)
+		->From(g_ModelSchedule)
+		->Where(ORM::Eq(g_ModelSchedule.day, day_id) && ORM::Eq(g_ModelSchedule.hour, hour_id) && ORM::NotIn(g_ModelSchedule.auditorium, subquery_accept));
+
+	//get all acceptable auditorium
+	m_Connection.Select(data
+		, g_ModelAuditoriums.fId
+		, g_ModelAuditoriums.name)
+		->From(g_ModelAuditoriums, g_ModelLessons)
+		->NaturalJoin(g_ModelTeachingPlan)
+		->NaturalJoin(g_ModelLessonType)
+		->Where(ORM::NotIn(g_ModelAuditoriums.fId, subquery_busy) && ORM::Eq(g_ModelLessons.fId, lesson_id) && ORM::Eq(g_ModelAuditoriums.multithread, g_ModelLessonType.multithread));
+}
+
+void DataBase::SetLessonIntoTimetable(long int id_lesson, long int id_aud, long int id_hour, long int id_day)
+{
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(g_ModelSchedule);
+	Gtk::TreeIter iter = data->append();
+	iter->set_value(g_ModelSchedule.auditorium, id_aud);
+	iter->set_value(g_ModelSchedule.day, id_day);
+	iter->set_value(g_ModelSchedule.hour, id_hour);
+	iter->set_value(g_ModelSchedule.lesson, id_lesson);
+	if(iter)
+	{
+		m_Connection.InsertInto(g_ModelSchedule)->Values(iter);
+	}
+}
+
+Glib::ustring DataBase::GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::ForeignKey id_hour, ORM::ForeignKey id_day)
+{
+	ORM::Scheme scheme;
+	ORM::Field<ORM::PrimaryKey> id;
+	ORM::Field<Glib::ustring> auditory_name("auditory");
+	ORM::Field<Glib::ustring> teacher_name("teacher");
+	ORM::Field<Glib::ustring> lesson_name("lesson");
+	scheme.add(id);
+	scheme.add(auditory_name);
+	scheme.add(teacher_name);
+	scheme.add(lesson_name);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+
+	m_Connection.Select(data
+		, g_ModelSchedule.fId
+		, g_ModelAuditoriums.name
+		, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + ORM::substr(DB::g_ModelTeachers.firstname, 1, 1) + ". " + ORM::substr(DB::g_ModelTeachers.thirdname, 1, 1) + "."
+		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name)
+		->From(g_ModelSchedule, g_ModelGroupCategory, g_ModelLessons, g_ModelTeachingPlan)
+		->NaturalJoin(g_ModelAuditoriums)
+		->NaturalJoin(g_ModelTeachers)
+		->NaturalJoin(g_ModelLessonType)
+		->NaturalJoin(g_ModelBranch)
+		->NaturalJoin(g_ModelTeachingBranch)
+		->NaturalJoin(g_ModelSubgroups)
+		->Where(ORM::Eq(g_ModelSchedule.day, id_day) && ORM::Eq(g_ModelSchedule.hour, id_hour) && ORM::Eq(g_ModelGroupCategory.group, id_group) && ORM::Eq(g_ModelLessonType.fId, g_ModelTeachingPlan.lesson_type) && ORM::Eq(g_ModelTeachers.fId, g_ModelLessons.teacher) && ORM::Eq(g_ModelTeachingPlan.fId, g_ModelLessons.teaching_plan) && ORM::Eq(g_ModelLessons.subgroup, g_ModelSubgroups.fId) && ORM::Eq(g_ModelSubgroups.group_category, g_ModelGroupCategory.fId) && ORM::Eq(g_ModelTeachingPlan.lesson_type, g_ModelLessonType.fId) && ORM::Eq(g_ModelSchedule.lesson, g_ModelLessons.fId));
+
+	if(data->children().size() == 0)
+	{
+		return "---";
+	}
+	else if(data->children().size() == 1)
+	{
+		return data->children()[0].get_value(lesson_name) + "\n" +
+			data->children()[0].get_value(teacher_name) + "\n" +
+			data->children()[0].get_value(auditory_name);
+	}
+
+	return "!!!";
 }
 

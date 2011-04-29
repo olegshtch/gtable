@@ -469,6 +469,8 @@ namespace DB
 		}
 
 	};
+
+	extern const ModelSchedule g_ModelSchedule;
 }
 
 #endif

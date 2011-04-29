@@ -26,6 +26,10 @@ namespace ORM
 		{
 			return WhereBase(this->m_Query + " AND " + op2.m_Query);
 		}
+		WhereBase operator ||(const WhereBase& op2)
+		{
+			return WhereBase("(" + this->m_Query + " AND " + op2.m_Query + ")");
+		}
 	protected:
 		Glib::ustring m_Query;
 	};
@@ -46,6 +50,25 @@ namespace ORM
 		{
 		}
 		~Eq()
+		{
+		}
+	};
+
+	class NonEq : public WhereBase
+	{
+		NonEq(const FieldBase& field, const Gtk::TreeIter& row)
+			:WhereBase(field.GetFieldName() + "=" + field.GetStrValue(row))
+		{
+		}
+		NonEq(const FieldBase& field, const FieldBase& field2)
+			:WhereBase(field.GetFieldName() + "=" + field2.GetFieldName())
+		{
+		}
+		template<class T> NonEq(const Field<T>& field, const T& value)
+			:WhereBase(field.GetFieldName() + "=" + Field<T>::ToString(value))
+		{
+		}
+		~NonEq()
 		{
 		}
 	};

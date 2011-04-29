@@ -19,6 +19,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_ScheduleGroup(NULL),
 	m_ComboBoxScheduleGroup(NULL),
 	m_ScheduleGroupOther(NULL),
+	m_ScheduleIdGroup(-1),
 	m_pCurrentLineEditor(NULL),
 	m_StatusBar(NULL)
 {
@@ -193,8 +194,9 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	{
 		throw Glib::Error(1, 0, "Cann't load ScheduleGroup");
 	}
-	m_refBuilder->get_widget("ComboBoxScheduleGroup", m_ComboBoxScheduleGroup);
 	m_ScheduleGroup->signal_cell_data().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupCellData));
+	m_ScheduleGroup->signal_cell_button_release().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupCellButtonRelease));
+	m_refBuilder->get_widget("ComboBoxScheduleGroup", m_ComboBoxScheduleGroup);
 	if(! m_ComboBoxScheduleGroup)
 	{
 		throw Glib::Error(1, 0, "Cann't load ComboBoxScheduleGroup");
@@ -213,6 +215,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_ScheduleGroupOther->set_headers_visible(false);
 	m_ScheduleGroupOther->append_column(_(""), DB::g_IdTextScheme.fText);
 	m_ScheduleGroupOther->get_selection()->set_mode(Gtk::SELECTION_SINGLE);
+	m_ScheduleGroupOther->get_selection()->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupSelectedOther));
 
 	OnNew();
 
@@ -458,10 +461,10 @@ void MainWindow::PlanSpecialitiesButtonRelease(long int id_teaching_branch, long
 	long value = DB::DataBase::Instance().GetTeachingPlanHours(id_teaching_branch, id_lesson_type);
 	switch(event->button)
 	{
-		case 1:
+		case 1: //left button
 			DB::DataBase::Instance().EditTeachingPlanHours(id_teaching_branch, id_lesson_type, value + 1);
 			break;
-		case 3:
+		case 3: //right button
 			DB::DataBase::Instance().EditTeachingPlanHours(id_teaching_branch, id_lesson_type, (value > 0) ? (value - 1) : 0);
 			break;
 	}
@@ -481,6 +484,7 @@ void MainWindow::ScheduleGroupChanged()
 	Gtk::TreeIter iter = m_ComboBoxScheduleGroup->get_active();
 	if(iter)
 	{
+		m_ScheduleIdGroup = iter->get_value(DB::g_IdTextScheme.fId);
 		Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(DB::g_IdTextScheme);
 		Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(DB::g_IdTextScheme);
 		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
@@ -489,7 +493,7 @@ void MainWindow::ScheduleGroupChanged()
 		m_ScheduleGroup->set_horz_model(horz_data);
 
 		Glib::RefPtr<ORM::Data> other_data = ORM::Data::create(DB::g_IdTextScheme);
-		DB::DataBase::Instance().ListGroupOtherLessons(iter->get_value(DB::g_IdTextScheme.fId), other_data);
+		DB::DataBase::Instance().ListGroupOtherLessons(m_ScheduleIdGroup, other_data);
 		m_ScheduleGroupOther->set_model(other_data);
 	}
 }
@@ -497,12 +501,56 @@ void MainWindow::ScheduleGroupChanged()
 void MainWindow::ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour, long int id_day)
 {
 	Gtk::CellRendererText *renderer = reinterpret_cast<Gtk::CellRendererText *>(cell);
-	Gtk::TreeIter iter = m_ComboBoxScheduleGroup->get_active();
-	if(iter)
+	renderer->property_text() = DB::DataBase::Instance().GetTimeTableLessonGroup(m_ScheduleIdGroup, id_hour, id_day);
+}
+
+void MainWindow::ScheduleGroupSelectedOther()
+{
+	m_ScheduleGroupSelectedOther = m_ScheduleGroupOther->get_selection()->get_selected();
+}
+
+void MainWindow::ScheduleGroupCellButtonRelease(long int row_id, long int col_id, GdkEventButton* event)
+{
+	switch(event->button)
 	{
-		long int id_group = iter->get_value(DB::g_IdTextScheme.fId);
+	case 1: // left button
+		if(m_ScheduleGroupSelectedOther)
+		{
+			long int lesson_id = m_ScheduleGroupSelectedOther->get_value(DB::g_IdTextScheme.fId);
+			//move lesson to timetable
+			//get auditoriums list
+			Glib::RefPtr<ORM::Data> aud_list = ORM::Data::create(DB::g_IdTextScheme);
+			DB::DataBase::Instance().GetAuditoriumListForLesson(aud_list, lesson_id, col_id, row_id);
+			if(aud_list->children().size() > 0)
+			{
+				m_ScheduleIdDay = col_id;
+				m_ScheduleIdHour = row_id;
+				m_ScheduleMenu.items().erase(m_ScheduleMenu.items().begin(), m_ScheduleMenu.items().end());
+				for(Gtk::TreeIter it = aud_list->children().begin(); it != aud_list->children().end(); ++ it)
+				{
+					Gtk::MenuItem *p_item = Gtk::manage(new Gtk::MenuItem(it->get_value(DB::g_IdTextScheme.fText)));
+					m_ScheduleMenu.append(*p_item);
+					p_item->signal_activate().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::ScheduleGroupChooseAud), it->get_value(DB::g_IdTextScheme.fId)));
+					p_item->show();
+				}
+				m_ScheduleMenu.popup(0, event->time);
+				//std::cout << "popup size: " << m_ScheduleMenu.items().size() << std::endl;
+			}
+		}
+		break;
+	case 3:
+		break;
 	}
-	renderer->property_markup() = "";
+}
+
+void MainWindow::ScheduleGroupChooseAud(long int aud_id)
+{
+	std::cout << "Choose " << aud_id << " aud" << std::endl;
+	if(m_ScheduleGroupSelectedOther)
+	{
+		long int lesson_id = m_ScheduleGroupSelectedOther->get_value(DB::g_IdTextScheme.fId);
+		DB::DataBase::Instance().SetLessonIntoTimetable(lesson_id, aud_id, m_ScheduleIdDay, m_ScheduleIdHour);
+	}
 }
 
 bool MainWindow::TeachingLessonGroupExpose(GdkEventExpose* event)

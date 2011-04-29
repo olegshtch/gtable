@@ -121,6 +121,7 @@ bool Sheet::on_button_release_event(GdkEventButton* event)
 					{
 						//std::cout << "column is Label" << std::endl;
 						signal_label_button_release_.emit(iter, event);
+						return true;
 					}
 					else
 					{
