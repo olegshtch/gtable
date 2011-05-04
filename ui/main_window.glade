@@ -14,6 +14,9 @@
       <row>
         <col id="0" translatable="yes">Groups</col>
       </row>
+      <row>
+        <col id="0" translatable="yes">Auditoriums</col>
+      </row>
     </data>
   </object>
   <object class="GtkWindow" id="MainWindow">
@@ -95,6 +98,7 @@
                         <property name="visible">True</property>
                         <property name="related_action">ScheduleRun</property>
                         <property name="use_action_appearance">True</property>
+                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                       </object>
                     </child>

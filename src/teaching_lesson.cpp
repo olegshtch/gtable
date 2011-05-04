@@ -9,6 +9,7 @@ TeachingLesson::TeachingLesson(GtkTreeView *cobject, const Glib::RefPtr<Gtk::Bui
 {
 	set_model(m_Model);
 	append_column(_("id"), m_LessonColumnRecord.fId);
+	append_column(_("stream"), m_LessonColumnRecord.fStream);
 	append_column(_("lesson"), m_LessonColumnRecord.fLesson);
 	
 	m_TeacherColumn.pack_start(m_TeacherRenderer);
@@ -31,7 +32,7 @@ void TeachingLesson::OnTeacherEdited(const Glib::ustring& path, long int id)
 	Gtk::TreeIter iter = m_Model->get_iter(path);
 	if(iter)
 	{
-		DB::DataBase::Instance().SetLessonsTeacher(iter->get_value(m_LessonColumnRecord.fId), id);
+		DB::DataBase::Instance().SetLessonTeacher(iter->get_value(m_LessonColumnRecord.fId), id);
 	}
 	DB::DataBase::Instance().GetLessonsForSubgroup(m_Model, m_IdSubgroup);
 }

@@ -75,6 +75,11 @@ void DataBase::ListEntitiesText(const ORM::Table& ent, const ORM::Expr<Glib::ust
 	m_Connection.Select(data, ORM::Expr<ORM::PrimaryKey>(ent.fId), field)->From(ent);
 }
 
+void DataBase::ListIDs(const ORM::Table& ent, Glib::RefPtr<ORM::Data> &data)
+{
+	m_Connection.Select(data, ent.fId)->From(ent);
+}
+
 void DataBase::RemoveEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
 {
 	m_Connection.DeleteFrom(ent)->Where(ORM::Eq(ent.fId, row));
@@ -174,7 +179,12 @@ void DataBase::AppendNewBranchForSpeciality(long int id_speciality, long int id_
 	Gtk::TreeIter iter = data->append();
 	iter->set_value(g_ModelTeachingBranch.branch, id_branch);
 	iter->set_value(g_ModelTeachingBranch.speciality, id_speciality);
-	m_Connection.InsertInto(g_ModelTeachingBranch, g_ModelTeachingBranch.branch, g_ModelTeachingBranch.speciality)->Values(iter);
+	iter->set_value(g_ModelTeachingBranch.term, 0l); //todo: fix it!
+	m_Connection.InsertInto(g_ModelTeachingBranch
+		, g_ModelTeachingBranch.branch
+		, g_ModelTeachingBranch.speciality
+		, g_ModelTeachingBranch.term)
+		->Values(iter);
 }
 
 long DataBase::GetTeachingPlanHours(long int id_teaching_branch, long int id_lesson_type)
@@ -221,6 +231,7 @@ void DataBase::GetSubgroupsList(Glib::RefPtr<ORM::Data>& data)
 
 void DataBase::GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::ForeignKey& id_subgroup)
 {
+	std::cout << "DataBase::GetLessonsForSubgroup id_subgroup=" << id_subgroup << std::endl;
 	//get speciality
 	ORM::ForeignKey id_speciality = -1l;
 	ORM::Scheme scheme;
@@ -233,15 +244,109 @@ void DataBase::GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::F
 		id_speciality = spec_data->children()[0].get_value(field);
 	}
 
-	ORM::Subquery lessons;
-	lessons.Select(data, g_ModelTeachingPlan.fId, ORM::Expr<ORM::ForeignKey>(id_subgroup))->From(g_ModelTeachingPlan, g_ModelTeachingBranch)->Where(ORM::Eq(g_ModelTeachingPlan.teaching_branch, g_ModelTeachingBranch.fId) && ORM::Eq(g_ModelTeachingBranch.speciality, id_speciality) && ORM::Greater(g_ModelTeachingPlan.hours, 0l));
-	m_Connection.InsertInto(g_ModelLessons, g_ModelLessons.teaching_plan, g_ModelLessons.subgroup)->Select(lessons);
+	//Get lessons without stream
+	ORM::Subquery tp; // list teaching_plan in StreamSubgroup for subgroup
+	tp.Select(data
+		, g_ModelStreamSubgroup.teaching_plan)
+		->From(g_ModelStreamSubgroup)
+		->NaturalJoin(g_ModelTeachingPlan)
+		->Where(ORM::Eq(g_ModelStreamSubgroup.subgroup, id_subgroup) && ORM::Greater(g_ModelTeachingPlan.hours, 0l));
+
+	ORM::Scheme scheme_tp;
+	ORM::Field<long int> id("");
+	ORM::Field<long int> branch_id("");
+	ORM::Field<long int> lesson_id("");
+	scheme_tp.add(id);
+	scheme_tp.add(branch_id);
+	scheme_tp.add(lesson_id);
+
+	Glib::RefPtr<ORM::Data> adding_tp = ORM::Data::create(scheme_tp); // list of teaching_plan for adding
+
+	m_Connection.Select(adding_tp
+		, g_ModelTeachingPlan.fId
+		, g_ModelTeachingBranch.branch
+		, g_ModelTeachingPlan.lesson_type)
+		->From(g_ModelTeachingPlan)
+		->NaturalJoin(g_ModelTeachingBranch)
+		->Where(ORM::Eq(g_ModelTeachingBranch.speciality, id_speciality) && ORM::Greater(g_ModelTeachingPlan.hours, 0l) && ORM::NotIn(g_ModelTeachingPlan.fId, tp));
+
+	if(adding_tp->children().size() > 0)
+	{
+		// add new Streams and StreamSubgroup
+		for(Gtk::TreeIter iter = adding_tp->children().begin(); iter != adding_tp->children().end(); ++ iter)
+		{
+			long int branch = iter->get_value(branch_id);
+			long int lesson = iter->get_value(lesson_id);
+
+			{
+				Glib::RefPtr<ORM::Data> stream_data = ORM::Data::create(g_ModelStreams);
+				Gtk::TreeIter stream_iter = stream_data->append();
+				stream_iter->set_value(g_ModelStreams.branch, branch);
+				stream_iter->set_value(g_ModelStreams.lesson, lesson);
+				m_Connection.InsertInto(g_ModelStreams, g_ModelStreams.branch, g_ModelStreams.lesson)->Values(stream_iter);
+			}
+		}
+
+		ORM::Subquery stream_with_subgroup;
+		stream_with_subgroup.Select(data
+			, g_ModelStreamSubgroup.stream)
+			->From(g_ModelStreamSubgroup);
+
+		ORM::Subquery adding_stream_subgroup;
+		adding_stream_subgroup.Select(data
+			, g_ModelStreams.fId
+			, ORM::Expr<ORM::ForeignKey>(id_subgroup)
+			, g_ModelTeachingPlan.fId)
+			->From(g_ModelStreams)
+			->NaturalJoin(g_ModelBranch)
+			->NaturalJoin(g_ModelLessonType)
+			->NaturalJoin(g_ModelTeachingPlan)
+			->NaturalJoin(g_ModelTeachingBranch)
+			->Where(ORM::Greater(g_ModelTeachingPlan.hours, 0l) && ORM::NotIn(g_ModelStreams.fId, stream_with_subgroup) && ORM::Eq(g_ModelTeachingBranch.speciality, id_speciality));
+
+		m_Connection.InsertInto(g_ModelStreamSubgroup
+			, g_ModelStreamSubgroup.stream
+			, g_ModelStreamSubgroup.subgroup
+			, g_ModelStreamSubgroup.teaching_plan)
+			->Select(adding_stream_subgroup);
+
+		ORM::Subquery stream_with_lesson;
+		stream_with_lesson.Select(data
+			, g_ModelLessons.stream)
+			->From(g_ModelLessons);
+
+		ORM::Subquery adding_lessons;
+		adding_lessons.Select(data
+			, g_ModelStreams.fId)
+			->From(g_ModelStreams)
+			->Where(ORM::NotIn(g_ModelStreams.fId, stream_with_lesson));
+		m_Connection.InsertInto(g_ModelLessons, g_ModelLessons.stream)
+			->Select(adding_lessons);
+	}
 
 	ORM::Expr<Glib::ustring> name = ORM::Expr<Glib::ustring>(g_ModelBranch.name) + "\\" + g_ModelLessonType.name;
-	m_Connection.Select(data, g_ModelLessons.fId, name, g_ModelLessons.teacher)->From(g_ModelLessons, g_ModelTeachingPlan, g_ModelBranch, g_ModelLessonType, g_ModelTeachingBranch)->Where(ORM::Eq(g_ModelLessons.subgroup, id_subgroup) && ORM::Eq(g_ModelLessons.teaching_plan, g_ModelTeachingPlan.fId) && ORM::Eq(g_ModelTeachingPlan.teaching_branch, g_ModelTeachingBranch.fId) && ORM::Eq(g_ModelTeachingPlan.lesson_type, g_ModelLessonType.fId) && ORM::Eq(g_ModelTeachingBranch.branch, g_ModelBranch.fId) && ORM::Greater(g_ModelTeachingPlan.hours, 0l));
+	m_Connection.Select(data
+		, g_ModelLessons.fId
+		, g_ModelLessons.stream
+		, name
+		, g_ModelLessons.teacher)
+		->From(g_ModelLessons)
+		->NaturalJoin(g_ModelTeachingPlan)
+		->NaturalJoin(g_ModelBranch)
+		->NaturalJoin(g_ModelLessonType)
+		->NaturalJoin(g_ModelTeachingBranch)
+		->NaturalJoin(g_ModelStreams)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelGroupCategory)
+		->NaturalJoin(g_ModelSpecialities)
+		->NaturalJoin(g_ModelGroups)
+		->NaturalJoin(g_ModelStreamSubgroup)
+		->Where(ORM::Eq(g_ModelTeachingPlan.teaching_branch, g_ModelTeachingBranch.fId) && ORM::Eq(g_ModelTeachingPlan.lesson_type, g_ModelLessonType.fId) && ORM::Eq(g_ModelTeachingBranch.branch, g_ModelBranch.fId) && ORM::Greater(g_ModelTeachingPlan.hours, 0l)
+			&& ORM::Eq(g_ModelSubgroups.fId, ORM::PrimaryKey(id_subgroup)));
+	std::cout << "DataBase::GetLessonsForSubgroup END" << id_subgroup << std::endl;
 }
 
-void DataBase::SetLessonsTeacher(ORM::PrimaryKey id_lesson, ORM::ForeignKey id_teacher)
+void DataBase::SetLessonTeacher(ORM::PrimaryKey id_lesson, ORM::ForeignKey id_teacher)
 {
 	m_Connection.Update(g_ModelLessons)->Set(g_ModelLessons.teacher, id_teacher)->Where(ORM::Eq(g_ModelLessons.fId, id_lesson));
 }
@@ -266,46 +371,60 @@ void DataBase::ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>&
 	m_Connection.Select(lesson_list
 		, g_ModelLessons.fId
 		, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + ORM::substr(DB::g_ModelTeachers.firstname, 1, 1) + ". " + ORM::substr(DB::g_ModelTeachers.thirdname, 1, 1) + "."
-		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name, g_ModelTeachingPlan.hours)
-		->From(g_ModelLessons, g_ModelGroupCategory)
+		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name
+		, g_ModelTeachingPlan.hours)
+		->From(g_ModelLessons, g_ModelGroupCategory, g_ModelStreamSubgroup)
 		->NaturalJoin(g_ModelTeachingPlan)
 		->NaturalJoin(g_ModelLessonType)
 		->NaturalJoin(g_ModelBranch)
 		->NaturalJoin(g_ModelTeachingBranch)
 		->NaturalJoin(g_ModelTeachers)
 		->NaturalJoin(g_ModelSubgroups)
-		->Where(ORM::Greater(g_ModelTeachingPlan.hours, 0L) && ORM::Eq(g_ModelGroupCategory.group, ORM::ForeignKey(id_group)));
+		->NaturalJoin(g_ModelStreams)
+		->Where(ORM::Greater(g_ModelTeachingPlan.hours, 0L)
+			&& ORM::Eq(g_ModelGroupCategory.group, ORM::ForeignKey(id_group))
+			&& ORM::Eq(g_ModelStreams.fId, g_ModelLessons.stream)
+			&& ORM::Eq(g_ModelStreams.fId, g_ModelStreamSubgroup.stream));
 
 	for(Gtk::TreeIter it = lesson_list->children().begin(); it != lesson_list->children().end(); ++ it)
 	{
-		for(long h = it->get_value(hours); h > 0; -- h)
+		// get count lesson in timetable
+		long int lesson_count = 0;
+		ORM::Scheme count_scheme;
+		ORM::Field<long int> count("");
+		count_scheme.add(count);
+		Glib::RefPtr<ORM::Data> count_data = ORM::Data::create(count_scheme);
+		m_Connection.Select(count_data
+			, ORM::Count())
+			->From(g_ModelSchedule)
+			->Where(ORM::Eq(g_ModelSchedule.lesson, ORM::ForeignKey(it->get_value(id))));
+		if(count_data->children().size() > 0)
+		{
+			lesson_count = count_data->children()[0].get_value(count);
+		}
+
+		if(lesson_count > it->get_value(hours))
+		{
+			std::cout << "Too more lessons=" << it->get_value(id) << " " << it->get_value(lesson_name) << std::endl;
+		}
+
+		for(long h = it->get_value(hours) - lesson_count; h > 0; -- h)
 		{
 			Gtk::TreeIter iter = data->append();
 			iter->set_value(g_IdTextScheme.fId, it->get_value(id));
 			iter->set_value(g_IdTextScheme.fText, it->get_value(lesson_name) + "\n" + it->get_value(teacher_name));
 		}
 	}
-
-	//exclude lessons already in timetable
 }
 
 void DataBase::GetAuditoriumListForLesson(Glib::RefPtr<ORM::Data>& data, ORM::PrimaryKey lesson_id, ORM::ForeignKey day_id, ORM::ForeignKey hour_id)
 {
-	//subquery for acceptable auditorium(with same teacher, branch, lesson_type)
-	ORM::Subquery subquery_accept;
-	subquery_accept.Select(data
-		, g_ModelSchedule.auditorium)
-		->From(g_ModelSchedule, g_ModelLessons)
-		->NaturalJoin(g_ModelTeachers)
-		->NaturalJoin(g_ModelBranch)
-		->NaturalJoin(g_ModelLessonType);
-
-	//subquery for busy auditorium (all busy exclude same teacher, branch, lesson_type)
+	//subquery for busy auditorium
 	ORM::Subquery subquery_busy;
 	subquery_busy.Select(data
 		, g_ModelSchedule.auditorium)
 		->From(g_ModelSchedule)
-		->Where(ORM::Eq(g_ModelSchedule.day, day_id) && ORM::Eq(g_ModelSchedule.hour, hour_id) && ORM::NotIn(g_ModelSchedule.auditorium, subquery_accept));
+		->Where(ORM::Eq(g_ModelSchedule.day, day_id) && ORM::Eq(g_ModelSchedule.hour, hour_id));
 
 	//get all acceptable auditorium
 	m_Connection.Select(data
@@ -314,11 +433,15 @@ void DataBase::GetAuditoriumListForLesson(Glib::RefPtr<ORM::Data>& data, ORM::Pr
 		->From(g_ModelAuditoriums, g_ModelLessons)
 		->NaturalJoin(g_ModelTeachingPlan)
 		->NaturalJoin(g_ModelLessonType)
+		->NaturalJoin(g_ModelStreams)
+		->NaturalJoin(g_ModelTeachingBranch)
+		->NaturalJoin(g_ModelStreamSubgroup)
 		->Where(ORM::NotIn(g_ModelAuditoriums.fId, subquery_busy) && ORM::Eq(g_ModelLessons.fId, lesson_id) && ORM::Eq(g_ModelAuditoriums.multithread, g_ModelLessonType.multithread));
 }
 
 void DataBase::SetLessonIntoTimetable(long int id_lesson, long int id_aud, long int id_hour, long int id_day)
 {
+	std::cout << "DataBase::SetLessonIntoTimetable" << std::endl;
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(g_ModelSchedule);
 	Gtk::TreeIter iter = data->append();
 	iter->set_value(g_ModelSchedule.auditorium, id_aud);
@@ -349,14 +472,15 @@ Glib::ustring DataBase::GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::F
 		, g_ModelAuditoriums.name
 		, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + ORM::substr(DB::g_ModelTeachers.firstname, 1, 1) + ". " + ORM::substr(DB::g_ModelTeachers.thirdname, 1, 1) + "."
 		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name)
-		->From(g_ModelSchedule, g_ModelGroupCategory, g_ModelLessons, g_ModelTeachingPlan)
+		->From(g_ModelSchedule, g_ModelGroupCategory, g_ModelLessons, g_ModelTeachingPlan, g_ModelTeachers)
 		->NaturalJoin(g_ModelAuditoriums)
-		->NaturalJoin(g_ModelTeachers)
 		->NaturalJoin(g_ModelLessonType)
 		->NaturalJoin(g_ModelBranch)
 		->NaturalJoin(g_ModelTeachingBranch)
 		->NaturalJoin(g_ModelSubgroups)
-		->Where(ORM::Eq(g_ModelSchedule.day, id_day) && ORM::Eq(g_ModelSchedule.hour, id_hour) && ORM::Eq(g_ModelGroupCategory.group, id_group) && ORM::Eq(g_ModelTeachingPlan.fId, g_ModelLessons.teaching_plan) && ORM::Eq(g_ModelSchedule.lesson, g_ModelLessons.fId));
+		->NaturalJoin(g_ModelStreams)
+		->NaturalJoin(g_ModelStreamSubgroup)
+		->Where(ORM::Eq(g_ModelSchedule.day, id_day) && ORM::Eq(g_ModelSchedule.hour, id_hour) && ORM::Eq(g_ModelGroupCategory.group, id_group) && ORM::Eq(g_ModelSchedule.lesson, g_ModelLessons.fId));
 
 	if(data->children().size() == 0)
 	{
@@ -370,5 +494,44 @@ Glib::ustring DataBase::GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::F
 	}
 
 	return "!!!";
+}
+
+void DataBase::ListTGBLH(Glib::RefPtr<ORM::Data>& data)
+{
+	m_Connection.Select(data
+		, g_ModelLessons.teacher
+		, g_ModelGroupCategory.group
+		, g_ModelTeachingBranch.branch
+		, g_ModelTeachingPlan.lesson_type
+		, g_ModelTeachingPlan.hours
+		, g_ModelLessonType.multithread)
+		->From(g_ModelLessons, g_ModelGroupCategory, g_ModelTeachingPlan)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelTeachingBranch)
+		->NaturalJoin(g_ModelLessonType)
+		->NaturalJoin(g_ModelStreams)
+		->NaturalJoin(g_ModelStreamSubgroup)
+		->Where(ORM::Greater(g_ModelTeachingPlan.hours, 0l))
+		->OrderBy(g_ModelLessons.teacher
+		, g_ModelGroupCategory.group
+		, g_ModelTeachingBranch.branch
+		, g_ModelTeachingPlan.lesson_type);
+}
+
+size_t DataBase::CountAuditoriums(bool multithread)
+{
+	ORM::Scheme scheme;
+	ORM::Field<long int> field("");
+	scheme.add(field);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+	m_Connection.Select(data
+		, ORM::Count())
+		->From(g_ModelAuditoriums)
+		->Where(ORM::Eq(g_ModelAuditoriums.multithread, multithread));
+	if(data->children().size() > 0)
+	{
+		return data->children()[0].get_value(field);
+	}
+	return 0;
 }
 

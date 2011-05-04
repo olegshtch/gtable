@@ -3,7 +3,7 @@
 #include <iostream>
 #include "main_window.h"
 #include "shared.h"
-#include "ga/ga.h"
+#include "ga/graph.h"
 #include "orm/data.h"
 #include "orm/expr.h"
 #include "db/models.h"
@@ -77,10 +77,12 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelSpecialities.name);
 	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelSpecialities.abbr);
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelSpecialities.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
+	m_pTreeView->append_column_editable(_("terms"), DB::g_ModelSpecialities.terms);
 
 	m_pTreeView = AddListView("TreeViewGroups", DB::g_ModelGroups);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelGroups.name);
 	m_pTreeView->append_column_foreign_editable(_("speciality"), DB::g_ModelGroups.speciality, DB::g_ModelSpecialities, DB::g_ModelSpecialities.abbr);
+	m_pTreeView->append_column_editable(_("term"), DB::g_ModelGroups.term);
 
 	m_pTreeView = AddListView("TreeViewBuildings", DB::g_ModelBuildings);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelBuildings.name);
@@ -537,9 +539,13 @@ void MainWindow::ScheduleGroupCellButtonRelease(long int row_id, long int col_id
 				m_ScheduleMenu.popup(0, event->time);
 				//std::cout << "popup size: " << m_ScheduleMenu.items().size() << std::endl;
 			}
+			else
+			{
+				std::cout << "Cann't found auditoriums" << std::endl;
+			}
 		}
 		break;
-	case 3:
+	case 3: // change auditorium or delete
 		break;
 	}
 }
@@ -551,6 +557,15 @@ void MainWindow::ScheduleGroupChooseAud(long int aud_id)
 	{
 		long int lesson_id = m_ScheduleGroupSelectedOther->get_value(DB::g_IdTextScheme.fId);
 		DB::DataBase::Instance().SetLessonIntoTimetable(lesson_id, aud_id, m_ScheduleIdHour, m_ScheduleIdDay);
+		m_TeachingLesson->resize_children();
+		m_TeachingLesson->columns_autosize();
+		//m_TeachingLesson->get_bin_window()->invalidate(true);
+
+		Glib::RefPtr<ORM::Data> other_data = ORM::Data::create(DB::g_IdTextScheme);
+		DB::DataBase::Instance().ListGroupOtherLessons(m_ScheduleIdGroup, other_data);
+		m_ScheduleGroupOther->set_model(other_data);
+
+		m_ScheduleGroupSelectedOther = Gtk::TreeIter();
 	}
 }
 
@@ -585,7 +600,7 @@ void MainWindow::OnScheduleDelete()
 
 void MainWindow::OnScheduleRun()
 {
-	
+	GraphForTime graph;
 }
 
 void MainWindow::OnException()

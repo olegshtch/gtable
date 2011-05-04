@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Table 0.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-28 14:19+0400\n"
-"PO-Revision-Date: 2011-04-28 14:21+0300\n"
+"POT-Creation-Date: 2011-05-04 23:46+0400\n"
+"PO-Revision-Date: 2011-05-04 23:47+0300\n"
 "Last-Translator: Oleg Shchelykal'nov <O01eg@yandex.ru>\n"
 "Language-Team: Russian\n"
 "Language: \n"
@@ -17,109 +17,117 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
-#: ../src/main_window.cpp:53
+#: ../src/main_window.cpp:55
 msgid "start"
 msgstr "Начало"
 
-#: ../src/main_window.cpp:54
+#: ../src/main_window.cpp:56
 msgid "finish"
 msgstr "Окончание"
 
-#: ../src/main_window.cpp:57
-#: ../src/main_window.cpp:60
-#: ../src/main_window.cpp:64
-#: ../src/main_window.cpp:75
-#: ../src/main_window.cpp:80
-#: ../src/main_window.cpp:84
-#: ../src/main_window.cpp:87
-#: ../src/main_window.cpp:97
+#: ../src/main_window.cpp:59
+#: ../src/main_window.cpp:62
+#: ../src/main_window.cpp:66
+#: ../src/main_window.cpp:77
+#: ../src/main_window.cpp:83
+#: ../src/main_window.cpp:88
+#: ../src/main_window.cpp:91
 #: ../src/main_window.cpp:101
-#: ../src/main_window.cpp:106
+#: ../src/main_window.cpp:105
+#: ../src/main_window.cpp:110
 msgid "name"
 msgstr "Название"
 
-#: ../src/main_window.cpp:61
-#: ../src/main_window.cpp:65
-#: ../src/main_window.cpp:76
-#: ../src/main_window.cpp:102
-#: ../src/main_window.cpp:107
+#: ../src/main_window.cpp:63
+#: ../src/main_window.cpp:67
+#: ../src/main_window.cpp:78
+#: ../src/main_window.cpp:106
+#: ../src/main_window.cpp:111
 msgid "abbreviation"
 msgstr "Сокращение"
 
-#: ../src/main_window.cpp:66
+#: ../src/main_window.cpp:68
 msgid "faculty"
 msgstr "Факультет"
 
-#: ../src/main_window.cpp:69
+#: ../src/main_window.cpp:71
 msgid "secondname"
 msgstr "Фамилия"
 
-#: ../src/main_window.cpp:70
+#: ../src/main_window.cpp:72
 msgid "firstname"
 msgstr "Имя"
 
-#: ../src/main_window.cpp:71
+#: ../src/main_window.cpp:73
 msgid "thirdname"
 msgstr "Отчество"
 
-#: ../src/main_window.cpp:72
-#: ../src/main_window.cpp:77
-#: ../src/main_window.cpp:91
+#: ../src/main_window.cpp:74
+#: ../src/main_window.cpp:79
+#: ../src/main_window.cpp:95
 msgid "chair"
 msgstr "Кафедра"
 
-#: ../src/main_window.cpp:81
+#: ../src/main_window.cpp:80
+msgid "terms"
+msgstr "Семестры"
+
+#: ../src/main_window.cpp:84
 msgid "speciality"
 msgstr "Специальность"
 
-#: ../src/main_window.cpp:88
+#: ../src/main_window.cpp:85
+msgid "term"
+msgstr "Семестр"
+
+#: ../src/main_window.cpp:92
 msgid "capacity"
 msgstr "Вместимость"
 
-#: ../src/main_window.cpp:89
-#: ../src/main_window.cpp:109
+#: ../src/main_window.cpp:93
+#: ../src/main_window.cpp:113
 msgid "multithread"
 msgstr "Многопоточность"
 
-#: ../src/main_window.cpp:90
+#: ../src/main_window.cpp:94
 msgid "building"
 msgstr "Корпус"
 
-#: ../src/main_window.cpp:94
-#: ../src/main_window.cpp:187
+#: ../src/main_window.cpp:98
+#: ../src/main_window.cpp:191
 msgid "property"
 msgstr "Свойства"
 
-#: ../src/main_window.cpp:103
+#: ../src/main_window.cpp:107
 msgid "category"
 msgstr "Категория"
 
-#: ../src/main_window.cpp:108
+#: ../src/main_window.cpp:112
 msgid "before"
 msgstr "До"
 
-#: ../src/main_window.cpp:236
+#: ../src/main_window.cpp:243
 msgid "Choose file for opening database:"
 msgstr "Выберите файл содержащий базу данных:"
 
-#: ../src/main_window.cpp:250
+#: ../src/main_window.cpp:257
 msgid "Choose file for saving database:"
 msgstr "Выберите файл для хранения базы данных:"
 
-#: ../src/main_window.cpp:320
+#: ../src/main_window.cpp:327
 msgid "id"
 msgstr "id"
 
-#: ../src/main_window.cpp:330
-#: ../src/main_window.cpp:372
-#: ../src/main_window.cpp:404
+#: ../src/main_window.cpp:337
+#: ../src/main_window.cpp:379
+#: ../src/main_window.cpp:411
 #: ../ui/main_window.glade.h:28
 msgid "Teachers"
 msgstr "Преподаватели"
 
-#: ../src/main_window.cpp:337
-#: ../src/main_window.cpp:383
-#: ../src/main_window.cpp:409
+#: ../src/main_window.cpp:344
+#: ../src/main_window.cpp:390
+#: ../src/main_window.cpp:416
 #: ../ui/main_window.glade.h:14
 msgid "Groups"
 msgstr "Группы"

@@ -51,9 +51,27 @@ namespace ORM
 			return this;
 		}
 
-		void Where(const WhereBase& where)
+		SelectBase* Where(const WhereBase& where)
 		{
 			m_Query += " WHERE " + where.GetQuery();
+			return this;
+		}
+
+		void OrderBy(const ExprBase& expr1)
+		{
+			m_Query += " ORDER BY " + expr1.GetQuery();
+		}
+		void OrderBy(const ExprBase& expr1, const ExprBase& expr2)
+		{
+			m_Query += " ORDER BY " + expr1.GetQuery() + "," + expr2.GetQuery();
+		}
+		void OrderBy(const ExprBase& expr1, const ExprBase& expr2, const ExprBase& expr3)
+		{
+			m_Query += " ORDER BY " + expr1.GetQuery() + "," + expr2.GetQuery() + "," + expr3.GetQuery();
+		}
+		void OrderBy(const ExprBase& expr1, const ExprBase& expr2, const ExprBase& expr3, const ExprBase& expr4)
+		{
+			m_Query += " ORDER BY " + expr1.GetQuery() + "," + expr2.GetQuery() + "," + expr3.GetQuery() + "," + expr4.GetQuery();
 		}
 	private:
 		Glib::ustring m_Fields;

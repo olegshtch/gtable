@@ -124,8 +124,12 @@ int ORM::Connection::CallBack(void *self_ptr, int argc, char **argv, char **col_
 		if(argv[index])
 		{
 			data->GetField(index).SetStrValue(it, argv[index]);
+			std::clog << " [" << col_name[index] << "]=" << argv[index];
 		}
-		std::clog << " [" << col_name[index] << "]=" << argv[index];
+		else
+		{
+			std::clog << " [" << col_name[index] << "]=NULL";
+		}
 	}
 	std::clog << std::endl;
 	return 0;

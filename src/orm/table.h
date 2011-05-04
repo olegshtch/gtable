@@ -48,15 +48,15 @@ namespace ORM
 
 		void Unique(const FieldBase& field1)
 		{
-			m_Constraints.push_back("UNIQUE (" + field1.GetSmallFieldName() + ") ON CONFLICT IGNORE");
+			m_Constraints.push_back("UNIQUE (" + field1.GetSmallFieldName() + ")");
 		}
 		void Unique(const FieldBase& field1, const FieldBase& field2)
 		{
-			m_Constraints.push_back("UNIQUE (" + field1.GetSmallFieldName() + "," + field2.GetSmallFieldName() + ") ON CONFLICT IGNORE");
+			m_Constraints.push_back("UNIQUE (" + field1.GetSmallFieldName() + "," + field2.GetSmallFieldName() + ")");
 		}
 		void Unique(const FieldBase& field1, const FieldBase& field2, const FieldBase& field3)
 		{
-			m_Constraints.push_back("UNIQUE (" + field1.GetSmallFieldName() + "," + field2.GetSmallFieldName() + "," + field3.GetSmallFieldName() + ") ON CONFLICT IGNORE");
+			m_Constraints.push_back("UNIQUE (" + field1.GetSmallFieldName() + "," + field2.GetSmallFieldName() + "," + field3.GetSmallFieldName() + ")");
 		}
 
 		static void InitTables(ORM::Connection &db);

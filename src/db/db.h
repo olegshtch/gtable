@@ -44,6 +44,7 @@ namespace DB
 		void AppendEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
 		void ListEntity(const ORM::Table& ent, Glib::RefPtr<ORM::Data> &list_store);
 		void ListEntitiesText(const ORM::Table& ent, const ORM::Expr<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data);
+		void ListIDs(const ORM::Table& ent, Glib::RefPtr<ORM::Data> &data);
 		void EditEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
 		void RemoveEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
 		Glib::ustring GetTextById(const ORM::Table& ent, const ORM::Expr<Glib::ustring>& field, long id);
@@ -66,12 +67,15 @@ namespace DB
 
 		void GetSubgroupsList(Glib::RefPtr<ORM::Data>& data);
 		void GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::ForeignKey& id_subgroup);
-		void SetLessonsTeacher(ORM::PrimaryKey id_lesson, ORM::ForeignKey id_teacher);
+		void SetLessonTeacher(ORM::PrimaryKey id_lesson, ORM::ForeignKey id_teacher);
 
 		void ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>& data);
 		void GetAuditoriumListForLesson(Glib::RefPtr<ORM::Data>& data, ORM::PrimaryKey lesson_id, ORM::ForeignKey day_id, ORM::ForeignKey hour_id);
 		void SetLessonIntoTimetable(long int id_lesson, long int id_aud, long int id_hour, long int id_day);
 		Glib::ustring GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::ForeignKey id_hour, ORM::ForeignKey id_day);
+
+		void ListTGBLH(Glib::RefPtr<ORM::Data>& data);
+		size_t CountAuditoriums(bool multithread);
 	private:		
 		ORM::Connection m_Connection;
 	};

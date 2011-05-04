@@ -45,7 +45,7 @@ namespace DB
 
 	extern const ModelBranch g_ModelBranch;
 
-	// id - идентификатор сущности
+	// id - идентификатор часа
 	// start - время начала
 	// finish - время окончания
 	class ModelHours : public ORM::Table
@@ -69,7 +69,7 @@ namespace DB
 
 	extern const ModelEntity g_ModelBuildings;
 	
-	// id - идентификатор сущности
+	// id - идентификатор факультета
 	// name - название
 	// abbr - сокращение
 	class ModelFaculties : public ModelEntity
@@ -137,20 +137,46 @@ namespace DB
 
 	extern const ModelAuditoriums g_ModelAuditoriums;
 
+	class ModelAuditoriumHolydays : public ORM::Table
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> auditorium;
+		ORM::Field<ORM::ForeignKey> day;
+		ORM::Field<ORM::ForeignKey> hour;
+
+		ModelAuditoriumHolydays(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			auditorium(DB::g_ModelAuditoriums),
+			day(DB::g_ModelDays),
+			hour(DB::g_ModelHours)
+		{
+			add(auditorium);
+			add(day);
+			add(hour);
+			Unique(auditorium, day, hour);
+		}
+	};
+
+	extern const ModelAuditoriumHolydays g_ModelAuditoriumHolydays;
+
 	// id - идентификатор специальности
 	// name - название
 	// abbr - сокращение
 	// chair - кафедра
+	// terms - число семестров
 	class ModelSpecialities : public ModelFaculties
 	{
 	public:
 		ORM::Field<ORM::ForeignKey> chair;
+		ORM::Field<long int> terms;
 
 		ModelSpecialities(const Glib::ustring& table_name)
 			:ModelFaculties(table_name),
-			chair(g_ModelChairs)
+			chair(g_ModelChairs),
+			terms("terms")
 		{
 			add(chair);
+			add(terms);
 		}
 	};
 
@@ -159,16 +185,20 @@ namespace DB
 	// id - идентификатор группы
 	// name - имя группы
 	// speciality - специальность
+	// term - текущий семестр
 	class ModelGroups : public ModelEntity
 	{
 	public:
 		ORM::Field<ORM::ForeignKey> speciality;
+		ORM::Field<long int> term;
 			
 		ModelGroups(const Glib::ustring& table_name)
 			:ModelEntity(table_name),
-			speciality(g_ModelSpecialities)
+			speciality(g_ModelSpecialities),
+			term("term")
 		{
 			add(speciality);
+			add(term);
 		}
 	};
 
@@ -252,6 +282,7 @@ namespace DB
 
 	extern const ModelTeacherHolydays g_ModelTeacherHolydays;
 
+	// doubleweek - двойная неделя
 	class ModelWeek : public ORM::Table
 	{
 	public:
@@ -268,6 +299,11 @@ namespace DB
 
 	extern const ModelWeek g_ModelWeek;
 
+	// id - идентификатор типа занятий
+	// name - название
+	// abbr - сокращение
+	// before - занятие, которое проводится до
+	// multithread - многопоточное
 	class ModelLessonType : public ModelFaculties
 	{
 	public:
@@ -286,19 +322,26 @@ namespace DB
 
 	extern const ModelLessonType g_ModelLessonType;
 
+	// id - идентификатор преподаваемой дисциплины
+	// speciality - специальность, в которой преподаётся дисциплина
+	// branch - дисциплина
+	// term - семестр
 	class ModelTeachingBranch : public ORM::Table
 	{
 	public:
 		ORM::Field<ORM::ForeignKey> speciality;
 		ORM::Field<ORM::ForeignKey> branch;
+		ORM::Field<long int> term;
 
 		ModelTeachingBranch(const Glib::ustring& table_name)
 			:ORM::Table(table_name),
 			speciality(g_ModelSpecialities),
-			branch(g_ModelBranch)
+			branch(g_ModelBranch),
+			term("term")
 		{
 			add(speciality);
 			add(branch);
+			add(term);
 			Unique(speciality, branch);
 		}
 	};
@@ -331,14 +374,14 @@ namespace DB
 	{
 	public:
 		ORM::Field<Glib::ustring> name;
-		ORM::Field<ORM::ForeignKey> lesson;
+		ORM::Field<ORM::ForeignKey> lesson; //дисциплина и тип занятия, для которых группа разбивается на подгруппы
 		ORM::Field<ORM::ForeignKey> group;
 		ORM::Field<bool> full;
 
 		ModelGroupCategory(const Glib::ustring& table_name)
 			:ORM::Table(table_name),
 			name("name"),
-			lesson(g_ModelTeachingPlan, false),
+			lesson("lesson", g_ModelTeachingPlan, false),
 			group(g_ModelGroups),
 			full("full")
 		{
@@ -370,23 +413,72 @@ namespace DB
 
 	extern const ModelSubgroups g_ModelSubgroups;
 
+	// Потоки
+	// branch - дисциплина
+	// lesson - занятие
+	class ModelStreams : public ORM::Table
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> branch;
+		ORM::Field<ORM::ForeignKey> lesson;
+
+		ModelStreams(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			branch(g_ModelBranch),
+			lesson(g_ModelLessonType)
+		{
+			add(branch);
+			add(lesson);
+		}
+	};
+
+	extern const ModelStreams g_ModelStreams;
+
+	// Соответствие потоков
+	// stream - поток
+	// subgroup - подгруппа
+	// teaching_plan - занятие
+	
+	class ModelStreamSubgroup : public ORM::Table
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> stream;
+		ORM::Field<ORM::ForeignKey> subgroup;
+		ORM::Field<ORM::ForeignKey> teaching_plan;
+
+		ModelStreamSubgroup(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			stream(g_ModelStreams),
+			subgroup(g_ModelSubgroups),
+			teaching_plan(g_ModelTeachingPlan)
+		{
+			add(stream);
+			add(subgroup);
+			add(teaching_plan);
+			Unique(stream, subgroup);
+			Unique(subgroup, teaching_plan);
+		}
+	};
+
+	extern const ModelStreamSubgroup g_ModelStreamSubgroup;
+
+	// Проведение занятий
+	// teacher - преподаватель
+	// stream - поток
 	class ModelLessons : public ORM::Table
 	{
 	public:
 		ORM::Field<ORM::ForeignKey> teacher;
-		ORM::Field<ORM::ForeignKey> teaching_plan;
-		ORM::Field<ORM::ForeignKey> subgroup;
+		ORM::Field<ORM::ForeignKey> stream;
 
 		ModelLessons(const Glib::ustring& table_name)
 			:ORM::Table(table_name),
 			teacher(g_ModelTeachers, false),
-			teaching_plan(g_ModelTeachingPlan),
-			subgroup(g_ModelSubgroups)
+			stream(g_ModelStreams)
 		{
 			add(teacher);
-			add(teaching_plan);
-			add(subgroup);
-			Unique(subgroup, teaching_plan);
+			add(stream);
+			Unique(stream);
 		}
 	};
 
