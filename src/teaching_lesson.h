@@ -3,6 +3,7 @@
 
 #include <gtkmm/treeview.h>
 #include <gtkmm/builder.h>
+#include <gtkmm/menu.h>
 #include "cellrendererforeign.h"
 #include "orm/scheme.h"
 #include "orm/expr.h"
@@ -40,12 +41,14 @@ private:
 	};
 
 	void OnTeacherEdited(const Glib::ustring& path, long int id);
+	virtual bool on_button_release_event(GdkEventButton *event);
 	
 	LessonColumnRecord m_LessonColumnRecord;
 	Glib::RefPtr<ORM::Data> m_Model;
 
 	Gtk::TreeViewColumn m_TeacherColumn;
 	CellRendererForeign m_TeacherRenderer;
+	Gtk::Menu m_Menu;
 	long int m_IdSubgroup;
 };
 

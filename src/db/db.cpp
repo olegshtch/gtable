@@ -351,6 +351,41 @@ void DataBase::SetLessonTeacher(ORM::PrimaryKey id_lesson, ORM::ForeignKey id_te
 	m_Connection.Update(g_ModelLessons)->Set(g_ModelLessons.teacher, id_teacher)->Where(ORM::Eq(g_ModelLessons.fId, id_lesson));
 }
 
+void DataBase::GetStreamsListForAdding(Glib::RefPtr<ORM::Data>& data, const ORM::ForeignKey& id_subgroup, const ORM::PrimaryKey& id_stream)
+{
+	long int id_branch = -1;
+	long int id_lesson_type = -1;
+	long int lesson_hours = -1;
+	ORM::Scheme scheme;
+	ORM::Field<ORM::ForeignKey> f_branch(g_ModelBranch);
+	ORM::Field<ORM::ForeignKey> f_lesson_type(g_ModelLessonType);
+	ORM::Field<long int> f_hours("");
+	scheme.add(f_branch);
+	scheme.add(f_lesson_type);
+	scheme.add(f_hours);
+	Glib::RefPtr<ORM::Data> stream_data = ORM::Data::create(scheme);
+	m_Connection.Select(stream_data
+		, g_ModelStreams.branch
+		, g_ModelStreams.lesson
+		, g_ModelTeachingPlan.hours)
+		->From(g_ModelStreams)
+		->NaturalJoin(g_ModelStreamSubgroup)
+		->NaturalJoin(g_ModelTeachingPlan)
+		->NaturalJoin(g_ModelTeachingBranch)
+		->Where(ORM::Eq(g_ModelStreams.fId, id_stream));
+	
+	if(stream_data->children().size() == 1)
+	{
+		id_branch = stream_data->children()[0].get_value(f_branch);
+		id_lesson_type = stream_data->children()[0].get_value(f_lesson_type);
+		lesson_hours = stream_data->children()[0].get_value(f_hours);
+	}
+	else
+	{
+		std::cout << "Wrong count streams" << std::endl;
+	}
+}
+
 void DataBase::ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>& data)
 {
 	data->clear();

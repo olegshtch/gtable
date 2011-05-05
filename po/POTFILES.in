@@ -7,5 +7,6 @@ src/main.cpp
 src/celleditableforeign.cpp
 src/cellrendererforeign.cpp
 src/sheet.cpp
+src/teaching_lesson.cpp
 ui/main_window.glade
 

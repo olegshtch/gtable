@@ -68,6 +68,7 @@ namespace DB
 		void GetSubgroupsList(Glib::RefPtr<ORM::Data>& data);
 		void GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::ForeignKey& id_subgroup);
 		void SetLessonTeacher(ORM::PrimaryKey id_lesson, ORM::ForeignKey id_teacher);
+		void GetStreamsListForAdding(Glib::RefPtr<ORM::Data>& data, const ORM::ForeignKey& id_subgroup, const ORM::PrimaryKey& id_stream);
 
 		void ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>& data);
 		void GetAuditoriumListForLesson(Glib::RefPtr<ORM::Data>& data, ORM::PrimaryKey lesson_id, ORM::ForeignKey day_id, ORM::ForeignKey hour_id);

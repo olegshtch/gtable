@@ -18,6 +18,8 @@ TeachingLesson::TeachingLesson(GtkTreeView *cobject, const Glib::RefPtr<Gtk::Bui
 
 	m_TeacherColumn.set_cell_data_func(m_TeacherRenderer, slot);
 	append_column(m_TeacherColumn);
+
+	m_Menu.accelerate(*this);
 }
 
 void TeachingLesson::SetSubgroup(long int id_subgroup)
@@ -35,5 +37,25 @@ void TeachingLesson::OnTeacherEdited(const Glib::ustring& path, long int id)
 		DB::DataBase::Instance().SetLessonTeacher(iter->get_value(m_LessonColumnRecord.fId), id);
 	}
 	DB::DataBase::Instance().GetLessonsForSubgroup(m_Model, m_IdSubgroup);
+}
+
+bool TeachingLesson::on_button_release_event(GdkEventButton *event)
+{
+	bool res = Gtk::TreeView::on_button_release_event(event);
+	if(event->button == 3)
+	{
+		Gtk::TreeIter iter = get_selection()->get_selected();
+		if(iter)
+		{
+			// generate menu
+			m_Menu.items().erase(m_Menu.items().begin(), m_Menu.items().end());
+			// menu for adding
+			Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
+			DB::DataBase::Instance().GetStreamsListForAdding(data, m_IdSubgroup, iter->get_value(m_LessonColumnRecord.fStream));
+
+			m_Menu.popup(0, event->time);
+		}
+	}
+	return res;
 }
 
