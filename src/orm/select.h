@@ -10,8 +10,8 @@ namespace ORM
 	class SelectBase : public QueryBase
 	{
 	public:
-		SelectBase(Queryable &db, Glib::RefPtr<Data>& data, const Glib::ustring& fields)
-			:QueryBase(db, "SELECT ", data),
+		SelectBase(Queryable &db, Glib::RefPtr<Data>& data, const Glib::ustring& fields, bool distinct = false)
+			:QueryBase(db, distinct ? "SELECT DISTINCT " : "SELECT ", data),
 			m_Fields(fields)
 		{
 		}
@@ -72,6 +72,10 @@ namespace ORM
 		void OrderBy(const ExprBase& expr1, const ExprBase& expr2, const ExprBase& expr3, const ExprBase& expr4)
 		{
 			m_Query += " ORDER BY " + expr1.GetQuery() + "," + expr2.GetQuery() + "," + expr3.GetQuery() + "," + expr4.GetQuery();
+		}
+		void GroupBy(const ExprBase& expr1)
+		{
+			m_Query += " GROUP BY " + expr1.GetQuery();
 		}
 	private:
 		Glib::ustring m_Fields;

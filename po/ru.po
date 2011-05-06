@@ -3,21 +3,19 @@
 # This file is distributed under the same license as the Table package.
 #  <olegshtch@yandex.ru>, 2010.
 #
-#: ../src/main_window.cpp:219
 msgid ""
 msgstr ""
 "Project-Id-Version: Table 0.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-05 11:05+0400\n"
-"PO-Revision-Date: 2011-05-04 23:47+0300\n"
+"POT-Creation-Date: 2011-05-06 12:51+0400\n"
+"PO-Revision-Date: 2011-05-06 12:51+0300\n"
 "Last-Translator: Oleg Shchelykal'nov <O01eg@yandex.ru>\n"
 "Language-Team: Russian\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: ../src/main_window.cpp:55
 msgid "start"
@@ -27,16 +25,23 @@ msgstr "Начало"
 msgid "finish"
 msgstr "Окончание"
 
-#: ../src/main_window.cpp:59 ../src/main_window.cpp:62
-#: ../src/main_window.cpp:66 ../src/main_window.cpp:77
-#: ../src/main_window.cpp:83 ../src/main_window.cpp:88
-#: ../src/main_window.cpp:91 ../src/main_window.cpp:101
-#: ../src/main_window.cpp:105 ../src/main_window.cpp:110
+#: ../src/main_window.cpp:59
+#: ../src/main_window.cpp:62
+#: ../src/main_window.cpp:66
+#: ../src/main_window.cpp:77
+#: ../src/main_window.cpp:83
+#: ../src/main_window.cpp:88
+#: ../src/main_window.cpp:91
+#: ../src/main_window.cpp:101
+#: ../src/main_window.cpp:105
+#: ../src/main_window.cpp:110
 msgid "name"
 msgstr "Название"
 
-#: ../src/main_window.cpp:63 ../src/main_window.cpp:67
-#: ../src/main_window.cpp:78 ../src/main_window.cpp:106
+#: ../src/main_window.cpp:63
+#: ../src/main_window.cpp:67
+#: ../src/main_window.cpp:78
+#: ../src/main_window.cpp:106
 #: ../src/main_window.cpp:111
 msgid "abbreviation"
 msgstr "Сокращение"
@@ -57,7 +62,8 @@ msgstr "Имя"
 msgid "thirdname"
 msgstr "Отчество"
 
-#: ../src/main_window.cpp:74 ../src/main_window.cpp:79
+#: ../src/main_window.cpp:74
+#: ../src/main_window.cpp:79
 #: ../src/main_window.cpp:95
 msgid "chair"
 msgstr "Кафедра"
@@ -78,7 +84,8 @@ msgstr "Семестр"
 msgid "capacity"
 msgstr "Вместимость"
 
-#: ../src/main_window.cpp:93 ../src/main_window.cpp:113
+#: ../src/main_window.cpp:93
+#: ../src/main_window.cpp:113
 msgid "multithread"
 msgstr "Многопоточность"
 
@@ -86,7 +93,8 @@ msgstr "Многопоточность"
 msgid "building"
 msgstr "Корпус"
 
-#: ../src/main_window.cpp:98 ../src/main_window.cpp:191
+#: ../src/main_window.cpp:98
+#: ../src/main_window.cpp:191
 msgid "property"
 msgstr "Свойства"
 
@@ -106,17 +114,22 @@ msgstr "Выберите файл содержащий базу данных:"
 msgid "Choose file for saving database:"
 msgstr "Выберите файл для хранения базы данных:"
 
-#: ../src/main_window.cpp:327 ../src/teaching_lesson.cpp:11
+#: ../src/main_window.cpp:327
+#: ../src/teaching_lesson.cpp:11
 msgid "id"
 msgstr "id"
 
-#: ../src/main_window.cpp:337 ../src/main_window.cpp:379
-#: ../src/main_window.cpp:411 ../ui/main_window.glade.h:28
+#: ../src/main_window.cpp:337
+#: ../src/main_window.cpp:379
+#: ../src/main_window.cpp:411
+#: ../ui/main_window.glade.h:28
 msgid "Teachers"
 msgstr "Преподаватели"
 
-#: ../src/main_window.cpp:344 ../src/main_window.cpp:390
-#: ../src/main_window.cpp:416 ../ui/main_window.glade.h:14
+#: ../src/main_window.cpp:344
+#: ../src/main_window.cpp:390
+#: ../src/main_window.cpp:416
+#: ../ui/main_window.glade.h:14
 msgid "Groups"
 msgstr "Группы"
 
@@ -131,6 +144,10 @@ msgstr "Поток"
 #: ../src/teaching_lesson.cpp:13
 msgid "lesson"
 msgstr "Занятие"
+
+#: ../src/teaching_lesson.cpp:57
+msgid "Add to stream"
+msgstr "Добавить в поток к"
 
 #: ../ui/main_window.glade.h:1
 msgid "<"

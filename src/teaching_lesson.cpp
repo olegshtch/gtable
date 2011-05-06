@@ -52,10 +52,33 @@ bool TeachingLesson::on_button_release_event(GdkEventButton *event)
 			// menu for adding
 			Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
 			DB::DataBase::Instance().GetStreamsListForAdding(data, m_IdSubgroup, iter->get_value(m_LessonColumnRecord.fStream));
+			if(data->children().size() > 0)
+			{
+				Gtk::MenuItem *add_item = Gtk::manage(new Gtk::MenuItem(_("Add to stream")));
+				m_Menu.append(*add_item);
+				Gtk::Menu *streams_menu = Gtk::manage(new Gtk::Menu());
+				add_item->set_submenu(*streams_menu);
+				for(Gtk::TreeIter stream_iter = data->children().begin(); stream_iter != data->children().end(); ++ stream_iter)
+				{
+					Gtk::MenuItem *item = Gtk::manage(new Gtk::MenuItem(stream_iter->get_value(DB::g_IdTextScheme.fText)));
+					streams_menu->append(*item);
+					item->signal_activate().connect(sigc::bind(sigc::mem_fun(*this, &TeachingLesson::OnAddToStreamActivate), stream_iter->get_value(DB::g_IdTextScheme.fId), iter->get_value(m_LessonColumnRecord.fStream)));
+					item->show();
+				}
+				add_item->show();
+				m_Menu.show_all_children();
 
-			m_Menu.popup(0, event->time);
+				m_Menu.popup(0, event->time);
+			}
 		}
 	}
 	return res;
+}
+
+void TeachingLesson::OnAddToStreamActivate(long int id_stream_to, long int id_stream_from)
+{
+	std::cout << "TeachingLesson::OnAddToStreamActivate id_stream_to=" << id_stream_to << " id_stream_from=" << id_stream_from << std::endl;
+	DB::DataBase::Instance().MoveStreams(id_stream_from, id_stream_to);
+	DB::DataBase::Instance().GetLessonsForSubgroup(m_Model, m_IdSubgroup);
 }
 

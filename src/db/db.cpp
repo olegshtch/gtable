@@ -364,7 +364,7 @@ void DataBase::GetStreamsListForAdding(Glib::RefPtr<ORM::Data>& data, const ORM:
 	scheme.add(f_lesson_type);
 	scheme.add(f_hours);
 	Glib::RefPtr<ORM::Data> stream_data = ORM::Data::create(scheme);
-	m_Connection.Select(stream_data
+	m_Connection.SelectDistinct(stream_data
 		, g_ModelStreams.branch
 		, g_ModelStreams.lesson
 		, g_ModelTeachingPlan.hours)
@@ -372,15 +372,35 @@ void DataBase::GetStreamsListForAdding(Glib::RefPtr<ORM::Data>& data, const ORM:
 		->NaturalJoin(g_ModelStreamSubgroup)
 		->NaturalJoin(g_ModelTeachingPlan)
 		->NaturalJoin(g_ModelTeachingBranch)
-		->Where(ORM::Eq(g_ModelStreams.fId, id_stream));
+		->NaturalJoin(g_ModelLessonType)
+		->Where(ORM::Eq(g_ModelStreams.fId, id_stream)
+			&& ORM::Eq(g_ModelLessonType.multithread, true));
 	
 	if(stream_data->children().size() == 1)
 	{
 		id_branch = stream_data->children()[0].get_value(f_branch);
 		id_lesson_type = stream_data->children()[0].get_value(f_lesson_type);
 		lesson_hours = stream_data->children()[0].get_value(f_hours);
+
+		//get streams with same parameters without this subgroup
+		m_Connection.Select(data
+			, g_ModelStreams.fId
+			, ORM::group_concat(g_ModelGroups.name))
+			->From(g_ModelStreams)
+			->NaturalJoin(g_ModelStreamSubgroup)
+			->NaturalJoin(g_ModelSubgroups)
+			->NaturalJoin(g_ModelGroupCategory)
+			->NaturalJoin(g_ModelGroups)
+			->NaturalJoin(g_ModelSpecialities)
+			->NaturalJoin(g_ModelTeachingBranch)
+			->NaturalJoin(g_ModelTeachingPlan)
+			->Where(ORM::NonEq(g_ModelStreams.fId, id_stream)
+				&& ORM::Eq(g_ModelStreams.branch, ORM::ForeignKey(id_branch))
+				&& ORM::Eq(g_ModelStreams.lesson, ORM::ForeignKey(id_lesson_type))
+				&& ORM::Eq(g_ModelTeachingPlan.hours, lesson_hours))
+			->GroupBy(g_ModelStreams.fId);
 	}
-	else
+	else if(stream_data->children().size() > 1)
 	{
 		std::cout << "Wrong count streams" << std::endl;
 	}
@@ -489,6 +509,23 @@ void DataBase::SetLessonIntoTimetable(long int id_lesson, long int id_aud, long 
 	}
 }
 
+void DataBase::SetStreamIntoTimetable(long int id_stream, long int id_aud, long int id_hour, long int id_day)
+{
+	// get lesson by stream
+	ORM::Scheme scheme;
+	ORM::Field<ORM::PrimaryKey> id;
+	scheme.add(id);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+	m_Connection.Select(data
+		, g_ModelLessons.fId)
+		->From(g_ModelLessons)
+		->Where(ORM::Eq(g_ModelLessons.stream, ORM::ForeignKey(id_stream)));
+	if(data->children().size() == 1)
+	{
+		SetLessonIntoTimetable(data->children()[0].get_value(id), id_aud, id_hour, id_day);
+	}
+}
+
 Glib::ustring DataBase::GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::ForeignKey id_hour, ORM::ForeignKey id_day)
 {
 	ORM::Scheme scheme;
@@ -507,15 +544,18 @@ Glib::ustring DataBase::GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::F
 		, g_ModelAuditoriums.name
 		, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + ORM::substr(DB::g_ModelTeachers.firstname, 1, 1) + ". " + ORM::substr(DB::g_ModelTeachers.thirdname, 1, 1) + "."
 		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name)
-		->From(g_ModelSchedule, g_ModelGroupCategory, g_ModelLessons, g_ModelTeachingPlan, g_ModelTeachers)
-		->NaturalJoin(g_ModelAuditoriums)
+		->From(g_ModelSchedule, g_ModelSpecialities, g_ModelTeachingPlan, g_ModelTeachers, g_ModelAuditoriums)
+		->NaturalJoin(g_ModelLessons)
 		->NaturalJoin(g_ModelLessonType)
 		->NaturalJoin(g_ModelBranch)
 		->NaturalJoin(g_ModelTeachingBranch)
+		->NaturalJoin(g_ModelGroupCategory)
 		->NaturalJoin(g_ModelSubgroups)
 		->NaturalJoin(g_ModelStreams)
 		->NaturalJoin(g_ModelStreamSubgroup)
-		->Where(ORM::Eq(g_ModelSchedule.day, id_day) && ORM::Eq(g_ModelSchedule.hour, id_hour) && ORM::Eq(g_ModelGroupCategory.group, id_group) && ORM::Eq(g_ModelSchedule.lesson, g_ModelLessons.fId));
+		->Where(ORM::Eq(g_ModelSchedule.day, id_day) && ORM::Eq(g_ModelSchedule.hour, id_hour) && ORM::Eq(g_ModelGroupCategory.group, id_group) && ORM::Eq(g_ModelSchedule.lesson, g_ModelLessons.fId)
+			&& ORM::Eq(g_ModelLessons.teacher, g_ModelTeachers.fId)
+			&& ORM::Eq(g_ModelSchedule.auditorium, g_ModelAuditoriums.fId));
 
 	if(data->children().size() == 0)
 	{
@@ -527,17 +567,20 @@ Glib::ustring DataBase::GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::F
 			data->children()[0].get_value(teacher_name) + "\n" +
 			data->children()[0].get_value(auditory_name);
 	}
-
+	std::cout << "DataBase::GetTimeTableLessonGroup too many lessons" << std::endl;
 	return "!!!";
 }
 
-void DataBase::ListTGBLH(Glib::RefPtr<ORM::Data>& data)
+void DataBase::CleanTimeTable()
 {
-	m_Connection.Select(data
+	m_Connection.DeleteFrom(g_ModelSchedule);
+}
+
+void DataBase::ListTSHM(Glib::RefPtr<ORM::Data>& data)
+{
+	m_Connection.SelectDistinct(data
 		, g_ModelLessons.teacher
-		, g_ModelGroupCategory.group
-		, g_ModelTeachingBranch.branch
-		, g_ModelTeachingPlan.lesson_type
+		, g_ModelLessons.stream
 		, g_ModelTeachingPlan.hours
 		, g_ModelLessonType.multithread)
 		->From(g_ModelLessons, g_ModelGroupCategory, g_ModelTeachingPlan)
@@ -548,9 +591,7 @@ void DataBase::ListTGBLH(Glib::RefPtr<ORM::Data>& data)
 		->NaturalJoin(g_ModelStreamSubgroup)
 		->Where(ORM::Greater(g_ModelTeachingPlan.hours, 0l))
 		->OrderBy(g_ModelLessons.teacher
-		, g_ModelGroupCategory.group
-		, g_ModelTeachingBranch.branch
-		, g_ModelTeachingPlan.lesson_type);
+		, g_ModelLessons.stream);
 }
 
 size_t DataBase::CountAuditoriums(bool multithread)
@@ -568,5 +609,51 @@ size_t DataBase::CountAuditoriums(bool multithread)
 		return data->children()[0].get_value(field);
 	}
 	return 0;
+}
+
+void DataBase::MoveStreams(long int id_stream_from, long int id_stream_to)
+{
+	m_Connection.Update(g_ModelStreamSubgroup)->Set(g_ModelStreamSubgroup.stream, ORM::ForeignKey(id_stream_to))->Where(ORM::Eq(g_ModelStreamSubgroup.stream, ORM::ForeignKey(id_stream_from)));
+	m_Connection.DeleteFrom(g_ModelLessons)->Where(ORM::Eq(g_ModelLessons.stream, ORM::ForeignKey(id_stream_from)));
+	m_Connection.DeleteFrom(g_ModelStreams)->Where(ORM::Eq(g_ModelStreams.fId, ORM::PrimaryKey(id_stream_from)));
+}
+
+bool DataBase::InterseptStreams(long int id_stream1, long int id_stream2)
+{
+	ORM::Subquery groups1;
+	Glib::RefPtr<ORM::Data> fake_data;
+	groups1.Select(fake_data
+		, g_ModelGroupCategory.group)
+		->From(g_ModelStreamSubgroup)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelGroupCategory)
+		->Where(ORM::Eq(g_ModelStreamSubgroup.stream, ORM::ForeignKey(id_stream1)));
+
+	ORM::Subquery groups2;
+	groups2.Select(fake_data
+		, g_ModelGroupCategory.group)
+		->From(g_ModelStreamSubgroup)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelGroupCategory)
+		->Where(ORM::Eq(g_ModelStreamSubgroup.stream, ORM::ForeignKey(id_stream2)));
+
+	ORM::Scheme scheme;
+	ORM::Field<long int> count("");
+	scheme.add(count);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+	m_Connection.Select(data
+		, ORM::Count())
+		->From(g_ModelGroups)
+		->Where(ORM::In(g_ModelGroups.fId, groups1)
+			&& ORM::In(g_ModelGroups.fId, groups2));
+	if(data->children().size() == 1)
+	{
+		return data->children()[0].get_value(count);
+	}
+	else
+	{
+		std::cout << "Wrong records count with COUNT" << std::endl;
+	}
+	return false;
 }
 

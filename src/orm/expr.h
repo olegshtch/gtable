@@ -66,6 +66,7 @@ namespace ORM
 	template<> class Expr<Glib::ustring> : public ExprBase
 	{
 		friend Expr<Glib::ustring> substr(const Expr<Glib::ustring>& expr, long pos, long len);
+		friend Expr<Glib::ustring> group_concat(const Expr<Glib::ustring>& expr);
 	public:
 		Expr(const Field<Glib::ustring>& field)
 			:ExprBase(field.GetFieldName())
@@ -112,6 +113,13 @@ namespace ORM
 	{
 		Expr<Glib::ustring> res;
 		res.GetExpr() = "substr(" + expr.GetQuery() + "," + Field<long int>::ToString(pos) + "," + Field<long int>::ToString(len) + ")";
+		return res;
+	}
+
+	Expr<Glib::ustring> inline group_concat(const Expr<Glib::ustring>& expr)
+	{
+		Expr<Glib::ustring> res;
+		res.GetExpr() = "group_concat(" + expr.GetQuery() + ")";
 		return res;
 	}
 }

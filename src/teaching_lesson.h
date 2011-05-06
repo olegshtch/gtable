@@ -42,6 +42,7 @@ private:
 
 	void OnTeacherEdited(const Glib::ustring& path, long int id);
 	virtual bool on_button_release_event(GdkEventButton *event);
+	void OnAddToStreamActivate(long int id_stream_to, long int id_stream_from);
 	
 	LessonColumnRecord m_LessonColumnRecord;
 	Glib::RefPtr<ORM::Data> m_Model;

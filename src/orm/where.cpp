@@ -5,3 +5,8 @@ ORM::NotIn::NotIn(const ExprBase& expr, const Subquery& subquery)
 {
 }
 
+ORM::In::In(const ExprBase& expr, const Subquery& subquery)
+	:WhereBase(expr.GetQuery() + " IN (" + subquery.GetQuery() + ")")
+{
+}
+

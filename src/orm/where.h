@@ -56,16 +56,17 @@ namespace ORM
 
 	class NonEq : public WhereBase
 	{
+	public:
 		NonEq(const FieldBase& field, const Gtk::TreeIter& row)
-			:WhereBase(field.GetFieldName() + "=" + field.GetStrValue(row))
+			:WhereBase(field.GetFieldName() + "<>" + field.GetStrValue(row))
 		{
 		}
 		NonEq(const FieldBase& field, const FieldBase& field2)
-			:WhereBase(field.GetFieldName() + "=" + field2.GetFieldName())
+			:WhereBase(field.GetFieldName() + "<>" + field2.GetFieldName())
 		{
 		}
 		template<class T> NonEq(const Field<T>& field, const T& value)
-			:WhereBase(field.GetFieldName() + "=" + Field<T>::ToString(value))
+			:WhereBase(field.GetFieldName() + "<>" + Field<T>::ToString(value))
 		{
 		}
 		~NonEq()
@@ -88,6 +89,12 @@ namespace ORM
 	{
 	public:
 		NotIn(const ExprBase& expr, const Subquery& subquery);
+	};
+
+	class In : public WhereBase
+	{
+	public:
+		In(const ExprBase& expr, const Subquery& subquery);
 	};
 }
 

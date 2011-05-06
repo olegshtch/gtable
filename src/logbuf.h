@@ -10,6 +10,8 @@
 /// \todo Append catch signals.
 class LogBuf: public std::streambuf
 {
+public:
+	static void Enable(bool enable);
 private:
 	LogBuf(); ///< Default constructor.
 	LogBuf(const LogBuf&); ///< Avoid autogenerating public constructor.
@@ -40,6 +42,7 @@ private:
 
 	std::streambuf *backup; ///< Previous std::clog buffer.
 	int fd; ///< Descriptor of log file.
+	bool enable; ///< Is log enabled.
 };
 
 #endif
