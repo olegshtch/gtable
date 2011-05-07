@@ -10,6 +10,7 @@ TeachingLesson::TeachingLesson(GtkTreeView *cobject, const Glib::RefPtr<Gtk::Bui
 	set_model(m_Model);
 	append_column(_("id"), m_LessonColumnRecord.fId);
 	append_column(_("lesson"), m_LessonColumnRecord.fLesson);
+	//append_column(_("stream"), m_LessonColumnRecord.fStream);
 	
 	m_TeacherColumn.pack_start(m_TeacherRenderer);
 	m_TeacherRenderer.signal_edited().connect(sigc::mem_fun(*this, &TeachingLesson::OnTeacherEdited));

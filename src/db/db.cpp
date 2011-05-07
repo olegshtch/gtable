@@ -313,6 +313,7 @@ void DataBase::GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::F
 	m_Connection.Select(data
 		, g_ModelLessons.fId
 		, name
+		//, ORM::group_concat(g_ModelGroups.name)
 		, g_ModelLessons.teacher)
 		->From(g_ModelLessons)
 		->NaturalJoin(g_ModelTeachingPlan)
@@ -475,7 +476,7 @@ void DataBase::GetAuditoriumListForLesson(Glib::RefPtr<ORM::Data>& data, ORM::Pr
 			&& ORM::Eq(g_ModelAuditoriums.multithread, g_ModelLessonType.multithread));
 }
 
-void DataBase::SetLessonIntoTimetable(long int id_lesson, long int id_aud, long int id_hour, long int id_day)
+void DataBase::SetLessonIntoTimetable(long int id_lesson, long int id_aud, long int id_day, long int id_hour)
 {
 	std::cout << "DataBase::SetLessonIntoTimetable" << std::endl;
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(g_ModelSchedule);
@@ -490,7 +491,15 @@ void DataBase::SetLessonIntoTimetable(long int id_lesson, long int id_aud, long 
 	}
 }
 
-Glib::ustring DataBase::GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::ForeignKey id_hour, ORM::ForeignKey id_day)
+void DataBase::RemoveLessonFromTimetable(long int id_lesson, long int id_day, long int id_hour)
+{
+	m_Connection.DeleteFrom(g_ModelSchedule)
+		->Where(ORM::Eq(g_ModelSchedule.lesson, ORM::ForeignKey(id_lesson))
+			&& ORM::Eq(g_ModelSchedule.day, ORM::ForeignKey(id_day))
+			&& ORM::Eq(g_ModelSchedule.hour, ORM::ForeignKey(id_hour)));
+}
+
+Glib::ustring DataBase::GetTimeTableLessonGroupText(ORM::ForeignKey id_group, ORM::ForeignKey id_hour, ORM::ForeignKey id_day)
 {
 	ORM::Scheme scheme;
 	ORM::Field<ORM::PrimaryKey> id;
@@ -530,8 +539,36 @@ Glib::ustring DataBase::GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::F
 			data->children()[0].get_value(teacher_name) + "\n" +
 			data->children()[0].get_value(auditory_name);
 	}
-	std::cout << "DataBase::GetTimeTableLessonGroup too many lessons" << std::endl;
+	std::cout << "DataBase::GetTimeTableLessonGroupText too many lessons" << std::endl;
 	return "!!!";
+}
+
+long int DataBase::GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::ForeignKey id_hour, ORM::ForeignKey id_day)
+{
+	ORM::Scheme scheme;
+	ORM::Field<ORM::ForeignKey> id(g_ModelLessons);
+	scheme.add(id);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+
+	m_Connection.Select(data
+		, g_ModelSchedule.lesson)
+	->From(g_ModelSchedule)
+	->NaturalJoin(g_ModelLessons)
+	->NaturalJoin(g_ModelLessonSubgroup)
+	->NaturalJoin(g_ModelSubgroups)
+	->NaturalJoin(g_ModelGroupCategory)
+	->Where(ORM::Eq(g_ModelSchedule.day, id_day) && ORM::Eq(g_ModelSchedule.hour, id_hour) && ORM::Eq(g_ModelGroupCategory.group, id_group));
+
+	if(data->children().size() == 0)
+	{
+		return -1;
+	}
+	else if(data->children().size() == 1)
+	{
+		return data->children()[0].get_value(id);
+	}
+	std::cout << "DataBase::GetTimeTableLessonGroup too many lessons" << std::endl;
+	return -1;
 }
 
 void DataBase::CleanTimeTable()

@@ -201,7 +201,7 @@ GraphForTime::GraphForTime()
 	{
 		if(coloring[i].first != -1)
 		{
-			db.SetLessonIntoTimetable(m_Items[i].l, m_Items[i].a, colors[coloring[i].first].h, colors[coloring[i].first].d);
+			db.SetLessonIntoTimetable(m_Items[i].l, m_Items[i].a, colors[coloring[i].first].d, colors[coloring[i].first].h);
 		}
 	}
 }

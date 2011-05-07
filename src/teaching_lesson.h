@@ -24,15 +24,18 @@ private:
 	public:
 		ORM::Field<ORM::PrimaryKey> fId;
 		ORM::Field<Glib::ustring> fLesson;
+		//ORM::Field<Glib::ustring> fStream;
 		ORM::Field<ORM::ForeignKey> fTeacher;
 
 		LessonColumnRecord()
 			:fId(),
 			fLesson(""),
+			//fStream(""),
 			fTeacher(DB::g_ModelTeachers)
 		{
 			add(fId);
 			add(fLesson);
+			//add(fStream);
 			add(fTeacher);
 		}
 	};

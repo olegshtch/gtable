@@ -89,8 +89,10 @@ private:
 	void ScheduleGroupChanged();
 	void ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour, long int id_day);
 	void ScheduleGroupSelectedOther();
-	void ScheduleGroupCellButtonRelease(long int row_id, long int col_id, GdkEventButton* event);
+	void ScheduleGroupCellButtonRelease(long int id_hour, long int id_day, GdkEventButton* event);
 	void ScheduleGroupChooseAud(long int aud_id);
+	void ScheduleGroupChangeAud(long int lesson_id, long int aud_id);
+	void ScheduleGroupRemoveLesson(long int lesson_id);
 
 	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 
