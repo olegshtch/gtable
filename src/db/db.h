@@ -68,20 +68,19 @@ namespace DB
 		void GetSubgroupsList(Glib::RefPtr<ORM::Data>& data);
 		void GetLessonsForSubgroup(Glib::RefPtr<ORM::Data>& data, const ORM::ForeignKey& id_subgroup);
 		void SetLessonTeacher(ORM::PrimaryKey id_lesson, ORM::ForeignKey id_teacher);
-		void GetStreamsListForAdding(Glib::RefPtr<ORM::Data>& data, const ORM::ForeignKey& id_subgroup, const ORM::PrimaryKey& id_stream);
+		void GetLessonsListForAdding(Glib::RefPtr<ORM::Data>& data, const ORM::ForeignKey& id_subgroup, const ORM::PrimaryKey& id_lesson);
 
 		void ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>& data);
 		void GetAuditoriumListForLesson(Glib::RefPtr<ORM::Data>& data, ORM::PrimaryKey lesson_id, ORM::ForeignKey day_id, ORM::ForeignKey hour_id);
 		void SetLessonIntoTimetable(long int id_lesson, long int id_aud, long int id_hour, long int id_day);
-		void SetStreamIntoTimetable(long int id_stream, long int id_aud, long int id_hour, long int id_day);
 		Glib::ustring GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::ForeignKey id_hour, ORM::ForeignKey id_day);
 		void CleanTimeTable();
 
-		void ListTSHM(Glib::RefPtr<ORM::Data>& data);
+		void ListTLHM(Glib::RefPtr<ORM::Data>& data);
 		size_t CountAuditoriums(bool multithread);
 
-		void MoveStreams(long int id_stream_from, long int id_stream_to);
-		bool InterseptStreams(long int id_stream1, long int id_stream2);
+		void MoveLessons(long int id_lesson_from, long int id_lesson_to);
+		bool InterseptLessons(long int id_lesson1, long int id_lesson2);
 	private:		
 		ORM::Connection m_Connection;
 	};

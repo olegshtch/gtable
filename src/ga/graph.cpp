@@ -15,26 +15,26 @@ GraphForTime::GraphForTime()
 	{
 		ORM::Scheme items_scheme;
 		ORM::Field<long int> t("t");
-		ORM::Field<long int> s("s");
+		ORM::Field<long int> l("l");
 		ORM::Field<long int> h("h");
 		ORM::Field<bool> m("m");
 		items_scheme.add(t);
-		items_scheme.add(s);
+		items_scheme.add(l);
 		items_scheme.add(h);
 		items_scheme.add(m);
 		Glib::RefPtr<ORM::Data> data = ORM::Data::create(items_scheme);
 
-		db.ListTSHM(data);
+		db.ListTLHM(data);
 
 		for(Gtk::TreeIter iter = data->children().begin(); iter != data->children().end(); ++ iter)
 		{
 			for(long int hours = iter->get_value(h); hours > 0; -- hours)
 			{
-				m_Items.push_back(ItemTSM(iter->get_value(t)
-					, iter->get_value(s)
+				m_Items.push_back(ItemTLM(iter->get_value(t)
+					, iter->get_value(l)
 					, iter->get_value(m)));
 				std::cout << "t=" << iter->get_value(t)
-					<< "s=" << iter->get_value(s)
+					<< "l=" << iter->get_value(l)
 					<< "m=" << iter->get_value(m) << std::endl;
 			}
 		}
@@ -83,12 +83,11 @@ GraphForTime::GraphForTime()
 	{
 		m_Links[row].resize(m_Items.size());
 	}
-	LogBuf::Enable(false);
 	for(row = 0; row < m_Items.size(); ++ row)
 	{
 		for(size_t col = row + 1; col < m_Items.size(); ++ col)
 		{
-			const bool link = (m_Items[row].t == m_Items[col].t) || (m_Items[row].s == m_Items[col].s) || db.InterseptStreams(m_Items[row].s, m_Items[col].s);
+			const bool link = (m_Items[row].t == m_Items[col].t) || (m_Items[row].l == m_Items[col].l) || db.InterseptLessons(m_Items[row].l, m_Items[col].l);
 			/*if(link)
 			{
 				std::cout << "link row=" << row << " col=" << col << std::endl;
@@ -97,7 +96,6 @@ GraphForTime::GraphForTime()
 			m_Links[col][row] = link;
 		}
 	}
-	LogBuf::Enable(true);
 
 	std::vector<std::pair<int, bool> > coloring(m_Items.size(), std::make_pair(-1, false)); // цвет, метка(соседствует с ракрашенной текущим цветом)
 
@@ -201,7 +199,10 @@ GraphForTime::GraphForTime()
 	db.CleanTimeTable();
 	for(size_t i = 0; i < m_Items.size() ; ++ i)
 	{
-		db.SetStreamIntoTimetable(m_Items[i].s, m_Items[i].a, colors[coloring[i].first].h, colors[coloring[i].first].d);
+		if(coloring[i].first != -1)
+		{
+			db.SetLessonIntoTimetable(m_Items[i].l, m_Items[i].a, colors[coloring[i].first].h, colors[coloring[i].first].d);
+		}
 	}
 }
 

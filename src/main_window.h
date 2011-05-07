@@ -95,6 +95,7 @@ private:
 	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 
 	LineEditable *m_pCurrentLineEditor;
+	std::vector<LineEditable*> m_LineEditors;
 
 	Gtk::Statusbar *m_StatusBar;
 };

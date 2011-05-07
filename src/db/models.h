@@ -413,76 +413,58 @@ namespace DB
 
 	extern const ModelSubgroups g_ModelSubgroups;
 
-	// Потоки
+	// Занятие (Потоки)
 	// branch - дисциплина
-	// lesson - занятие
-	class ModelStreams : public ORM::Table
-	{
-	public:
-		ORM::Field<ORM::ForeignKey> branch;
-		ORM::Field<ORM::ForeignKey> lesson;
-
-		ModelStreams(const Glib::ustring& table_name)
-			:ORM::Table(table_name),
-			branch(g_ModelBranch),
-			lesson(g_ModelLessonType)
-		{
-			add(branch);
-			add(lesson);
-		}
-	};
-
-	extern const ModelStreams g_ModelStreams;
-
-	// Соответствие потоков
-	// stream - поток
-	// subgroup - подгруппа
-	// teaching_plan - занятие
-	
-	class ModelStreamSubgroup : public ORM::Table
-	{
-	public:
-		ORM::Field<ORM::ForeignKey> stream;
-		ORM::Field<ORM::ForeignKey> subgroup;
-		ORM::Field<ORM::ForeignKey> teaching_plan;
-
-		ModelStreamSubgroup(const Glib::ustring& table_name)
-			:ORM::Table(table_name),
-			stream(g_ModelStreams),
-			subgroup(g_ModelSubgroups),
-			teaching_plan(g_ModelTeachingPlan)
-		{
-			add(stream);
-			add(subgroup);
-			add(teaching_plan);
-			Unique(stream, subgroup);
-			Unique(subgroup, teaching_plan);
-		}
-	};
-
-	extern const ModelStreamSubgroup g_ModelStreamSubgroup;
-
-	// Проведение занятий
-	// teacher - преподаватель
-	// stream - поток
+	// lesson_type - тип занятие
+	// teachers - преподаватель
 	class ModelLessons : public ORM::Table
 	{
 	public:
+		ORM::Field<ORM::ForeignKey> branch;
+		ORM::Field<ORM::ForeignKey> lesson_type;
 		ORM::Field<ORM::ForeignKey> teacher;
-		ORM::Field<ORM::ForeignKey> stream;
 
 		ModelLessons(const Glib::ustring& table_name)
 			:ORM::Table(table_name),
-			teacher(g_ModelTeachers, false),
-			stream(g_ModelStreams)
+			branch(g_ModelBranch),
+			lesson_type(g_ModelLessonType),
+			teacher(g_ModelTeachers, false)
 		{
+			add(branch);
+			add(lesson_type);
 			add(teacher);
-			add(stream);
-			Unique(stream);
 		}
 	};
 
 	extern const ModelLessons g_ModelLessons;
+
+	// Соответствие занятий подгруппам
+	// stream - поток
+	// subgroup - подгруппа
+	// teaching_plan - занятие
+	
+	class ModelLessonSubgroup : public ORM::Table
+	{
+	public:
+		ORM::Field<ORM::ForeignKey> lesson;
+		ORM::Field<ORM::ForeignKey> subgroup;
+		ORM::Field<ORM::ForeignKey> teaching_plan;
+
+		ModelLessonSubgroup(const Glib::ustring& table_name)
+			:ORM::Table(table_name),
+			lesson(g_ModelLessons),
+			subgroup(g_ModelSubgroups),
+			teaching_plan(g_ModelTeachingPlan)
+		{
+			add(lesson);
+			add(subgroup);
+			add(teaching_plan);
+			Unique(lesson, subgroup);
+			Unique(subgroup, teaching_plan);
+		}
+	};
+
+	extern const ModelLessonSubgroup g_ModelLessonSubgroup;
 
 	typedef ModelEntity ModelAuditoriumTypes;
 

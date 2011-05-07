@@ -3,9 +3,11 @@
 #include <gtkmm/messagedialog.h>
 #include "main_window.h"
 #include "shared.h"
+#include "logbuf.h"
 
 int main(int argc, char **argv)
 {
+	LogBuf::Enable(false);
 	Gtk::Main prog(argc, argv);
 	setlocale(LC_ALL, "");
 	bindtextdomain(GETTEXT_PACKAGE, TABLE_LOCALEDIR);

@@ -9,7 +9,6 @@ TeachingLesson::TeachingLesson(GtkTreeView *cobject, const Glib::RefPtr<Gtk::Bui
 {
 	set_model(m_Model);
 	append_column(_("id"), m_LessonColumnRecord.fId);
-	append_column(_("stream"), m_LessonColumnRecord.fStream);
 	append_column(_("lesson"), m_LessonColumnRecord.fLesson);
 	
 	m_TeacherColumn.pack_start(m_TeacherRenderer);
@@ -51,7 +50,7 @@ bool TeachingLesson::on_button_release_event(GdkEventButton *event)
 			m_Menu.items().erase(m_Menu.items().begin(), m_Menu.items().end());
 			// menu for adding
 			Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
-			DB::DataBase::Instance().GetStreamsListForAdding(data, m_IdSubgroup, iter->get_value(m_LessonColumnRecord.fStream));
+			DB::DataBase::Instance().GetLessonsListForAdding(data, m_IdSubgroup, iter->get_value(m_LessonColumnRecord.fId));
 			if(data->children().size() > 0)
 			{
 				Gtk::MenuItem *add_item = Gtk::manage(new Gtk::MenuItem(_("Add to stream")));
@@ -62,7 +61,7 @@ bool TeachingLesson::on_button_release_event(GdkEventButton *event)
 				{
 					Gtk::MenuItem *item = Gtk::manage(new Gtk::MenuItem(stream_iter->get_value(DB::g_IdTextScheme.fText)));
 					streams_menu->append(*item);
-					item->signal_activate().connect(sigc::bind(sigc::mem_fun(*this, &TeachingLesson::OnAddToStreamActivate), stream_iter->get_value(DB::g_IdTextScheme.fId), iter->get_value(m_LessonColumnRecord.fStream)));
+					item->signal_activate().connect(sigc::bind(sigc::mem_fun(*this, &TeachingLesson::OnAddToStreamActivate), stream_iter->get_value(DB::g_IdTextScheme.fId), iter->get_value(m_LessonColumnRecord.fId)));
 					item->show();
 				}
 				add_item->show();
@@ -75,10 +74,10 @@ bool TeachingLesson::on_button_release_event(GdkEventButton *event)
 	return res;
 }
 
-void TeachingLesson::OnAddToStreamActivate(long int id_stream_to, long int id_stream_from)
+void TeachingLesson::OnAddToStreamActivate(long int id_lesson_to, long int id_lesson_from)
 {
-	std::cout << "TeachingLesson::OnAddToStreamActivate id_stream_to=" << id_stream_to << " id_stream_from=" << id_stream_from << std::endl;
-	DB::DataBase::Instance().MoveStreams(id_stream_from, id_stream_to);
+	std::cout << "TeachingLesson::OnAddToStreamActivate id_lesson_to=" << id_lesson_to << " id_lesson_from=" << id_lesson_from << std::endl;
+	DB::DataBase::Instance().MoveLessons(id_lesson_from, id_lesson_to);
 	DB::DataBase::Instance().GetLessonsForSubgroup(m_Model, m_IdSubgroup);
 }
 

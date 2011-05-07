@@ -6,16 +6,16 @@
 class GraphForTime
 {
 public:
-	struct ItemTSM
+	struct ItemTLM
 	{
 		long int t; // преподаватель
-		long int s; // поток
+		long int l; // занятие
 		bool m; // многопоточность
 		long int a; // аудитория
 
-		ItemTSM(long int t_, long int s_, bool m_)
+		ItemTLM(long int t_, long int l_, bool m_)
 			:t(t_),
-			s(s_),
+			l(l_),
 			m(m_),
 			a(-1)
 		{
@@ -45,7 +45,7 @@ public:
 
 	void Dump();
 private:
-	std::vector<ItemTSM> m_Items;
+	std::vector<ItemTLM> m_Items;
 	std::vector<std::vector<char> > m_Links;
 };
 

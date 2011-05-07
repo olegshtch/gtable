@@ -7,6 +7,7 @@
 #include "orm/data.h"
 #include "orm/expr.h"
 #include "db/models.h"
+#include "logbuf.h"
 
 MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& builder)
 	:Gtk::Window(cobject),
@@ -153,6 +154,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	{
 		throw Glib::Error(1, 0, "Cann't load PlanSheet");
 	}
+	m_LineEditors.push_back(m_PlanSheet);
 	m_PlanSheet->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), static_cast<LineEditable*>(m_PlanSheet)));
 	m_PlanSheet->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 	m_PlanSheet->signal_cell_data().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesCellData));
@@ -249,7 +251,10 @@ void MainWindow::OnOpen()
 		DB::DataBase::Instance().Open(dialog.get_filename());
 	}
 	m_DoubleWeek->property_active() = DB::DataBase::Instance().GetWeeks();
-
+	for(std::vector<LineEditable*>::iterator it = m_LineEditors.begin(); it != m_LineEditors.end(); ++ it)
+	{
+		(*it)->update_model();
+	}
 }
 
 void MainWindow::OnSave()
@@ -325,6 +330,7 @@ ListView* MainWindow::AddListView(const Glib::ustring& name, const ORM::Table& s
 	}
 	res->set_scheme(scheme);
 	res->append_column(_("id"), scheme.fId);
+	m_LineEditors.push_back(res);
 	res->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), static_cast<LineEditable*>(res)));
 	res->signal_focus_out_event().connect(sigc::mem_fun(*this, &MainWindow::OnFocusOut));
 	return res;
@@ -496,7 +502,9 @@ void MainWindow::ScheduleGroupChanged()
 		m_ScheduleGroup->set_horz_model(horz_data);
 
 		Glib::RefPtr<ORM::Data> other_data = ORM::Data::create(DB::g_IdTextScheme);
+		LogBuf::Enable(true);
 		DB::DataBase::Instance().ListGroupOtherLessons(m_ScheduleIdGroup, other_data);
+		LogBuf::Enable(false);
 		m_ScheduleGroupOther->set_model(other_data);
 	}
 }
@@ -523,7 +531,9 @@ void MainWindow::ScheduleGroupCellButtonRelease(long int row_id, long int col_id
 			//move lesson to timetable
 			//get auditoriums list
 			Glib::RefPtr<ORM::Data> aud_list = ORM::Data::create(DB::g_IdTextScheme);
+			LogBuf::Enable(true);
 			DB::DataBase::Instance().GetAuditoriumListForLesson(aud_list, lesson_id, col_id, row_id);
+			LogBuf::Enable(false);
 			if(aud_list->children().size() > 0)
 			{
 				m_ScheduleIdDay = col_id;
@@ -596,6 +606,7 @@ void MainWindow::OnScheduleCopy()
 
 void MainWindow::OnScheduleDelete()
 {
+	DB::DataBase::Instance().CleanTimeTable();
 }
 
 void MainWindow::OnScheduleRun()
