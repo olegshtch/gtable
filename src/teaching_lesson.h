@@ -43,12 +43,16 @@ private:
 	void OnTeacherEdited(const Glib::ustring& path, long int id);
 	virtual bool on_button_release_event(GdkEventButton *event);
 	void OnAddToStreamActivate(long int id_stream_to, long int id_stream_from);
+	void OnDelFromStreamActivate(long int id_stream);
+	static void LessonAsStream(Gtk::CellRenderer *cell, const Gtk::TreeModel::iterator& row);
 	
-	LessonColumnRecord m_LessonColumnRecord;
+	static LessonColumnRecord s_LessonColumnRecord;
 	Glib::RefPtr<ORM::Data> m_Model;
 
 	Gtk::TreeViewColumn m_TeacherColumn;
 	CellRendererForeign m_TeacherRenderer;
+	Gtk::TreeViewColumn m_StreamColumn;
+	Gtk::CellRendererText m_StreamRenderer;
 	Gtk::Menu m_Menu;
 	long int m_IdSubgroup;
 };

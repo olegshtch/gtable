@@ -83,6 +83,9 @@ namespace DB
 
 		void MoveLessons(long int id_lesson_from, long int id_lesson_to);
 		bool InterseptLessons(long int id_lesson1, long int id_lesson2);
+		Glib::ustring GetStreamByLesson(ORM::ForeignKey id_lesson);
+		bool IsGroupsInStream(long int id_lesson, long int id_subgroup);
+		void RemoveSubgroupFromLesson(long int id_lesson, long int id_subgroup);
 	private:		
 		ORM::Connection m_Connection;
 	};

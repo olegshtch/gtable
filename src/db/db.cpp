@@ -655,3 +655,79 @@ bool DataBase::InterseptLessons(long int id_lesson1, long int id_lesson2)
 	return false;
 }
 
+Glib::ustring DataBase::GetStreamByLesson(ORM::ForeignKey id_lesson)
+{
+	ORM::Scheme scheme;
+	ORM::Field<Glib::ustring> name("");
+	scheme.add(name);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+	m_Connection.Select(data
+		, ORM::group_concat(g_ModelGroups.name))
+		->From(g_ModelLessonSubgroup)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelGroupCategory)
+		->NaturalJoin(g_ModelGroups)
+		->Where(ORM::Eq(g_ModelLessonSubgroup.lesson, id_lesson));
+	if(data->children().size() == 1)
+	{
+		return data->children()[0].get_value(name);
+	}
+	return Glib::ustring();
+}
+
+bool DataBase::IsGroupsInStream(long int id_lesson, long int id_subgroup)
+{
+	ORM::Scheme scheme;
+	ORM::Field<long int> count("");
+	scheme.add(count);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+	m_Connection.Select(data,
+		ORM::Count())
+		->From(g_ModelLessonSubgroup)
+		->NaturalJoin(g_ModelSubgroups)
+		->Where(ORM::Eq(g_ModelLessonSubgroup.lesson, ORM::ForeignKey(id_lesson))
+			&& ORM::NonEq(g_ModelLessonSubgroup.subgroup, ORM::ForeignKey(id_subgroup)));
+	if(data->children().size() == 1)
+	{
+		return (data->children()[0].get_value(count) >= 1);
+	}
+	return false;
+}
+
+void DataBase::RemoveSubgroupFromLesson(long int id_lesson, long int id_subgroup)
+{
+	ORM::Subquery subquery;
+	Glib::RefPtr<ORM::Data> fake_data;
+	subquery.SelectDistinct(fake_data,
+		g_ModelLessons.branch,
+		g_ModelLessons.lesson_type)
+		->From(g_ModelLessons)
+		->NaturalJoin(g_ModelLessonSubgroup)
+		->Where(ORM::Eq(g_ModelLessonSubgroup.subgroup, ORM::ForeignKey(id_subgroup))
+			&& ORM::Eq(g_ModelLessonSubgroup.lesson, ORM::ForeignKey(id_lesson)));
+	m_Connection.InsertInto(g_ModelLessons, g_ModelLessons.branch, g_ModelLessons.lesson_type)->Select(subquery);
+
+	ORM::Subquery subquery_used_lessons;
+	subquery_used_lessons.Select(fake_data,
+		g_ModelLessonSubgroup.lesson)
+		->From(g_ModelLessonSubgroup);
+
+	ORM::Scheme scheme;
+	ORM::Field<long int> id("");
+	scheme.add(id);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+	m_Connection.Select(data,
+		g_ModelLessons.fId)
+		->From(g_ModelLessons)
+		->Where(ORM::NotIn(g_ModelLessons.fId, subquery_used_lessons));
+	if(data->children().size() > 0)
+	{
+		long int id_new_lesson = data->children()[0].get_value(id);
+		m_Connection.Update(g_ModelLessonSubgroup)
+			->Set(g_ModelLessonSubgroup.lesson, ORM::ForeignKey(id_new_lesson))
+			->Where(ORM::Eq(g_ModelLessonSubgroup.lesson, ORM::ForeignKey(id_lesson))
+				&& ORM::Eq(g_ModelLessonSubgroup.subgroup, ORM::ForeignKey(id_subgroup)));
+	}
+
+}
+
