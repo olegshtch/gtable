@@ -865,6 +865,146 @@ long int DataBase::GetTimeTableLessonTeacher(ORM::ForeignKey id_teacher, ORM::Fo
 	return -1;
 }
 
+void DataBase::ListAuditoriumOtherLessons(long int id_aud, Glib::RefPtr<ORM::Data>& data)
+{
+	data->clear();
+	LogBuf::Enable(true);
+	ORM::Scheme scheme;
+	ORM::Field<ORM::PrimaryKey> id;
+	//ORM::Field<Glib::ustring> auditory_name("auditory");
+	ORM::Field<Glib::ustring> groups_name("groups");
+	ORM::Field<Glib::ustring> teacher_name("teacher");
+	ORM::Field<Glib::ustring> lesson_name("lesson");
+	ORM::Field<long int> hours("hours");
+	scheme.add(id);
+	//scheme.add(auditory_name);
+	scheme.add(groups_name);
+	scheme.add(teacher_name);
+	scheme.add(lesson_name);
+	scheme.add(hours);
+	Glib::RefPtr<ORM::Data> lesson_list = ORM::Data::create(scheme);
+
+	m_Connection.Select(lesson_list
+		, g_ModelLessons.fId
+		, ORM::group_concat(g_ModelGroups.name)
+		, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + ORM::substr(DB::g_ModelTeachers.firstname, 1, 1) + ". " + ORM::substr(DB::g_ModelTeachers.thirdname, 1, 1) + "."
+		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name
+		, g_ModelTeachingPlan.hours)
+		->From(g_ModelLessons, g_ModelGroupCategory, g_ModelLessonSubgroup, g_ModelAuditoriums, g_ModelTeachers)
+		->NaturalJoin(g_ModelTeachingPlan)
+		->NaturalJoin(g_ModelLessonType)
+		->NaturalJoin(g_ModelBranch)
+		->NaturalJoin(g_ModelTeachingBranch)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelGroups)
+		->Where(ORM::Greater(g_ModelTeachingPlan.hours, 0L)
+			&& ORM::Eq(g_ModelLessons.fId, g_ModelLessonSubgroup.lesson)
+			&& ORM::Eq(g_ModelLessons.teacher, g_ModelTeachers.fId)
+			&& ORM::Eq(g_ModelLessonType.multithread, g_ModelAuditoriums.multithread)
+			&& ORM::Eq(g_ModelAuditoriums.fId, ORM::PrimaryKey(id_aud)))
+		->GroupBy(g_ModelLessons.fId);
+	LogBuf::Enable(false);
+
+	for(Gtk::TreeIter it = lesson_list->children().begin(); it != lesson_list->children().end(); ++ it)
+	{
+		// get count lesson in timetable
+		long int lesson_count = 0;
+		ORM::Scheme count_scheme;
+		ORM::Field<long int> count("");
+		count_scheme.add(count);
+		Glib::RefPtr<ORM::Data> count_data = ORM::Data::create(count_scheme);
+		m_Connection.Select(count_data
+			, ORM::Count())
+			->From(g_ModelSchedule)
+			->Where(ORM::Eq(g_ModelSchedule.lesson, ORM::ForeignKey(it->get_value(id))));
+		if(count_data->children().size() > 0)
+		{
+			lesson_count = count_data->children()[0].get_value(count);
+		}
+
+		if(lesson_count > it->get_value(hours))
+		{
+			std::cout << "Too more lessons=" << it->get_value(id) << " " << it->get_value(lesson_name) << std::endl;
+		}
+
+		for(long h = it->get_value(hours) - lesson_count; h > 0; -- h)
+		{
+			Gtk::TreeIter iter = data->append();
+			iter->set_value(g_IdTextScheme.fId, it->get_value(id));
+			iter->set_value(g_IdTextScheme.fText, it->get_value(lesson_name) + "\n" + it->get_value(groups_name) + "\n" + it->get_value(teacher_name));
+		}
+	}
+}
+
+Glib::ustring DataBase::GetTimeTableLessonAuditoriumText(ORM::ForeignKey id_aud, ORM::ForeignKey id_hour, ORM::ForeignKey id_day)
+{
+	ORM::Scheme scheme;
+	ORM::Field<ORM::PrimaryKey> id;
+	ORM::Field<Glib::ustring> teacher_name("teacher");
+	ORM::Field<Glib::ustring> groups_name("groups");
+	ORM::Field<Glib::ustring> lesson_name("lesson");
+	scheme.add(id);
+	scheme.add(teacher_name);
+	scheme.add(groups_name);
+	scheme.add(lesson_name);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+
+	m_Connection.Select(data
+		, g_ModelSchedule.fId
+		, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + ORM::substr(DB::g_ModelTeachers.firstname, 1, 1) + ". " + ORM::substr(DB::g_ModelTeachers.thirdname, 1, 1) + "."
+		, ORM::group_concat(g_ModelGroups.name)
+		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name)
+		->From(g_ModelSchedule, g_ModelSpecialities, g_ModelTeachingPlan, g_ModelTeachers)
+		->NaturalJoin(g_ModelLessons)
+		->NaturalJoin(g_ModelLessonType)
+		->NaturalJoin(g_ModelBranch)
+		->NaturalJoin(g_ModelTeachingBranch)
+		->NaturalJoin(g_ModelGroups)
+		->NaturalJoin(g_ModelGroupCategory)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelLessonSubgroup)
+		->Where(ORM::Eq(g_ModelSchedule.day, id_day) && ORM::Eq(g_ModelSchedule.hour, id_hour) && ORM::Eq(g_ModelSchedule.auditorium, id_aud)
+			&& ORM::Eq(g_ModelSchedule.lesson, g_ModelLessons.fId))
+		->GroupBy(g_ModelSchedule.fId);
+
+	if(data->children().size() == 0)
+	{
+		return "---";
+	}
+	else if(data->children().size() == 1)
+	{
+		return data->children()[0].get_value(lesson_name) + "\n" +
+			data->children()[0].get_value(groups_name) + "\n" +
+			data->children()[0].get_value(teacher_name);
+	}
+	std::cout << "DataBase::GetTimeTableLessonAuditoriumText too many lessons" << std::endl;
+	return "!!!";
+}
+
+long int DataBase::GetTimeTableLessonAuditorium(ORM::ForeignKey id_aud, ORM::ForeignKey id_hour, ORM::ForeignKey id_day)
+{
+	ORM::Scheme scheme;
+	ORM::Field<ORM::ForeignKey> id(g_ModelLessons);
+	scheme.add(id);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+
+	m_Connection.Select(data
+		, g_ModelSchedule.lesson)
+	->From(g_ModelSchedule)
+	->NaturalJoin(g_ModelLessons)
+	->Where(ORM::Eq(g_ModelSchedule.day, id_day) && ORM::Eq(g_ModelSchedule.hour, id_hour) && ORM::Eq(g_ModelSchedule.auditorium, id_aud));
+
+	if(data->children().size() == 0)
+	{
+		return -1;
+	}
+	else if(data->children().size() == 1)
+	{
+		return data->children()[0].get_value(id);
+	}
+	std::cout << "DataBase::GetTimeTableLessonAuditorium too many lessons" << std::endl;
+	return -1;
+}
 
 void DataBase::ListTLHM(Glib::RefPtr<ORM::Data>& data)
 {

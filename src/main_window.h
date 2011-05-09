@@ -108,6 +108,18 @@ private:
 	void ScheduleTeacherChangeAud(long int lesson_id, long int aud_id);
 	void ScheduleTeacherRemoveLesson(long int lesson_id);
 
+	// Schedule -> Auditorium
+	Sheet *m_ScheduleAuditorium;
+	Gtk::ComboBox *m_ComboBoxScheduleAuditorium;
+	Gtk::TreeView *m_ScheduleAuditoriumOther;
+	Gtk::TreeIter m_ScheduleAuditoriumSelectedOther;
+	long int m_ScheduleIdAuditorium;
+	void ScheduleAuditoriumExpose();
+	void ScheduleAuditoriumChanged();
+	void ScheduleAuditoriumCellData(Gtk::CellRenderer* cell, long int id_hour, long int id_day);
+	void ScheduleAuditoriumSelectedOther();
+	void ScheduleAuditoriumCellButtonRelease(long int id_hour, long int id_day, GdkEventButton* event);
+
 	long int m_ScheduleIdDay;
 	long int m_ScheduleIdHour;
 	Gtk::Menu m_ScheduleMenu;

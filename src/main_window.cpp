@@ -29,6 +29,11 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_ScheduleTeacherOther(NULL),
 	m_ScheduleIdTeacher(-1),
 
+	m_ScheduleAuditorium(NULL),
+	m_ComboBoxScheduleAuditorium(NULL),
+	m_ScheduleAuditoriumOther(NULL),
+	m_ScheduleIdAuditorium(-1),
+
 	m_pCurrentLineEditor(NULL),
 	m_StatusBar(NULL)
 {
@@ -106,6 +111,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column_editable(_("multithread"), DB::g_ModelAuditoriums.multithread);
 	m_pTreeView->append_column_foreign_editable(_("building"), DB::g_ModelAuditoriums.building, DB::g_ModelBuildings, DB::g_ModelBuildings.name);
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelAuditoriums.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
+	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::ScheduleAuditoriumExpose));
 
 	m_pTreeView = AddListView("TreeViewAuditoriumTypes", DB::g_ModelAuditoriumTypes);
 	m_pTreeView->append_column_editable(_("property"), DB::g_ModelAuditoriumTypes.name);
@@ -269,6 +275,33 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_ScheduleTeacherOther->append_column(_(""), DB::g_IdTextScheme.fText);
 	m_ScheduleTeacherOther->get_selection()->set_mode(Gtk::SELECTION_SINGLE);
 	m_ScheduleTeacherOther->get_selection()->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::ScheduleTeacherSelectedOther));
+
+	// Schedule -> Auditorium
+	m_refBuilder->get_widget_derived("ScheduleAuditorium", m_ScheduleAuditorium);
+	if(! m_ScheduleAuditorium)
+	{
+		throw Glib::Error(1, 0, "Cann't load ScheduleAuditorium");
+	}
+	m_ScheduleAuditorium->signal_cell_data().connect(sigc::mem_fun(*this, &MainWindow::ScheduleAuditoriumCellData));
+	m_ScheduleAuditorium->signal_cell_button_release().connect(sigc::mem_fun(*this, &MainWindow::ScheduleAuditoriumCellButtonRelease));
+	m_refBuilder->get_widget("ComboBoxScheduleAuditorium", m_ComboBoxScheduleAuditorium);
+	if(! m_ComboBoxScheduleAuditorium)
+	{
+		throw Glib::Error(1, 0, "Cann't load ComboBoxScheduleAuditorium");
+	}
+	m_ComboBoxScheduleAuditorium->set_model(ORM::Data::create(DB::g_IdTextScheme));
+	m_ComboBoxScheduleAuditorium->pack_start(DB::g_IdTextScheme.fText);
+	m_ComboBoxScheduleAuditorium->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::ScheduleAuditoriumChanged));
+	m_refBuilder->get_widget("TreeViewAuditoriumLessonOther", m_ScheduleAuditoriumOther);
+	if(! m_ScheduleAuditoriumOther)
+	{
+		throw Glib::Error(1, 0, "Cann't load TreeViewAuditoriumLessonOther");
+	}
+	m_ScheduleAuditoriumOther->set_model(ORM::Data::create(DB::g_IdTextScheme));
+	m_ScheduleAuditoriumOther->set_headers_visible(false);
+	m_ScheduleAuditoriumOther->append_column(_(""), DB::g_IdTextScheme.fText);
+	m_ScheduleAuditoriumOther->get_selection()->set_mode(Gtk::SELECTION_SINGLE);
+	m_ScheduleAuditoriumOther->get_selection()->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::ScheduleAuditoriumSelectedOther));
 
 	OnNew();
 
@@ -853,6 +886,80 @@ void MainWindow::ScheduleTeacherRemoveLesson(long int lesson_id)
 {
 	DB::DataBase::Instance().RemoveLessonFromTimetable(lesson_id, m_ScheduleIdDay, m_ScheduleIdHour);
 	ScheduleTeacherChanged();
+}
+
+void MainWindow::ScheduleAuditoriumExpose()
+{
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
+	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelAuditoriums, DB::g_ModelAuditoriums.name, data);
+	m_ComboBoxScheduleAuditorium->set_model(data);
+}
+
+void MainWindow::ScheduleAuditoriumChanged()
+{
+	Gtk::TreeIter iter = m_ComboBoxScheduleAuditorium->get_active();
+	if(iter)
+	{
+		m_ScheduleIdAuditorium = iter->get_value(DB::g_IdTextScheme.fId);
+	}
+	if(m_ScheduleIdAuditorium != -1)
+	{
+		Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(DB::g_IdTextScheme);
+		Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(DB::g_IdTextScheme);
+		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
+		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
+		m_ScheduleAuditorium->set_vert_model(vert_data);
+		m_ScheduleAuditorium->set_horz_model(horz_data);
+
+		Glib::RefPtr<ORM::Data> other_data = ORM::Data::create(DB::g_IdTextScheme);
+		DB::DataBase::Instance().ListAuditoriumOtherLessons(m_ScheduleIdAuditorium, other_data);
+		m_ScheduleAuditoriumOther->set_model(other_data);
+	}
+}
+
+void MainWindow::ScheduleAuditoriumCellData(Gtk::CellRenderer* cell, long int id_hour, long int id_day)
+{
+	Gtk::CellRendererText *renderer = reinterpret_cast<Gtk::CellRendererText *>(cell);
+	renderer->property_text() = DB::DataBase::Instance().GetTimeTableLessonAuditoriumText(m_ScheduleIdAuditorium, id_hour, id_day);
+	if(DB::DataBase::Instance().GetAuditoriumHolydays(m_ScheduleIdAuditorium, id_day, id_hour))
+	{
+		renderer->property_background_gdk() = Gdk::Color("red");
+	}
+	else
+	{
+		renderer->property_background_gdk() = Gdk::Color("white");
+	}
+}
+
+void MainWindow::ScheduleAuditoriumSelectedOther()
+{
+	m_ScheduleAuditoriumSelectedOther = m_ScheduleAuditoriumOther->get_selection()->get_selected();
+}
+
+void MainWindow::ScheduleAuditoriumCellButtonRelease(long int id_hour, long int id_day, GdkEventButton* event)
+{
+	switch(event->button)
+	{
+	case 1: // left button
+		if(m_ScheduleAuditoriumSelectedOther)
+		{
+			long int lesson_id = m_ScheduleAuditoriumSelectedOther->get_value(DB::g_IdTextScheme.fId);
+			DB::DataBase::Instance().SetLessonIntoTimetable(lesson_id, m_ScheduleIdAuditorium, id_day, id_hour);
+			ScheduleAuditoriumChanged();
+		}
+		break;
+	case 3: // menu for delete
+		{
+			long int lesson_id = DB::DataBase::Instance().GetTimeTableLessonAuditorium(m_ScheduleIdAuditorium, id_hour, id_day);
+			if(lesson_id != -1)
+			{
+				//lesson exist
+				DB::DataBase::Instance().RemoveLessonFromTimetable(lesson_id, id_day, id_hour);
+				ScheduleAuditoriumChanged();
+			}
+		}
+		break;
+	}
 }
 
 void MainWindow::TeachingLessonGroupExpose()
