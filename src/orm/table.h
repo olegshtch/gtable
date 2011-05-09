@@ -58,6 +58,14 @@ namespace ORM
 		{
 			m_Constraints.push_back("UNIQUE (" + field1.GetSmallFieldName() + "," + field2.GetSmallFieldName() + "," + field3.GetSmallFieldName() + ")");
 		}
+		void Unique(const FieldBase& field1, const FieldBase& field2, const FieldBase& field3, const FieldBase& field4)
+		{
+			m_Constraints.push_back("UNIQUE (" + field1.GetSmallFieldName() + "," + field2.GetSmallFieldName() + "," + field3.GetSmallFieldName() + "," + field4.GetSmallFieldName() + ")");
+		}
+		void Unique(const FieldBase& field1, const FieldBase& field2, const FieldBase& field3, const FieldBase& field4, const FieldBase& field5)
+		{
+			m_Constraints.push_back("UNIQUE (" + field1.GetSmallFieldName() + "," + field2.GetSmallFieldName() + "," + field3.GetSmallFieldName() + "," + field4.GetSmallFieldName() + "," + field5.GetSmallFieldName() + ")");
+		}
 
 		static void InitTables(ORM::Connection &db);
 	private:

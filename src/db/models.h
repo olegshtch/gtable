@@ -540,6 +540,8 @@ namespace DB
 			add(hour);
 			add(lesson);
 			add(week);
+			Unique(schedule, auditorium, day, hour, week);
+			Unique(schedule, lesson, day, hour, week);
 		}
 
 	};

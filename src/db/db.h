@@ -55,6 +55,9 @@ namespace DB
 		bool GetGroupHolydays(long int group_id, long int day_id, long int hour_id);
 		void SetGroupHolydays(long int group_id, long int day_id, long int hour_id, bool holyday);
 
+		bool GetAuditoriumHolydays(long int auditorium_id, long int day_id, long int hour_id);
+		void SetAuditoriumHolydays(long int auditorium_id, long int day_id, long int hour_id, bool holyday);
+
 		bool GetWeeks();
 		void SetWeeks(bool weeks);
 
@@ -72,7 +75,7 @@ namespace DB
 
 		void ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>& data);
 		void GetAuditoriumListForLesson(Glib::RefPtr<ORM::Data>& data, ORM::PrimaryKey lesson_id, ORM::ForeignKey day_id, ORM::ForeignKey hour_id);
-		void SetLessonIntoTimetable(long int id_lesson, long int id_aud, long int id_day, long int id_hour);
+		void SetLessonIntoTimetable(long int id_lesson, ORM::ForeignKey id_aud, ORM::ForeignKey day_id, ORM::ForeignKey hour_id);
 		void RemoveLessonFromTimetable(long int id_lesson, long int id_day, long int id_hour);
 		Glib::ustring GetTimeTableLessonGroupText(ORM::ForeignKey id_group, ORM::ForeignKey id_hour, ORM::ForeignKey id_day);
 		long int GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::ForeignKey id_hour, ORM::ForeignKey id_day);

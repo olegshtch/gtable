@@ -8,6 +8,7 @@
 #include "../orm/field.h"
 #include "../orm/case.h"
 #include "../orm/subquery.h"
+#include "../logbuf.h"
 
 using namespace DB;
 
@@ -144,6 +145,37 @@ void DataBase::SetGroupHolydays(long int group_id, long int day_id, long int hou
 	else
 	{
 		m_Connection.DeleteFrom(g_ModelGroupHolydays)->Where(ORM::Eq(DB::g_ModelGroupHolydays.group, ORM::ForeignKey(group_id)) && ORM::Eq(DB::g_ModelGroupHolydays.day, ORM::ForeignKey(day_id)) && ORM::Eq(DB::g_ModelGroupHolydays.hour, ORM::ForeignKey(hour_id)));
+	}
+}
+
+bool DataBase::GetAuditoriumHolydays(long int auditorium_id, long int day_id, long int hour_id)
+{
+	ORM::Scheme scheme;
+	ORM::Field<long int> long_field("");
+	scheme.add(long_field);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+	m_Connection.Select(data, ORM::Count())->From(DB::g_ModelAuditoriumHolydays)->Where(ORM::Eq(DB::g_ModelAuditoriumHolydays.auditorium, ORM::ForeignKey(auditorium_id)) && ORM::Eq(DB::g_ModelAuditoriumHolydays.day, ORM::ForeignKey(day_id)) && ORM::Eq(DB::g_ModelAuditoriumHolydays.hour, ORM::ForeignKey(hour_id)));
+	if(data->children().size())
+	{
+		return static_cast<bool>(data->children()[0].get_value(long_field));
+	}
+	return false;
+}
+
+void DataBase::SetAuditoriumHolydays(long int auditorium_id, long int day_id, long int hour_id, bool holyday)
+{
+	if(holyday)
+	{
+		Glib::RefPtr<ORM::Data> data = ORM::Data::create(g_ModelAuditoriumHolydays);
+		Gtk::TreeIter iter = data->append();
+		iter->set_value(g_ModelAuditoriumHolydays.auditorium, auditorium_id);
+		iter->set_value(g_ModelAuditoriumHolydays.day, day_id);
+		iter->set_value(g_ModelAuditoriumHolydays.hour, hour_id);
+		m_Connection.InsertInto(g_ModelAuditoriumHolydays)->Values(iter);
+	}
+	else
+	{
+		m_Connection.DeleteFrom(g_ModelAuditoriumHolydays)->Where(ORM::Eq(DB::g_ModelAuditoriumHolydays.auditorium, ORM::ForeignKey(auditorium_id)) && ORM::Eq(DB::g_ModelAuditoriumHolydays.day, ORM::ForeignKey(day_id)) && ORM::Eq(DB::g_ModelAuditoriumHolydays.hour, ORM::ForeignKey(hour_id)));
 	}
 }
 
@@ -456,12 +488,21 @@ void DataBase::ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>&
 
 void DataBase::GetAuditoriumListForLesson(Glib::RefPtr<ORM::Data>& data, ORM::PrimaryKey lesson_id, ORM::ForeignKey day_id, ORM::ForeignKey hour_id)
 {
+	//subquery for free auditorium
+	ORM::Subquery subquery_free;
+	subquery_free.Select(data
+		, g_ModelAuditoriumHolydays.auditorium)
+		->From(g_ModelAuditoriumHolydays)
+		->Where(ORM::Eq(g_ModelAuditoriumHolydays.day, day_id)
+			&& ORM::Eq(g_ModelAuditoriumHolydays.hour, hour_id));
+
 	//subquery for busy auditorium
 	ORM::Subquery subquery_busy;
 	subquery_busy.Select(data
 		, g_ModelSchedule.auditorium)
 		->From(g_ModelSchedule)
-		->Where(ORM::Eq(g_ModelSchedule.day, day_id) && ORM::Eq(g_ModelSchedule.hour, hour_id));
+		->Where(ORM::Eq(g_ModelSchedule.day, day_id)
+			&& ORM::Eq(g_ModelSchedule.hour, hour_id));
 
 	//get all acceptable auditorium
 	m_Connection.SelectDistinct(data
@@ -472,18 +513,118 @@ void DataBase::GetAuditoriumListForLesson(Glib::RefPtr<ORM::Data>& data, ORM::Pr
 		->NaturalJoin(g_ModelLessonType)
 		->NaturalJoin(g_ModelTeachingBranch)
 		->NaturalJoin(g_ModelLessonSubgroup)
-		->Where(ORM::NotIn(g_ModelAuditoriums.fId, subquery_busy) && ORM::Eq(g_ModelLessons.fId, lesson_id)
+		->Where(ORM::NotIn(g_ModelAuditoriums.fId, subquery_busy)
+			&& ORM::NotIn(g_ModelAuditoriums.fId, subquery_free)
+			&& ORM::Eq(g_ModelLessons.fId, lesson_id)
 			&& ORM::Eq(g_ModelAuditoriums.multithread, g_ModelLessonType.multithread));
 }
 
-void DataBase::SetLessonIntoTimetable(long int id_lesson, long int id_aud, long int id_day, long int id_hour)
+void DataBase::SetLessonIntoTimetable(long int id_lesson, ORM::ForeignKey id_aud, ORM::ForeignKey day_id, ORM::ForeignKey hour_id)
 {
+	ORM::Scheme scheme;
+	ORM::Field<long int> id("");
+	scheme.add(id);
+	Glib::RefPtr<ORM::Data> fake_data = ORM::Data::create(scheme);
+
+	//LogBuf::Enable(true);
 	std::cout << "DataBase::SetLessonIntoTimetable" << std::endl;
+	//checks for free auditorium
+	ORM::Subquery subquery_free_aud;
+	subquery_free_aud.Select(fake_data
+		, g_ModelAuditoriumHolydays.auditorium)
+		->From(g_ModelAuditoriumHolydays)
+		->Where(ORM::Eq(g_ModelAuditoriumHolydays.day, day_id)
+			&& ORM::Eq(g_ModelAuditoriumHolydays.hour, hour_id));
+
+	//checks for busy auditorium
+	ORM::Subquery subquery_busy_aud;
+	subquery_busy_aud.Select(fake_data
+		, g_ModelSchedule.auditorium)
+		->From(g_ModelSchedule)
+		->Where(ORM::Eq(g_ModelSchedule.day, day_id)
+			&& ORM::Eq(g_ModelSchedule.hour, hour_id));
+
+	m_Connection.Select(fake_data
+		, g_ModelAuditoriums.fId)
+		->From(g_ModelAuditoriums)
+		->Where(ORM::Eq(g_ModelAuditoriums.fId, ORM::PrimaryKey(id_aud))
+			&&
+			(ORM::In(g_ModelAuditoriums.fId, subquery_free_aud)
+			|| ORM::In(g_ModelAuditoriums.fId, subquery_busy_aud)));
+	if(fake_data->children().size() > 0)
+	{
+		return;
+	}
+
+	//checks for busy groups
+	ORM::Subquery subquery_busy_grp;
+	subquery_busy_grp.Select(fake_data
+		, g_ModelGroupCategory.group)
+		->From(g_ModelSchedule)
+		->NaturalJoin(g_ModelLessons)
+		->NaturalJoin(g_ModelLessonSubgroup)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelGroupCategory)
+		->Where(ORM::Eq(g_ModelSchedule.day, day_id)
+			&& ORM::Eq(g_ModelSchedule.hour, hour_id));
+
+	//checks for free group
+	ORM::Subquery subquery_free_grp;
+	subquery_free_grp.Select(fake_data
+		, g_ModelGroupHolydays.group)
+		->From(g_ModelGroupHolydays)
+		->Where(ORM::Eq(g_ModelGroupHolydays.day, day_id)
+			&& ORM::Eq(g_ModelGroupHolydays.hour, hour_id));
+
+	m_Connection.Select(fake_data
+		, g_ModelGroups.fId)
+		->From(g_ModelGroups)
+		->NaturalJoin(g_ModelGroupCategory)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelLessonSubgroup)
+		->Where(ORM::Eq(g_ModelLessonSubgroup.lesson, ORM::ForeignKey(id_lesson))
+			&& (ORM::In(g_ModelGroups.fId, subquery_busy_grp)
+			|| ORM::In(g_ModelGroups.fId, subquery_free_grp)));
+	if(fake_data->children().size() > 0)
+	{
+		return;
+	}
+
+	//checks for busy teacher
+	ORM::Subquery subquery_busy_tch;
+	subquery_busy_tch.Select(fake_data
+		, g_ModelLessons.teacher)
+		->From(g_ModelSchedule)
+		->NaturalJoin(g_ModelLessons)
+		->Where(ORM::Eq(g_ModelSchedule.day, day_id)
+			&& ORM::Eq(g_ModelSchedule.hour, hour_id));
+
+	//checks for free teacher
+	ORM::Subquery subquery_free_tch;
+	subquery_free_tch.Select(fake_data
+		, g_ModelTeacherHolydays.teacher)
+		->From(g_ModelTeacherHolydays)
+		->Where(ORM::Eq(g_ModelTeacherHolydays.day, day_id)
+			&& ORM::Eq(g_ModelTeacherHolydays.hour, hour_id));
+	m_Connection.Select(fake_data
+		, g_ModelTeachers.fId)
+		->From(g_ModelTeachers)
+		->NaturalJoin(g_ModelLessons)
+		->Where(ORM::Eq(g_ModelLessons.fId, ORM::PrimaryKey(id_lesson))
+			&& (ORM::In(g_ModelTeachers.fId, subquery_busy_tch)
+			|| ORM::In(g_ModelTeachers.fId, subquery_free_tch)));
+	if(fake_data->children().size() > 0)
+	{
+		return;
+	}
+
+	//LogBuf::Enable(false);
+
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(g_ModelSchedule);
 	Gtk::TreeIter iter = data->append();
-	iter->set_value(g_ModelSchedule.auditorium, id_aud);
-	iter->set_value(g_ModelSchedule.day, id_day);
-	iter->set_value(g_ModelSchedule.hour, id_hour);
+	iter->set_value(g_ModelSchedule.auditorium, static_cast<long int>(id_aud));
+	iter->set_value(g_ModelSchedule.day, static_cast<long int>(day_id));
+	iter->set_value(g_ModelSchedule.hour, static_cast<long int>(hour_id));
 	iter->set_value(g_ModelSchedule.lesson, id_lesson);
 	if(iter)
 	{

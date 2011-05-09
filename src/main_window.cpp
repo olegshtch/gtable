@@ -354,6 +354,12 @@ void MainWindow::SwitchHolydayCategory()
 		m_HolydaysObjectList->set_model(data);
 		m_HolydaysObjectList->set_text_column(DB::g_IdTextScheme.fText);
 	}
+	else if(choose == _("Auditoriums"))
+	{
+		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelAuditoriums, DB::g_ModelAuditoriums.name, data);
+		m_HolydaysObjectList->set_model(data);
+		m_HolydaysObjectList->set_text_column(DB::g_IdTextScheme.fText);
+	}
 	else
 	{
 		// clean data
@@ -404,6 +410,17 @@ void MainWindow::HolydaysCellData(Gtk::CellRenderer *cell, long int row, long in
 				renderer->property_text() = "";
 			}
 		}
+		else if(category == _("Auditoriums"))
+		{
+			if(DB::DataBase::Instance().GetAuditoriumHolydays(value, column, row))
+			{
+				renderer->property_text() = "+";
+			}
+			else
+			{
+				renderer->property_text() = "";
+			}			
+		}
 	}
 }
 
@@ -424,7 +441,11 @@ void MainWindow::HolydaysButtonRelease(long int row, long int column, GdkEventBu
 			DB::DataBase::Instance().SetGroupHolydays(value, column, row, ! DB::DataBase::Instance().GetGroupHolydays(value, column, row));
 			m_SheetHolydays->get_bin_window()->invalidate(true);
 		}
-
+		else if(category == _("Auditoriums"))
+		{
+			DB::DataBase::Instance().SetAuditoriumHolydays(value, column, row, ! DB::DataBase::Instance().GetGroupHolydays(value, column, row));
+			m_SheetHolydays->get_bin_window()->invalidate(true);
+		}
 	}	
 }
 
@@ -494,6 +515,9 @@ void MainWindow::ScheduleGroupChanged()
 	if(iter)
 	{
 		m_ScheduleIdGroup = iter->get_value(DB::g_IdTextScheme.fId);
+	}
+	if(m_ScheduleIdGroup != -1)
+	{
 		Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(DB::g_IdTextScheme);
 		Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(DB::g_IdTextScheme);
 		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
@@ -502,9 +526,7 @@ void MainWindow::ScheduleGroupChanged()
 		m_ScheduleGroup->set_horz_model(horz_data);
 
 		Glib::RefPtr<ORM::Data> other_data = ORM::Data::create(DB::g_IdTextScheme);
-		LogBuf::Enable(true);
 		DB::DataBase::Instance().ListGroupOtherLessons(m_ScheduleIdGroup, other_data);
-		LogBuf::Enable(false);
 		m_ScheduleGroupOther->set_model(other_data);
 	}
 }
@@ -513,6 +535,14 @@ void MainWindow::ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour
 {
 	Gtk::CellRendererText *renderer = reinterpret_cast<Gtk::CellRendererText *>(cell);
 	renderer->property_text() = DB::DataBase::Instance().GetTimeTableLessonGroupText(m_ScheduleIdGroup, id_hour, id_day);
+	if(DB::DataBase::Instance().GetGroupHolydays(m_ScheduleIdGroup, id_day, id_hour))
+	{
+		renderer->property_background_gdk() = Gdk::Color("red");
+	}
+	else
+	{
+		renderer->property_background_gdk() = Gdk::Color("white");
+	}
 }
 
 void MainWindow::ScheduleGroupSelectedOther()
@@ -600,7 +630,7 @@ void MainWindow::ScheduleGroupChooseAud(long int aud_id)
 	{
 		long int lesson_id = m_ScheduleGroupSelectedOther->get_value(DB::g_IdTextScheme.fId);
 		DB::DataBase::Instance().SetLessonIntoTimetable(lesson_id, aud_id, m_ScheduleIdDay, m_ScheduleIdHour);
-		m_TeachingLesson->resize_children();
+		/*m_TeachingLesson->resize_children();
 		m_TeachingLesson->columns_autosize();
 		//m_TeachingLesson->get_bin_window()->invalidate(true);
 
@@ -608,7 +638,8 @@ void MainWindow::ScheduleGroupChooseAud(long int aud_id)
 		DB::DataBase::Instance().ListGroupOtherLessons(m_ScheduleIdGroup, other_data);
 		m_ScheduleGroupOther->set_model(other_data);
 
-		m_ScheduleGroupSelectedOther = Gtk::TreeIter();
+		m_ScheduleGroupSelectedOther = Gtk::TreeIter();*/
+		ScheduleGroupChanged();
 	}
 }
 
@@ -616,19 +647,23 @@ void MainWindow::ScheduleGroupChangeAud(long int lesson_id, long int aud_id)
 {
 	DB::DataBase::Instance().RemoveLessonFromTimetable(lesson_id, m_ScheduleIdDay, m_ScheduleIdHour);
 	DB::DataBase::Instance().SetLessonIntoTimetable(lesson_id, aud_id, m_ScheduleIdDay, m_ScheduleIdHour);
+	/*
 	Glib::RefPtr<ORM::Data> other_data = ORM::Data::create(DB::g_IdTextScheme);
 	DB::DataBase::Instance().ListGroupOtherLessons(m_ScheduleIdGroup, other_data);
 	m_ScheduleGroupOther->set_model(other_data);
-	m_ScheduleGroupSelectedOther = Gtk::TreeIter();
+	m_ScheduleGroupSelectedOther = Gtk::TreeIter();*/
+	ScheduleGroupChanged();
 }
 
 void MainWindow::ScheduleGroupRemoveLesson(long int lesson_id)
 {
 	DB::DataBase::Instance().RemoveLessonFromTimetable(lesson_id, m_ScheduleIdDay, m_ScheduleIdHour);
+	/*
 	Glib::RefPtr<ORM::Data> other_data = ORM::Data::create(DB::g_IdTextScheme);
 	DB::DataBase::Instance().ListGroupOtherLessons(m_ScheduleIdGroup, other_data);
 	m_ScheduleGroupOther->set_model(other_data);
-	m_ScheduleGroupSelectedOther = Gtk::TreeIter();
+	m_ScheduleGroupSelectedOther = Gtk::TreeIter();*/
+	ScheduleGroupChanged();
 }
 
 bool MainWindow::TeachingLessonGroupExpose(GdkEventExpose* event)
