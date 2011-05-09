@@ -544,13 +544,24 @@ void DataBase::SetLessonIntoTimetable(long int id_lesson, ORM::ForeignKey id_aud
 		->Where(ORM::Eq(g_ModelSchedule.day, day_id)
 			&& ORM::Eq(g_ModelSchedule.hour, hour_id));
 
+	//check for unappropriate auditorium
+	ORM::Subquery subquery_unapp_aud;
+	subquery_unapp_aud.Select(fake_data
+		, g_ModelAuditoriums.fId)
+		->From(g_ModelAuditoriums)
+		->NaturalJoin(g_ModelLessons)
+		->NaturalJoin(g_ModelLessonType)
+		->Where(ORM::Eq(g_ModelLessons.fId, ORM::PrimaryKey(id_lesson))
+			&& ORM::NonEq(g_ModelAuditoriums.multithread, g_ModelLessonType.multithread));
+
 	m_Connection.Select(fake_data
 		, g_ModelAuditoriums.fId)
 		->From(g_ModelAuditoriums)
 		->Where(ORM::Eq(g_ModelAuditoriums.fId, ORM::PrimaryKey(id_aud))
 			&&
 			(ORM::In(g_ModelAuditoriums.fId, subquery_free_aud)
-			|| ORM::In(g_ModelAuditoriums.fId, subquery_busy_aud)));
+			|| ORM::In(g_ModelAuditoriums.fId, subquery_busy_aud)
+			|| ORM::In(g_ModelAuditoriums.fId, subquery_unapp_aud)));
 	if(fake_data->children().size() > 0)
 	{
 		return;
@@ -716,6 +727,144 @@ void DataBase::CleanTimeTable()
 {
 	m_Connection.DeleteFrom(g_ModelSchedule);
 }
+
+void DataBase::ListTeacherOtherLessons(long int id_teacher, Glib::RefPtr<ORM::Data>& data)
+{
+	data->clear();
+	//LogBuf::Enable(true);
+	ORM::Scheme scheme;
+	ORM::Field<ORM::PrimaryKey> id;
+	//ORM::Field<Glib::ustring> auditory_name("auditory");
+	ORM::Field<Glib::ustring> groups_name("groups");
+	ORM::Field<Glib::ustring> lesson_name("lesson");
+	ORM::Field<long int> hours("hours");
+	scheme.add(id);
+	//scheme.add(auditory_name);
+	scheme.add(groups_name);
+	scheme.add(lesson_name);
+	scheme.add(hours);
+	Glib::RefPtr<ORM::Data> lesson_list = ORM::Data::create(scheme);
+
+	m_Connection.Select(lesson_list
+		, g_ModelLessons.fId
+		, ORM::group_concat(g_ModelGroups.name)
+		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name
+		, g_ModelTeachingPlan.hours)
+		->From(g_ModelLessons, g_ModelGroupCategory, g_ModelLessonSubgroup)
+		->NaturalJoin(g_ModelTeachingPlan)
+		->NaturalJoin(g_ModelLessonType)
+		->NaturalJoin(g_ModelBranch)
+		->NaturalJoin(g_ModelTeachingBranch)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelGroups)
+		->Where(ORM::Greater(g_ModelTeachingPlan.hours, 0L)
+			&& ORM::Eq(g_ModelLessons.teacher, ORM::ForeignKey(id_teacher))
+			&& ORM::Eq(g_ModelLessons.fId, g_ModelLessonSubgroup.lesson))
+		->GroupBy(g_ModelLessons.fId);
+
+	for(Gtk::TreeIter it = lesson_list->children().begin(); it != lesson_list->children().end(); ++ it)
+	{
+		// get count lesson in timetable
+		long int lesson_count = 0;
+		ORM::Scheme count_scheme;
+		ORM::Field<long int> count("");
+		count_scheme.add(count);
+		Glib::RefPtr<ORM::Data> count_data = ORM::Data::create(count_scheme);
+		m_Connection.Select(count_data
+			, ORM::Count())
+			->From(g_ModelSchedule)
+			->Where(ORM::Eq(g_ModelSchedule.lesson, ORM::ForeignKey(it->get_value(id))));
+		if(count_data->children().size() > 0)
+		{
+			lesson_count = count_data->children()[0].get_value(count);
+		}
+
+		if(lesson_count > it->get_value(hours))
+		{
+			std::cout << "Too more lessons=" << it->get_value(id) << " " << it->get_value(lesson_name) << std::endl;
+		}
+
+		for(long h = it->get_value(hours) - lesson_count; h > 0; -- h)
+		{
+			Gtk::TreeIter iter = data->append();
+			iter->set_value(g_IdTextScheme.fId, it->get_value(id));
+			iter->set_value(g_IdTextScheme.fText, it->get_value(lesson_name) + "\n" + it->get_value(groups_name));
+		}
+	}
+	//LogBuf::Enable(false);
+}
+
+Glib::ustring DataBase::GetTimeTableLessonTeacherText(ORM::ForeignKey id_teacher, ORM::ForeignKey id_hour, ORM::ForeignKey id_day)
+{
+	ORM::Scheme scheme;
+	ORM::Field<ORM::PrimaryKey> id;
+	ORM::Field<Glib::ustring> auditory_name("auditory");
+	ORM::Field<Glib::ustring> groups_name("groups");
+	ORM::Field<Glib::ustring> lesson_name("lesson");
+	scheme.add(id);
+	scheme.add(auditory_name);
+	scheme.add(groups_name);
+	scheme.add(lesson_name);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+
+	m_Connection.Select(data
+		, g_ModelSchedule.fId
+		, g_ModelAuditoriums.name
+		, ORM::group_concat(g_ModelGroups.name)
+		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name)
+		->From(g_ModelSchedule, g_ModelSpecialities, g_ModelTeachingPlan, g_ModelTeachers, g_ModelAuditoriums)
+		->NaturalJoin(g_ModelLessons)
+		->NaturalJoin(g_ModelLessonType)
+		->NaturalJoin(g_ModelBranch)
+		->NaturalJoin(g_ModelTeachingBranch)
+		->NaturalJoin(g_ModelGroups)
+		->NaturalJoin(g_ModelGroupCategory)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelLessonSubgroup)
+		->Where(ORM::Eq(g_ModelSchedule.day, id_day) && ORM::Eq(g_ModelSchedule.hour, id_hour) && ORM::Eq(g_ModelLessons.teacher, id_teacher)
+			&& ORM::Eq(g_ModelSchedule.lesson, g_ModelLessons.fId)
+			&& ORM::Eq(g_ModelSchedule.auditorium, g_ModelAuditoriums.fId))
+		->GroupBy(g_ModelSchedule.fId);
+
+	if(data->children().size() == 0)
+	{
+		return "---";
+	}
+	else if(data->children().size() == 1)
+	{
+		return data->children()[0].get_value(lesson_name) + "\n" +
+			data->children()[0].get_value(groups_name) + "\n" +
+			data->children()[0].get_value(auditory_name);
+	}
+	std::cout << "DataBase::GetTimeTableLessonTeacherText too many lessons" << std::endl;
+	return "!!!";
+}
+
+long int DataBase::GetTimeTableLessonTeacher(ORM::ForeignKey id_teacher, ORM::ForeignKey id_hour, ORM::ForeignKey id_day)
+{
+	ORM::Scheme scheme;
+	ORM::Field<ORM::ForeignKey> id(g_ModelLessons);
+	scheme.add(id);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+
+	m_Connection.Select(data
+		, g_ModelSchedule.lesson)
+	->From(g_ModelSchedule)
+	->NaturalJoin(g_ModelLessons)
+	->Where(ORM::Eq(g_ModelSchedule.day, id_day) && ORM::Eq(g_ModelSchedule.hour, id_hour) && ORM::Eq(g_ModelLessons.teacher, id_teacher));
+
+	if(data->children().size() == 0)
+	{
+		return -1;
+	}
+	else if(data->children().size() == 1)
+	{
+		return data->children()[0].get_value(id);
+	}
+	std::cout << "DataBase::GetTimeTableLessonTeacher too many lessons" << std::endl;
+	return -1;
+}
+
 
 void DataBase::ListTLHM(Glib::RefPtr<ORM::Data>& data)
 {

@@ -54,8 +54,10 @@ private:
 	void WeekToggle();
 
 	// Loadings -> Holydays
-	Gtk::ComboBoxEntry *m_HolydaysCategory;
+	Gtk::ComboBox *m_HolydaysCategory;
 	Gtk::ComboBoxEntry *m_HolydaysObjectList;
+	Glib::RefPtr<ORM::Data> m_HolydaysCategoryList;
+	long int m_HolydaysIdCategory;
 	Sheet *m_SheetHolydays;
 	void SwitchHolydayCategory();
 	void SwitchHolydayObject();
@@ -82,9 +84,6 @@ private:
 	Gtk::TreeView *m_ScheduleGroupOther;
 	Gtk::TreeIter m_ScheduleGroupSelectedOther;
 	long int m_ScheduleIdGroup;
-	long int m_ScheduleIdDay;
-	long int m_ScheduleIdHour;
-	Gtk::Menu m_ScheduleMenu;
 	void ScheduleGroupExpose();
 	void ScheduleGroupChanged();
 	void ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour, long int id_day);
@@ -93,6 +92,25 @@ private:
 	void ScheduleGroupChooseAud(long int aud_id);
 	void ScheduleGroupChangeAud(long int lesson_id, long int aud_id);
 	void ScheduleGroupRemoveLesson(long int lesson_id);
+
+	// Schedule -> Teacher
+	Sheet *m_ScheduleTeacher;
+	Gtk::ComboBox *m_ComboBoxScheduleTeacher;
+	Gtk::TreeView *m_ScheduleTeacherOther;
+	Gtk::TreeIter m_ScheduleTeacherSelectedOther;
+	long int m_ScheduleIdTeacher;
+	void ScheduleTeacherExpose();
+	void ScheduleTeacherChanged();
+	void ScheduleTeacherCellData(Gtk::CellRenderer* cell, long int id_hour, long int id_day);
+	void ScheduleTeacherSelectedOther();
+	void ScheduleTeacherCellButtonRelease(long int id_hour, long int id_day, GdkEventButton* event);
+	void ScheduleTeacherChooseAud(long int aud_id);
+	void ScheduleTeacherChangeAud(long int lesson_id, long int aud_id);
+	void ScheduleTeacherRemoveLesson(long int lesson_id);
+
+	long int m_ScheduleIdDay;
+	long int m_ScheduleIdHour;
+	Gtk::Menu m_ScheduleMenu;
 
 	Glib::RefPtr<Gtk::ActionGroup> m_refActionGroup;
 

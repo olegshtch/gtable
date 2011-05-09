@@ -81,6 +81,10 @@ namespace DB
 		long int GetTimeTableLessonGroup(ORM::ForeignKey id_group, ORM::ForeignKey id_hour, ORM::ForeignKey id_day);
 		void CleanTimeTable();
 
+		void ListTeacherOtherLessons(long int id_teacher, Glib::RefPtr<ORM::Data>& data);
+		Glib::ustring GetTimeTableLessonTeacherText(ORM::ForeignKey id_teacher, ORM::ForeignKey id_hour, ORM::ForeignKey id_day);
+		long int GetTimeTableLessonTeacher(ORM::ForeignKey id_teacher, ORM::ForeignKey id_hour, ORM::ForeignKey id_day);
+
 		void ListTLHM(Glib::RefPtr<ORM::Data>& data);
 		size_t CountAuditoriums(bool multithread);
 

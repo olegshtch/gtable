@@ -14,13 +14,21 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_refBuilder(builder),
 	m_HolydaysCategory(NULL),
 	m_HolydaysObjectList(NULL),
+	m_HolydaysCategoryList(ORM::Data::create(DB::g_IdTextScheme)),
 	m_SheetHolydays(NULL),
 	m_PlanSheet(NULL),
 	m_ComboBoxPlanSpeciality(NULL),
+
 	m_ScheduleGroup(NULL),
 	m_ComboBoxScheduleGroup(NULL),
 	m_ScheduleGroupOther(NULL),
 	m_ScheduleIdGroup(-1),
+
+	m_ScheduleTeacher(NULL),
+	m_ComboBoxScheduleTeacher(NULL),
+	m_ScheduleTeacherOther(NULL),
+	m_ScheduleIdTeacher(-1),
+
 	m_pCurrentLineEditor(NULL),
 	m_StatusBar(NULL)
 {
@@ -73,6 +81,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column_editable(_("firstname"), DB::g_ModelTeachers.firstname);
 	m_pTreeView->append_column_editable(_("thirdname"), DB::g_ModelTeachers.thirdname);
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelTeachers.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
+	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::ScheduleTeacherExpose));
 
 	m_pTreeView = AddListView("TreeViewSpecialities", DB::g_ModelSpecialities);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelSpecialities.name);
@@ -133,6 +142,18 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	{
 		throw Glib::Error(1, 0, "Cann't load HolydaysCategory");
 	}
+	Gtk::TreeIter iter = m_HolydaysCategoryList->append();
+	iter->set_value(DB::g_IdTextScheme.fId, 1l);
+	iter->set_value(DB::g_IdTextScheme.fText, Glib::ustring(_("Teachers")));
+	iter = m_HolydaysCategoryList->append();
+	iter->set_value(DB::g_IdTextScheme.fId, 2l);
+	iter->set_value(DB::g_IdTextScheme.fText, Glib::ustring(_("Groups")));
+	iter = m_HolydaysCategoryList->append();
+	iter->set_value(DB::g_IdTextScheme.fId, 3l);
+	iter->set_value(DB::g_IdTextScheme.fText, Glib::ustring(_("Auditoriums")));
+	m_HolydaysIdCategory = -1;
+	m_HolydaysCategory->set_model(m_HolydaysCategoryList);
+	m_HolydaysCategory->pack_start(DB::g_IdTextScheme.fText);
 	m_HolydaysCategory->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::SwitchHolydayCategory));
 
 	m_refBuilder->get_widget("HolydaysObjectList", m_HolydaysObjectList);
@@ -221,6 +242,33 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_ScheduleGroupOther->append_column(_(""), DB::g_IdTextScheme.fText);
 	m_ScheduleGroupOther->get_selection()->set_mode(Gtk::SELECTION_SINGLE);
 	m_ScheduleGroupOther->get_selection()->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupSelectedOther));
+
+	// Schedule -> Teacher
+	m_refBuilder->get_widget_derived("ScheduleTeacher", m_ScheduleTeacher);
+	if(! m_ScheduleTeacher)
+	{
+		throw Glib::Error(1, 0, "Cann't load ScheduleTeacher");
+	}
+	m_ScheduleTeacher->signal_cell_data().connect(sigc::mem_fun(*this, &MainWindow::ScheduleTeacherCellData));
+	m_ScheduleTeacher->signal_cell_button_release().connect(sigc::mem_fun(*this, &MainWindow::ScheduleTeacherCellButtonRelease));
+	m_refBuilder->get_widget("ComboBoxScheduleTeacher", m_ComboBoxScheduleTeacher);
+	if(! m_ComboBoxScheduleTeacher)
+	{
+		throw Glib::Error(1, 0, "ComboBoxScheduleTeacher");
+	}
+	m_ComboBoxScheduleTeacher->set_model(ORM::Data::create(DB::g_IdTextScheme));
+	m_ComboBoxScheduleTeacher->pack_start(DB::g_IdTextScheme.fText);
+	m_ComboBoxScheduleTeacher->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::ScheduleTeacherChanged));
+	m_refBuilder->get_widget("TreeViewTeacherLessonOther", m_ScheduleTeacherOther);
+	if(! m_ScheduleTeacherOther)
+	{
+		throw Glib::Error(1, 0, "Cann't load TreeViewTeacherLessonOther");
+	}
+	m_ScheduleTeacherOther->set_model(ORM::Data::create(DB::g_IdTextScheme));
+	m_ScheduleTeacherOther->set_headers_visible(false);
+	m_ScheduleTeacherOther->append_column(_(""), DB::g_IdTextScheme.fText);
+	m_ScheduleTeacherOther->get_selection()->set_mode(Gtk::SELECTION_SINGLE);
+	m_ScheduleTeacherOther->get_selection()->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::ScheduleTeacherSelectedOther));
 
 	OnNew();
 
@@ -338,30 +386,33 @@ ListView* MainWindow::AddListView(const Glib::ustring& name, const ORM::Table& s
 
 void MainWindow::SwitchHolydayCategory()
 {
-	Glib::ustring choose = m_HolydaysCategory->get_active_text();
+	std::clog << "MainWindow::SwitchHolydayCategory" << std::endl;
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
-	if(choose == _("Teachers"))
+	Gtk::TreeIter iter = m_HolydaysCategory->get_active();
+	if(iter)
 	{
+		m_HolydaysIdCategory = iter->get_value(DB::g_IdTextScheme.fId);
+	}
+	switch(m_HolydaysIdCategory)
+	{
+	case 1:
 		// fill HolydayObjectList by teachers
 		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelTeachers, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + DB::g_ModelTeachers.firstname + " " + DB::g_ModelTeachers.thirdname, data);
 		m_HolydaysObjectList->set_model(data);
 		m_HolydaysObjectList->set_text_column(DB::g_IdTextScheme.fText);
-	}
-	else if(choose == _("Groups"))
-	{
+		break;
+	case 2:
 		// fill HolydayObjectList by groups
 		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelGroups, DB::g_ModelGroups.name, data);
 		m_HolydaysObjectList->set_model(data);
 		m_HolydaysObjectList->set_text_column(DB::g_IdTextScheme.fText);
-	}
-	else if(choose == _("Auditoriums"))
-	{
+		break;
+	case 3:
 		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelAuditoriums, DB::g_ModelAuditoriums.name, data);
 		m_HolydaysObjectList->set_model(data);
 		m_HolydaysObjectList->set_text_column(DB::g_IdTextScheme.fText);
-	}
-	else
-	{
+		break;
+	default:
 		// clean data
 		m_HolydaysObjectList->unset_model();
 	}
@@ -386,10 +437,10 @@ void MainWindow::HolydaysCellData(Gtk::CellRenderer *cell, long int row, long in
 	if(obj_iter)
 	{
 		Gtk::CellRendererText *renderer = reinterpret_cast<Gtk::CellRendererText*>(cell);
-		Glib::ustring category = m_HolydaysCategory->get_active_text();
 		long int value = obj_iter->get_value(DB::g_IdTextScheme.fId);
-		if(category == _("Teachers"))
+		switch(m_HolydaysIdCategory)
 		{
+		case 1:
 			if(DB::DataBase::Instance().GetTeacherHolydays(value, column, row))
 			{
 				renderer->property_text() = "+";
@@ -398,9 +449,8 @@ void MainWindow::HolydaysCellData(Gtk::CellRenderer *cell, long int row, long in
 			{
 				renderer->property_text() = "";
 			}
-		}
-		else if(category == _("Groups"))
-		{
+			break;
+		case 2:
 			if(DB::DataBase::Instance().GetGroupHolydays(value, column, row))
 			{
 				renderer->property_text() = "+";
@@ -409,9 +459,8 @@ void MainWindow::HolydaysCellData(Gtk::CellRenderer *cell, long int row, long in
 			{
 				renderer->property_text() = "";
 			}
-		}
-		else if(category == _("Auditoriums"))
-		{
+			break;
+		case 3:
 			if(DB::DataBase::Instance().GetAuditoriumHolydays(value, column, row))
 			{
 				renderer->property_text() = "+";
@@ -419,7 +468,8 @@ void MainWindow::HolydaysCellData(Gtk::CellRenderer *cell, long int row, long in
 			else
 			{
 				renderer->property_text() = "";
-			}			
+			}
+			break;
 		}
 	}
 }
@@ -429,23 +479,20 @@ void MainWindow::HolydaysButtonRelease(long int row, long int column, GdkEventBu
 	Gtk::TreeIter obj_iter = m_HolydaysObjectList->get_active();
 	if(obj_iter)
 	{
-		Glib::ustring category = m_HolydaysCategory->get_active_text();
 		long int value = obj_iter->get_value(DB::g_IdTextScheme.fId);
-		if(category == _("Teachers"))
+		switch(m_HolydaysIdCategory)
 		{
+		case 1:
 			DB::DataBase::Instance().SetTeacherHolydays(value, column, row, ! DB::DataBase::Instance().GetTeacherHolydays(value, column, row));
-			m_SheetHolydays->get_bin_window()->invalidate(true);
-		}
-		else if(category == _("Groups"))
-		{
+			break;
+		case 2:
 			DB::DataBase::Instance().SetGroupHolydays(value, column, row, ! DB::DataBase::Instance().GetGroupHolydays(value, column, row));
-			m_SheetHolydays->get_bin_window()->invalidate(true);
-		}
-		else if(category == _("Auditoriums"))
-		{
+			break;
+		case 3:
 			DB::DataBase::Instance().SetAuditoriumHolydays(value, column, row, ! DB::DataBase::Instance().GetGroupHolydays(value, column, row));
-			m_SheetHolydays->get_bin_window()->invalidate(true);
+			break;
 		}
+		m_SheetHolydays->get_bin_window()->invalidate(true);
 	}	
 }
 
@@ -662,6 +709,150 @@ void MainWindow::ScheduleGroupRemoveLesson(long int lesson_id)
 	m_ScheduleGroupOther->set_model(other_data);
 	m_ScheduleGroupSelectedOther = Gtk::TreeIter();*/
 	ScheduleGroupChanged();
+}
+
+void MainWindow::ScheduleTeacherExpose()
+{
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
+	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelTeachers, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + DB::g_ModelTeachers.firstname + " " + DB::g_ModelTeachers.thirdname, data);
+	m_ComboBoxScheduleTeacher->set_model(data);
+}
+
+void MainWindow::ScheduleTeacherChanged()
+{
+	Gtk::TreeIter iter = m_ComboBoxScheduleTeacher->get_active();
+	if(iter)
+	{
+		m_ScheduleIdTeacher = iter->get_value(DB::g_IdTextScheme.fId);
+	}
+	if(m_ScheduleIdTeacher != -1)
+	{
+		Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(DB::g_IdTextScheme);
+		Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(DB::g_IdTextScheme);
+		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
+		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
+		m_ScheduleTeacher->set_vert_model(vert_data);
+		m_ScheduleTeacher->set_horz_model(horz_data);
+
+		Glib::RefPtr<ORM::Data> other_data = ORM::Data::create(DB::g_IdTextScheme);
+		DB::DataBase::Instance().ListTeacherOtherLessons(m_ScheduleIdTeacher, other_data);
+		m_ScheduleTeacherOther->set_model(other_data);
+	}
+}
+
+void MainWindow::ScheduleTeacherCellData(Gtk::CellRenderer* cell, long int id_hour, long int id_day)
+{
+	Gtk::CellRendererText *renderer = reinterpret_cast<Gtk::CellRendererText *>(cell);
+	renderer->property_text() = DB::DataBase::Instance().GetTimeTableLessonTeacherText(m_ScheduleIdTeacher, id_hour, id_day);
+	if(DB::DataBase::Instance().GetTeacherHolydays(m_ScheduleIdTeacher, id_day, id_hour))
+	{
+		renderer->property_background_gdk() = Gdk::Color("red");
+	}
+	else
+	{
+		renderer->property_background_gdk() = Gdk::Color("white");
+	}
+}
+
+void MainWindow::ScheduleTeacherSelectedOther()
+{
+	m_ScheduleTeacherSelectedOther = m_ScheduleTeacherOther->get_selection()->get_selected();
+}
+
+void MainWindow::ScheduleTeacherCellButtonRelease(long int id_hour, long int id_day, GdkEventButton* event)
+{
+	switch(event->button)
+	{
+	case 1: // left button
+		if(m_ScheduleTeacherSelectedOther)
+		{
+			long int lesson_id = m_ScheduleTeacherSelectedOther->get_value(DB::g_IdTextScheme.fId);
+			//move lesson to timetable
+			//get auditoriums list
+			Glib::RefPtr<ORM::Data> aud_list = ORM::Data::create(DB::g_IdTextScheme);
+			DB::DataBase::Instance().GetAuditoriumListForLesson(aud_list, lesson_id, id_day, id_hour);
+			if(aud_list->children().size() > 0)
+			{
+				m_ScheduleIdDay = id_day;
+				m_ScheduleIdHour = id_hour;
+				m_ScheduleMenu.items().erase(m_ScheduleMenu.items().begin(), m_ScheduleMenu.items().end());
+				for(Gtk::TreeIter it = aud_list->children().begin(); it != aud_list->children().end(); ++ it)
+				{
+					Gtk::MenuItem *p_item = Gtk::manage(new Gtk::MenuItem(it->get_value(DB::g_IdTextScheme.fText)));
+					m_ScheduleMenu.append(*p_item);
+					p_item->signal_activate().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::ScheduleTeacherChooseAud), it->get_value(DB::g_IdTextScheme.fId)));
+					p_item->show();
+				}
+				m_ScheduleMenu.popup(0, event->time);
+				//std::cout << "popup size: " << m_ScheduleMenu.items().size() << std::endl;
+			}
+			else
+			{
+				std::cout << "Cann't found auditoriums" << std::endl;
+			}
+		}
+		break;
+	case 3: // change auditorium or delete
+		{
+			long int lesson_id = DB::DataBase::Instance().GetTimeTableLessonTeacher(m_ScheduleIdTeacher, id_hour, id_day);
+			if(lesson_id != -1)
+			{
+				//lesson exist
+				m_ScheduleIdDay = id_day;
+				m_ScheduleIdHour = id_hour;
+				Glib::RefPtr<ORM::Data> aud_list = ORM::Data::create(DB::g_IdTextScheme);
+				DB::DataBase::Instance().GetAuditoriumListForLesson(aud_list, lesson_id, id_day, id_hour);
+				m_ScheduleMenu.items().erase(m_ScheduleMenu.items().begin(), m_ScheduleMenu.items().end());
+				if(aud_list->children().size() > 0)
+				{
+					for(Gtk::TreeIter it = aud_list->children().begin(); it != aud_list->children().end(); ++ it)
+					{
+						Gtk::MenuItem *p_item = Gtk::manage(new Gtk::MenuItem(it->get_value(DB::g_IdTextScheme.fText)));
+						m_ScheduleMenu.append(*p_item);
+						p_item->signal_activate().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::ScheduleTeacherChangeAud), lesson_id, it->get_value(DB::g_IdTextScheme.fId)));
+						//p_item->show();
+					}
+					m_ScheduleMenu.append(*Gtk::manage(new Gtk::SeparatorMenuItem()));
+					//std::cout << "popup size: " << m_ScheduleMenu.items().size() << std::endl;
+				}
+				else
+				{
+					std::cout << "Cann't found auditoriums" << std::endl;
+				}
+				// add remove item
+				Gtk::MenuItem *p_item = Gtk::manage(new Gtk::MenuItem(_("Delete")));
+				m_ScheduleMenu.append(*p_item);
+				p_item->signal_activate().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::ScheduleTeacherRemoveLesson), lesson_id));
+				//p_item->show();
+				m_ScheduleMenu.show_all_children();
+				m_ScheduleMenu.popup(0, event->time);
+			}
+		}
+		break;
+	}
+}
+
+void MainWindow::ScheduleTeacherChooseAud(long int aud_id)
+{
+	if(m_ScheduleTeacherSelectedOther)
+	{
+		long int lesson_id = m_ScheduleTeacherSelectedOther->get_value(DB::g_IdTextScheme.fId);
+		DB::DataBase::Instance().SetLessonIntoTimetable(lesson_id, aud_id, m_ScheduleIdDay, m_ScheduleIdHour);
+		ScheduleTeacherChanged();
+	}
+}
+
+void MainWindow::ScheduleTeacherChangeAud(long int lesson_id, long int aud_id)
+{
+	DB::DataBase::Instance().RemoveLessonFromTimetable(lesson_id, m_ScheduleIdDay, m_ScheduleIdHour);
+	DB::DataBase::Instance().SetLessonIntoTimetable(lesson_id, aud_id, m_ScheduleIdDay, m_ScheduleIdHour);
+	ScheduleTeacherChanged();
+}
+
+void MainWindow::ScheduleTeacherRemoveLesson(long int lesson_id)
+{
+	DB::DataBase::Instance().RemoveLessonFromTimetable(lesson_id, m_ScheduleIdDay, m_ScheduleIdHour);
+	ScheduleTeacherChanged();
 }
 
 void MainWindow::TeachingLessonGroupExpose()
