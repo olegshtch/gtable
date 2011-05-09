@@ -1262,7 +1262,7 @@
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkComboBox" id="combobox2">
+                              <object class="GtkComboBox" id="ComboBoxScheduleTeacher">
                                 <property name="visible">True</property>
                               </object>
                               <packing>
@@ -1287,7 +1287,7 @@
                                 <property name="hscrollbar_policy">automatic</property>
                                 <property name="vscrollbar_policy">automatic</property>
                                 <child>
-                                  <object class="GtkTreeView" id="treeview1">
+                                  <object class="GtkTreeView" id="ScheduleTeacher">
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="show_expanders">False</property>
@@ -1322,7 +1322,7 @@
                                     <property name="hscrollbar_policy">automatic</property>
                                     <property name="vscrollbar_policy">automatic</property>
                                     <child>
-                                      <object class="GtkTreeView" id="treeview3">
+                                      <object class="GtkTreeView" id="TreeViewTeacherLessonOther">
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="show_expanders">False</property>

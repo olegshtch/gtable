@@ -65,7 +65,7 @@ private:
 	// Loadings -> Plan
 	PlanSheet *m_PlanSheet;
 	Gtk::ComboBox *m_ComboBoxPlanSpeciality;
-	bool PlanSpecialitiesExpose(GdkEventExpose* event);
+	void PlanSpecialitiesExpose();
 	void PlanSpecialitiesChanged();
 	void PlanSpecialitiesCellData(Gtk::CellRenderer *cell, long int id_branch, long int id_lesson_type);
 	void PlanSpecialitiesButtonRelease(long int row, long int column, GdkEventButton* event);
@@ -73,7 +73,7 @@ private:
 	// Loadings -> Teaching lesson
 	TeachingLesson *m_TeachingLesson;
 	Gtk::ComboBox *m_ComboBoxTeachingLesson;
-	bool TeachingLessonGroupExpose(GdkEventExpose* event);
+	void TeachingLessonGroupExpose();
 	void TeachingLessonGroupChanged();
 
 	// Schedule -> Group
@@ -85,7 +85,7 @@ private:
 	long int m_ScheduleIdDay;
 	long int m_ScheduleIdHour;
 	Gtk::Menu m_ScheduleMenu;
-	bool ScheduleGroupExpose(GdkEventExpose* event);
+	void ScheduleGroupExpose();
 	void ScheduleGroupChanged();
 	void ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour, long int id_day);
 	void ScheduleGroupSelectedOther();

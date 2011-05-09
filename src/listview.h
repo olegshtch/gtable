@@ -43,11 +43,13 @@ public:
 	{
 		DB::DataBase::Instance().AppendEntity(*m_Scheme, m_refModel->append());
 		update_model();
+		signal_list_edited_.emit();
 	}
 	void remove_line()
 	{
 		Glib::RefPtr<Gtk::TreeSelection> ref_selection = get_selection();
 		ref_selection->selected_foreach_iter(sigc::mem_fun(*this, &ListView::RemoveIter));
+		signal_list_edited_.emit();
 	}
 	int append_column_foreign_editable(const Glib::ustring& str, const ORM::Field<ORM::ForeignKey>& field, const ORM::Table& foreign_table, const ORM::Field<Glib::ustring>& foreign_field);
 
@@ -56,9 +58,15 @@ public:
 	{
 		return signal_choose_object_;
 	}
+	typedef sigc::signal<void> signal_list_edited_t;
+	signal_list_edited_t& signal_list_edited()
+	{
+		return signal_list_edited_;
+	}
 protected:
 	virtual void on_row_changed(const Gtk::TreeModel::Path& path, const Gtk::TreeModel::iterator& iter);
 	signal_choose_object_t signal_choose_object_;
+	signal_list_edited_t signal_list_edited_;
 private:
 	const ORM::Table* m_Scheme;
 	Glib::RefPtr<ORM::Data> m_refModel;

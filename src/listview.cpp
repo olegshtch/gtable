@@ -9,6 +9,7 @@ void ListView::on_row_changed(const Gtk::TreeModel::Path& path, const Gtk::TreeM
 		std::cout << "update row " << path.to_string() << std::endl;
 		DB::DataBase::Instance().EditEntity(*m_Scheme, iter);
 	}
+	signal_list_edited_.emit();
 }
 
 int ListView::append_column_foreign_editable(const Glib::ustring& str, const ORM::Field<ORM::ForeignKey>& field, const ORM::Table& foreign_table, const ORM::Field<Glib::ustring>& foreign_field)

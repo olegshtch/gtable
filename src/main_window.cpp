@@ -79,11 +79,14 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelSpecialities.abbr);
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelSpecialities.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
 	m_pTreeView->append_column_editable(_("terms"), DB::g_ModelSpecialities.terms);
+	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesExpose));
 
 	m_pTreeView = AddListView("TreeViewGroups", DB::g_ModelGroups);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelGroups.name);
 	m_pTreeView->append_column_foreign_editable(_("speciality"), DB::g_ModelGroups.speciality, DB::g_ModelSpecialities, DB::g_ModelSpecialities.abbr);
 	m_pTreeView->append_column_editable(_("term"), DB::g_ModelGroups.term);
+	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::TeachingLessonGroupExpose));
+	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupExpose));
 
 	m_pTreeView = AddListView("TreeViewBuildings", DB::g_ModelBuildings);
 	m_pTreeView->append_column_editable(_("name"), DB::g_ModelBuildings.name);
@@ -165,7 +168,6 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	{
 		throw Glib::Error(1, 0, "Cann't load ComboBoxPlanSpeciality");
 	}
-	m_ComboBoxPlanSpeciality->signal_expose_event().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesExpose));
 	m_ComboBoxPlanSpeciality->set_model(ORM::Data::create(DB::g_IdTextScheme));
 	m_ComboBoxPlanSpeciality->pack_start(DB::g_IdTextScheme.fText);
 	m_ComboBoxPlanSpeciality->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesChanged));
@@ -182,7 +184,6 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	{
 		throw Glib::Error(1, 0, "Cann't load TeachedLessonGroup");
 	}
-	m_ComboBoxTeachingLesson->signal_expose_event().connect(sigc::mem_fun(*this, &MainWindow::TeachingLessonGroupExpose));
 	m_ComboBoxTeachingLesson->set_model(ORM::Data::create(DB::g_IdTextScheme));
 	m_ComboBoxTeachingLesson->pack_start(DB::g_IdTextScheme.fText);
 	m_ComboBoxTeachingLesson->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::TeachingLessonGroupChanged));
@@ -206,7 +207,6 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	{
 		throw Glib::Error(1, 0, "Cann't load ComboBoxScheduleGroup");
 	}
-	m_ComboBoxScheduleGroup->signal_expose_event().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupExpose));
 	m_ComboBoxScheduleGroup->set_model(ORM::Data::create(DB::g_IdTextScheme));
 	m_ComboBoxScheduleGroup->pack_start(DB::g_IdTextScheme.fText);
 	m_ComboBoxScheduleGroup->signal_changed().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupChanged));
@@ -454,12 +454,11 @@ void MainWindow::WeekToggle()
 	DB::DataBase::Instance().SetWeeks(m_DoubleWeek->property_active());
 }
 
-bool MainWindow::PlanSpecialitiesExpose(GdkEventExpose* event)
+void MainWindow::PlanSpecialitiesExpose()
 {
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
 	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelSpecialities, DB::g_ModelSpecialities.name, data);
 	m_ComboBoxPlanSpeciality->set_model(data);
-	return false;
 }
 
 void MainWindow::PlanSpecialitiesChanged()
@@ -501,12 +500,11 @@ void MainWindow::PlanSpecialitiesButtonRelease(long int id_teaching_branch, long
 	m_PlanSheet->get_bin_window()->invalidate(true);
 }
 
-bool MainWindow::ScheduleGroupExpose(GdkEventExpose* event)
+void MainWindow::ScheduleGroupExpose()
 {
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
 	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelGroups, DB::g_ModelGroups.name, data);
 	m_ComboBoxScheduleGroup->set_model(data);
-	return false;
 }
 
 void MainWindow::ScheduleGroupChanged()
@@ -666,12 +664,11 @@ void MainWindow::ScheduleGroupRemoveLesson(long int lesson_id)
 	ScheduleGroupChanged();
 }
 
-bool MainWindow::TeachingLessonGroupExpose(GdkEventExpose* event)
+void MainWindow::TeachingLessonGroupExpose()
 {
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
 	DB::DataBase::Instance().GetSubgroupsList(data);
 	m_ComboBoxTeachingLesson->set_model(data);
-	return false;
 }
 
 void MainWindow::TeachingLessonGroupChanged()
@@ -694,6 +691,7 @@ void MainWindow::OnScheduleCopy()
 void MainWindow::OnScheduleDelete()
 {
 	DB::DataBase::Instance().CleanTimeTable();
+	ScheduleGroupChanged();
 }
 
 void MainWindow::OnScheduleRun()
