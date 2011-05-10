@@ -90,7 +90,9 @@ namespace DB
 		long int GetTimeTableLessonAuditorium(ORM::ForeignKey id_aud, ORM::ForeignKey id_hour, ORM::ForeignKey id_day);
 
 		void ListTLHM(Glib::RefPtr<ORM::Data>& data);
-		size_t CountAuditoriums(bool multithread);
+		size_t CountAuditoriums(bool multithread, ORM::ForeignKey id_day, ORM::ForeignKey id_hour);
+
+		bool GetLessonHolydays(long int lesson_id, long int day_id, long int hour_id);
 
 		void MoveLessons(long int id_lesson_from, long int id_lesson_to);
 		bool InterseptLessons(long int id_lesson1, long int id_lesson2);

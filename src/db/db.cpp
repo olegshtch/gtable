@@ -868,7 +868,7 @@ long int DataBase::GetTimeTableLessonTeacher(ORM::ForeignKey id_teacher, ORM::Fo
 void DataBase::ListAuditoriumOtherLessons(long int id_aud, Glib::RefPtr<ORM::Data>& data)
 {
 	data->clear();
-	LogBuf::Enable(true);
+	//LogBuf::Enable(true);
 	ORM::Scheme scheme;
 	ORM::Field<ORM::PrimaryKey> id;
 	//ORM::Field<Glib::ustring> auditory_name("auditory");
@@ -903,7 +903,7 @@ void DataBase::ListAuditoriumOtherLessons(long int id_aud, Glib::RefPtr<ORM::Dat
 			&& ORM::Eq(g_ModelLessonType.multithread, g_ModelAuditoriums.multithread)
 			&& ORM::Eq(g_ModelAuditoriums.fId, ORM::PrimaryKey(id_aud)))
 		->GroupBy(g_ModelLessons.fId);
-	LogBuf::Enable(false);
+	//LogBuf::Enable(false);
 
 	for(Gtk::TreeIter it = lesson_list->children().begin(); it != lesson_list->children().end(); ++ it)
 	{
@@ -1023,22 +1023,72 @@ void DataBase::ListTLHM(Glib::RefPtr<ORM::Data>& data)
 		, g_ModelLessons.fId);
 }
 
-size_t DataBase::CountAuditoriums(bool multithread)
+size_t DataBase::CountAuditoriums(bool multithread, ORM::ForeignKey id_day, ORM::ForeignKey id_hour)
 {
 	ORM::Scheme scheme;
 	ORM::Field<long int> field("");
 	scheme.add(field);
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+
+	ORM::Subquery subquery_free;
+	subquery_free.Select(data
+		, g_ModelAuditoriumHolydays.auditorium)
+		->From(g_ModelAuditoriumHolydays)
+		->Where(ORM::Eq(g_ModelAuditoriumHolydays.day, id_day)
+			&& ORM::Eq(g_ModelAuditoriumHolydays.hour, id_hour));
+
 	m_Connection.Select(data
 		, ORM::Count())
 		->From(g_ModelAuditoriums)
-		->Where(ORM::Eq(g_ModelAuditoriums.multithread, multithread));
+		->Where(ORM::Eq(g_ModelAuditoriums.multithread, multithread)
+			&& ORM::NotIn(g_ModelAuditoriums.fId, subquery_free));
 	if(data->children().size() > 0)
 	{
 		return data->children()[0].get_value(field);
 	}
 	return 0;
 }
+
+bool DataBase::GetLessonHolydays(long int lesson_id, long int day_id, long int hour_id)
+{
+	ORM::Scheme scheme;
+	ORM::Field<long int> field("");
+	scheme.add(field);
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(scheme);
+
+	Glib::RefPtr<ORM::Data> fake_data;
+	ORM::Subquery subquery_free_grp;
+	subquery_free_grp.Select(data
+		, g_ModelGroupHolydays.group)
+		->From(g_ModelGroupHolydays)
+		->Where(ORM::Eq(g_ModelGroupHolydays.day, ORM::ForeignKey(day_id))
+			&& ORM::Eq(g_ModelGroupHolydays.hour, ORM::ForeignKey(hour_id)));
+
+	ORM::Subquery subquery_free_tch;
+	subquery_free_tch.Select(data
+		, g_ModelTeacherHolydays.teacher)
+		->From(g_ModelTeacherHolydays)
+		->Where(ORM::Eq(g_ModelTeacherHolydays.day, ORM::ForeignKey(day_id))
+			&& ORM::Eq(g_ModelTeacherHolydays.hour, ORM::ForeignKey(hour_id)));
+
+	//LogBuf::Enable(true);
+	m_Connection.Select(data
+		, g_ModelLessons.fId)
+		->From(g_ModelLessons)
+		->NaturalJoin(g_ModelLessonSubgroup)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelGroupCategory)
+		->Where(ORM::Eq(g_ModelLessons.fId, ORM::PrimaryKey(lesson_id))
+			&& (ORM::In(g_ModelLessons.teacher, subquery_free_tch)
+			|| ORM::In(g_ModelGroupCategory.group, subquery_free_grp)));
+	//LogBuf::Enable(false);
+	if(data->children().size() == 0)
+	{
+		return false;
+	}
+	return true;
+}
+
 
 void DataBase::MoveLessons(long int id_lesson_from, long int id_lesson_to)
 {

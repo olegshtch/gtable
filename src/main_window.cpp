@@ -327,6 +327,14 @@ void MainWindow::OnOpen()
 		Gtk::FILE_CHOOSER_ACTION_SAVE);
 	dialog.add_button(Gtk::Stock::CANCEL,Gtk::RESPONSE_CANCEL);
 	dialog.add_button(Gtk::Stock::OPEN,Gtk::RESPONSE_YES);
+	Gtk::FileFilter filter_tbl;
+	filter_tbl.set_name(_("TimeTable"));
+	filter_tbl.add_pattern("*.tbl");
+	dialog.add_filter(filter_tbl);
+	Gtk::FileFilter filter_all;
+	filter_all.set_name(_("All files"));
+	filter_all.add_pattern("*");
+	dialog.add_filter(filter_all);
 	if(dialog.run()==Gtk::RESPONSE_YES)
 	{
 		DB::DataBase::Instance().Open(dialog.get_filename());
@@ -344,9 +352,22 @@ void MainWindow::OnSave()
 	Gtk::FILE_CHOOSER_ACTION_SAVE);
 	dialog.add_button(Gtk::Stock::CANCEL,Gtk::RESPONSE_CANCEL);
 	dialog.add_button(Gtk::Stock::SAVE,Gtk::RESPONSE_YES);
+	Gtk::FileFilter filter_tbl;
+	filter_tbl.set_name(_("TimeTable"));
+	filter_tbl.add_pattern("*.tbl");
+	dialog.add_filter(filter_tbl);
+	Gtk::FileFilter filter_all;
+	filter_all.set_name(_("All files"));
+	filter_all.add_pattern("*");
+	dialog.add_filter(filter_all);
 	if(dialog.run()==Gtk::RESPONSE_YES)
 	{
-		DB::DataBase::Instance().Save(dialog.get_filename());
+		Glib::ustring filename = dialog.get_filename();
+		if(filename.substr(filename.length() - 4, 4) != ".tbl")
+		{
+			filename += ".tbl";
+		}
+		DB::DataBase::Instance().Save(filename);
 	}
 }
 
@@ -522,7 +543,7 @@ void MainWindow::HolydaysButtonRelease(long int row, long int column, GdkEventBu
 			DB::DataBase::Instance().SetGroupHolydays(value, column, row, ! DB::DataBase::Instance().GetGroupHolydays(value, column, row));
 			break;
 		case 3:
-			DB::DataBase::Instance().SetAuditoriumHolydays(value, column, row, ! DB::DataBase::Instance().GetGroupHolydays(value, column, row));
+			DB::DataBase::Instance().SetAuditoriumHolydays(value, column, row, ! DB::DataBase::Instance().GetAuditoriumHolydays(value, column, row));
 			break;
 		}
 		m_SheetHolydays->get_bin_window()->invalidate(true);

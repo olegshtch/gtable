@@ -1344,6 +1344,7 @@
                     <child>
                       <object class="GtkHBox" id="hbox9">
                         <property name="visible">True</property>
+                        <property name="spacing">5</property>
                         <child>
                           <object class="GtkVBox" id="vbox11">
                             <property name="visible">True</property>
@@ -1569,7 +1570,7 @@
     <property name="stock_id">gtk-delete</property>
   </object>
   <object class="GtkAction" id="ScheduleRun">
-    <property name="label">Solve</property>
+    <property name="label">&#x421;&#x43E;&#x441;&#x442;&#x430;&#x432;&#x438;&#x442;&#x44C;</property>
     <property name="stock_id">gtk-media-play</property>
   </object>
 </interface>

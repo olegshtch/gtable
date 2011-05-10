@@ -9,10 +9,11 @@ GraphForTime::GraphForTime()
 	std::vector<ItemColor> colors;
 	std::vector<long int> multi_aud;
 	std::vector<long int> single_aud;
+	std::set<std::pair<size_t, size_t> > item_holydays; //item, color;
 
 	DB::DataBase &db = DB::DataBase::Instance();
-	//getting all items
 	{
+		//getting all items
 		ORM::Scheme items_scheme;
 		ORM::Field<long int> t("t");
 		ORM::Field<long int> l("l");
@@ -39,10 +40,6 @@ GraphForTime::GraphForTime()
 			}
 		}
 
-		// getting auditoriums list
-		const size_t am_count = db.CountAuditoriums(true);
-		const size_t as_count = db.CountAuditoriums(false);
-
 		// getting colors
 		ORM::Scheme scheme;
 		ORM::Field<long int> id("");
@@ -57,6 +54,9 @@ GraphForTime::GraphForTime()
 		{
 			for(Gtk::TreeIter hour = list_hours->children().begin(); hour != list_hours->children().end(); ++ hour)
 			{
+				//count non-holyday auditorium for day, hour
+				const size_t am_count = db.CountAuditoriums(true, day->get_value(id), hour->get_value(id));
+				const size_t as_count = db.CountAuditoriums(false, day->get_value(id), hour->get_value(id));
 				colors.push_back(ItemColor(day->get_value(id), hour->get_value(id), am_count, as_count));
 			}
 		}
@@ -73,6 +73,18 @@ GraphForTime::GraphForTime()
 			else
 			{
 				single_aud.push_back(aud->get_value(DB::g_ModelAuditoriums.fId));
+			}
+		}
+
+		// fill item holydays
+		for(size_t i = 0; i < m_Items.size(); ++ i)
+		{
+			for(size_t c = 0; c < colors.size(); ++ c)
+			{
+				if(db.GetLessonHolydays(m_Items[i].l, colors[c].d, colors[c].h))
+				{
+					item_holydays.insert(std::make_pair(i, c));
+				}
 			}
 		}
 	}
@@ -117,15 +129,16 @@ GraphForTime::GraphForTime()
 					{
 						sum += 1;
 					}
-					else
+				}
+				// подсчёт связей для выходных (todo: или только для текущего цвета)
+				for(size_t c = 0; c < colors.size(); ++ c)
+				{
+					if(item_holydays.count(std::make_pair(row, c)))
 					{
-						//std::cout << "row=" << row << " col=" << col << " color=" << coloring[col].first << std::endl;
+						sum += 1;
+						std::cout << "holyday item=" << row << " color=" << c << std::endl;
 					}
 				}
-			}
-			else
-			{
-				//std::cout << "row=" << row << " color=" << coloring[row].first << std::endl;
 			}
 			link_count.push_back(std::make_pair(sum, row));
 		}
@@ -136,8 +149,10 @@ GraphForTime::GraphForTime()
 		for(size_t i = 0; i < link_count.size(); ++ i)
 		{
 			std::cout << link_count[i].first << "," << link_count[i].second << std::endl;
-			const size_t index = link_count[i].second;
-			if((! coloring[index].second) && (coloring[index].first == -1))
+			const size_t index = link_count[i].second; // индекс вершины
+			if((! coloring[index].second)
+				&& (coloring[index].first == -1)
+				&& (! item_holydays.count(std::make_pair(index, color_index))))
 			{
 				// не отмечена и не закрашена
 				if(m_Items[index].m) // многопоточное занятие
