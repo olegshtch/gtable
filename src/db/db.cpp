@@ -519,7 +519,7 @@ void DataBase::GetAuditoriumListForLesson(Glib::RefPtr<ORM::Data>& data, ORM::Pr
 			&& ORM::Eq(g_ModelAuditoriums.multithread, g_ModelLessonType.multithread));
 }
 
-void DataBase::SetLessonIntoTimetable(long int id_lesson, ORM::ForeignKey id_aud, ORM::ForeignKey day_id, ORM::ForeignKey hour_id)
+bool DataBase::SetLessonIntoTimetable(long int id_lesson, ORM::ForeignKey id_aud, ORM::ForeignKey day_id, ORM::ForeignKey hour_id)
 {
 	ORM::Scheme scheme;
 	ORM::Field<long int> id("");
@@ -564,7 +564,7 @@ void DataBase::SetLessonIntoTimetable(long int id_lesson, ORM::ForeignKey id_aud
 			|| ORM::In(g_ModelAuditoriums.fId, subquery_unapp_aud)));
 	if(fake_data->children().size() > 0)
 	{
-		return;
+		return false;
 	}
 
 	//checks for busy groups
@@ -598,7 +598,7 @@ void DataBase::SetLessonIntoTimetable(long int id_lesson, ORM::ForeignKey id_aud
 			|| ORM::In(g_ModelGroups.fId, subquery_free_grp)));
 	if(fake_data->children().size() > 0)
 	{
-		return;
+		return false;
 	}
 
 	//checks for busy teacher
@@ -626,21 +626,23 @@ void DataBase::SetLessonIntoTimetable(long int id_lesson, ORM::ForeignKey id_aud
 			|| ORM::In(g_ModelTeachers.fId, subquery_free_tch)));
 	if(fake_data->children().size() > 0)
 	{
-		return;
+		return false;
 	}
 
 	//LogBuf::Enable(false);
 
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(g_ModelSchedule);
 	Gtk::TreeIter iter = data->append();
-	iter->set_value(g_ModelSchedule.auditorium, static_cast<long int>(id_aud));
-	iter->set_value(g_ModelSchedule.day, static_cast<long int>(day_id));
-	iter->set_value(g_ModelSchedule.hour, static_cast<long int>(hour_id));
-	iter->set_value(g_ModelSchedule.lesson, id_lesson);
 	if(iter)
 	{
+		iter->set_value(g_ModelSchedule.auditorium, static_cast<long int>(id_aud));
+		iter->set_value(g_ModelSchedule.day, static_cast<long int>(day_id));
+		iter->set_value(g_ModelSchedule.hour, static_cast<long int>(hour_id));
+		iter->set_value(g_ModelSchedule.lesson, id_lesson);
 		m_Connection.InsertInto(g_ModelSchedule)->Values(iter);
+		return true;
 	}
+	return false;
 }
 
 void DataBase::RemoveLessonFromTimetable(long int id_lesson, long int id_day, long int id_hour)

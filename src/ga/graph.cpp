@@ -216,7 +216,29 @@ GraphForTime::GraphForTime()
 	{
 		if(coloring[i].first != -1)
 		{
-			db.SetLessonIntoTimetable(m_Items[i].l, m_Items[i].a, colors[coloring[i].first].d, colors[coloring[i].first].h);
+			if(m_Items[i].m)
+			{
+				// поиск свободной многопоточной аудитории
+				for(size_t a = 0; a < multi_aud.size(); a ++)
+				{
+					if(db.SetLessonIntoTimetable(m_Items[i].l, multi_aud[a], colors[coloring[i].first].d, colors[coloring[i].first].h))
+					{
+						break;
+					}
+				}
+			}
+			else
+			{
+				// поиск свободной однопоточной аудитории
+				for(size_t a = 0; a < single_aud.size(); a ++)
+				{
+					if(db.SetLessonIntoTimetable(m_Items[i].l, single_aud[a], colors[coloring[i].first].d, colors[coloring[i].first].h))
+					{
+						break;
+					}
+				}
+
+			}
 		}
 	}
 }
