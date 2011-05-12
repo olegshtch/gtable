@@ -1,3 +1,5 @@
 EXTRA_DIST = gtable.sln \
-	     gtable.vcproj
+	     gtable.vcproj \
+	     win32.c \
+	     win32.h
 

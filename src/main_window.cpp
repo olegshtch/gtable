@@ -9,6 +9,10 @@
 #include "db/models.h"
 #include "logbuf.h"
 
+#ifdef WIN32
+#include "../win32/win32.h"
+#endif
+
 MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& builder)
 	:Gtk::Window(cobject),
 	m_refBuilder(builder),
@@ -319,10 +323,34 @@ MainWindow::~MainWindow()
 void MainWindow::OnNew()
 {
 	DB::DataBase::Instance().New();
+	set_title(_("Schedule"));
+	m_DoubleWeek->property_active() = DB::DataBase::Instance().GetWeeks();
+	for(std::vector<LineEditable*>::iterator it = m_LineEditors.begin(); it !=	m_LineEditors.end(); ++ it)
+	{
+		(*it)->update_model();
+	}
 }
 
 void MainWindow::OnOpen()
 {
+#if WIN32
+	wchar_t filename[256];
+	filename[0]=L'\0';
+	if(Win32_OpenFileDialog(filename, 256))
+	{
+		gunichar2 const* utf16 = reinterpret_cast<gunichar2 const*>(filename);
+		gchar* utf8 = g_utf16_to_utf8(utf16, -1, 0, 0, 0);
+		Glib::ustring u(utf8);
+		g_free(utf8);
+		DB::DataBase::Instance().Open(u);
+		set_title(u + " " + _("Schedule"));
+		m_DoubleWeek->property_active() = DB::DataBase::Instance().GetWeeks();
+		for(std::vector<LineEditable*>::iterator it = m_LineEditors.begin(); it !=	m_LineEditors.end(); ++ it)
+		{
+			(*it)->update_model();
+		}
+	}
+#else
 	Gtk::FileChooserDialog dialog(*this,_("Choose file for opening database:"),
 		Gtk::FILE_CHOOSER_ACTION_SAVE);
 	dialog.add_button(Gtk::Stock::CANCEL,Gtk::RESPONSE_CANCEL);
@@ -338,16 +366,34 @@ void MainWindow::OnOpen()
 	if(dialog.run()==Gtk::RESPONSE_YES)
 	{
 		DB::DataBase::Instance().Open(dialog.get_filename());
+		m_DoubleWeek->property_active() = DB::DataBase::Instance().GetWeeks();
+		for(std::vector<LineEditable*>::iterator it = m_LineEditors.begin(); it !=	m_LineEditors.end(); ++ it)
+		{
+			(*it)->update_model();
+		}
 	}
-	m_DoubleWeek->property_active() = DB::DataBase::Instance().GetWeeks();
-	for(std::vector<LineEditable*>::iterator it = m_LineEditors.begin(); it != m_LineEditors.end(); ++ it)
-	{
-		(*it)->update_model();
-	}
+#endif
 }
 
 void MainWindow::OnSave()
 {
+#if WIN32
+	wchar_t filename[256];
+	filename[0]=L'\0';
+	if(Win32_SaveFileDialog(filename, 256))
+	{
+		gunichar2 const* utf16 = reinterpret_cast<gunichar2 const*>(filename);
+		gchar* utf8 = g_utf16_to_utf8(utf16, -1, 0, 0, 0);
+		Glib::ustring u(utf8);
+		g_free(utf8);
+		if(u.substr(u.length() - 4, 4) != ".tbl")
+		{
+			u += ".tbl";
+		}
+		DB::DataBase::Instance().Save(u);
+		set_title(u + " " + _("Schedule"));
+	}
+#else
 	Gtk::FileChooserDialog dialog(*this,_("Choose file for saving database:"),
 	Gtk::FILE_CHOOSER_ACTION_SAVE);
 	dialog.add_button(Gtk::Stock::CANCEL,Gtk::RESPONSE_CANCEL);
@@ -369,6 +415,7 @@ void MainWindow::OnSave()
 		}
 		DB::DataBase::Instance().Save(filename);
 	}
+#endif
 }
 
 void MainWindow::OnQuit()
@@ -1026,14 +1073,20 @@ void MainWindow::OnException()
 	}
 	catch(std::exception& e)
 	{
-		//m_StatusBar->remove_all_messages();
+#ifdef WIN32 & NDEBUG
+		MessageBoxA(NULL, e.what(), "std::exception", MB_ICONWARNING | MB_OK);
+#else
 		std::cerr << e.what() << std::endl;
+#endif
 		m_StatusBar->push(e.what());
 	}
 	catch(Glib::Exception& e)
 	{
-		//m_StatusBar->remove_all_messages();
+#ifdef WIN32 & NDEBUG
+		MessageBoxA(NULL, e.what().c_str(), "Glib::Exception", MB_ICONWARNING | MB_OK);
+#else
 		std::cerr << e.what() << std::endl;
+#endif
 		m_StatusBar->push(e.what());
 	}
 }

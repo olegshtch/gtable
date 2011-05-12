@@ -143,7 +143,7 @@
 				AdditionalDependencies="sqlite3.lib gtkmm-vc90-2_4.lib intl.lib gthread-2.0.lib glibmm-vc90-2_4.lib sigc-vc90-2_0.lib atkmm-vc90-1_6.lib gtk-win32-2.0.lib glib-2.0.lib gdk-win32-2.0.lib gdkmm-vc90-2_4.lib gobject-2.0.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -194,6 +194,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\ga\graph.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\ga\graph.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\ga\individual.cpp"
 				>
 			</File>
@@ -211,6 +219,14 @@
 			</File>
 			<File
 				RelativePath="..\src\db\db.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\db\id_text_scheme.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\db\id_text_scheme.h"
 				>
 			</File>
 			<File
@@ -278,10 +294,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\orm\primary_key.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\orm\primary_key.h"
 				>
 			</File>
@@ -306,6 +318,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\orm\subquery.h"
+				>
+			</File>
+			<File
 				RelativePath="..\src\orm\table.cpp"
 				>
 			</File>
@@ -315,6 +331,10 @@
 			</File>
 			<File
 				RelativePath="..\src\orm\update.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\orm\where.cpp"
 				>
 			</File>
 			<File
@@ -400,6 +420,14 @@
 		</File>
 		<File
 			RelativePath="..\src\teaching_lesson.h"
+			>
+		</File>
+		<File
+			RelativePath=".\win32.c"
+			>
+		</File>
+		<File
+			RelativePath=".\win32.h"
 			>
 		</File>
 	</Files>
