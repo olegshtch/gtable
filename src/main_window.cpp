@@ -70,70 +70,70 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	// connect Lists
 	
 	ListView* m_pTreeView = AddListView("TreeViewHours", DB::g_ModelHours);
-	m_pTreeView->append_column_editable(_("start"), DB::g_ModelHours.start);
-	m_pTreeView->append_column_editable(_("finish"), DB::g_ModelHours.finish);
+	m_pTreeView->append_column_text_editable(_("start"), DB::g_ModelHours.start);
+	m_pTreeView->append_column_text_editable(_("finish"), DB::g_ModelHours.finish);
 
 	m_pTreeView = AddListView("TreeViewDays", DB::g_ModelDays);
-	m_pTreeView->append_column_editable(_("name"), DB::g_ModelDays.name);
+	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelDays.name);
 
 	m_pTreeView = AddListView("TreeViewFaculty", DB::g_ModelFaculties);
-	m_pTreeView->append_column_editable(_("name"), DB::g_ModelFaculties.name);
-	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelFaculties.abbr);
+	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelFaculties.name);
+	m_pTreeView->append_column_text_editable(_("abbreviation"), DB::g_ModelFaculties.abbr);
 
 	m_pTreeView = AddListView("TreeViewChairs", DB::g_ModelChairs);
-	m_pTreeView->append_column_editable(_("name"), DB::g_ModelChairs.name);
-	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelChairs.abbr);
+	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelChairs.name);
+	m_pTreeView->append_column_text_editable(_("abbreviation"), DB::g_ModelChairs.abbr);
 	m_pTreeView->append_column_foreign_editable(_("faculty"), DB::g_ModelChairs.faculty, DB::g_ModelFaculties, DB::g_ModelFaculties.abbr);
 
 	m_pTreeView = AddListView("TreeViewTeachers", DB::g_ModelTeachers);
-	m_pTreeView->append_column_editable(_("secondname"), DB::g_ModelTeachers.secondname);
-	m_pTreeView->append_column_editable(_("firstname"), DB::g_ModelTeachers.firstname);
-	m_pTreeView->append_column_editable(_("thirdname"), DB::g_ModelTeachers.thirdname);
+	m_pTreeView->append_column_text_editable(_("secondname"), DB::g_ModelTeachers.secondname);
+	m_pTreeView->append_column_text_editable(_("firstname"), DB::g_ModelTeachers.firstname);
+	m_pTreeView->append_column_text_editable(_("thirdname"), DB::g_ModelTeachers.thirdname);
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelTeachers.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
 	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::ScheduleTeacherExpose));
 
 	m_pTreeView = AddListView("TreeViewSpecialities", DB::g_ModelSpecialities);
-	m_pTreeView->append_column_editable(_("name"), DB::g_ModelSpecialities.name);
-	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelSpecialities.abbr);
+	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelSpecialities.name);
+	m_pTreeView->append_column_text_editable(_("abbreviation"), DB::g_ModelSpecialities.abbr);
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelSpecialities.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
-	m_pTreeView->append_column_editable(_("terms"), DB::g_ModelSpecialities.terms);
+	m_pTreeView->append_column_int_editable(_("terms"), DB::g_ModelSpecialities.terms);
 	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesExpose));
 
 	m_pTreeView = AddListView("TreeViewGroups", DB::g_ModelGroups);
-	m_pTreeView->append_column_editable(_("name"), DB::g_ModelGroups.name);
+	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelGroups.name);
 	m_pTreeView->append_column_foreign_editable(_("speciality"), DB::g_ModelGroups.speciality, DB::g_ModelSpecialities, DB::g_ModelSpecialities.abbr);
-	m_pTreeView->append_column_editable(_("term"), DB::g_ModelGroups.term);
+	m_pTreeView->append_column_int_editable(_("term"), DB::g_ModelGroups.term);
 	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::TeachingLessonGroupExpose));
 	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupExpose));
 
 	m_pTreeView = AddListView("TreeViewBuildings", DB::g_ModelBuildings);
-	m_pTreeView->append_column_editable(_("name"), DB::g_ModelBuildings.name);
+	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelBuildings.name);
 
 	m_pTreeView = AddListView("TreeViewAuditoriums", DB::g_ModelAuditoriums);
-	m_pTreeView->append_column_editable(_("name"), DB::g_ModelAuditoriums.name);
-	m_pTreeView->append_column_editable(_("capacity"), DB::g_ModelAuditoriums.capacity);
-	m_pTreeView->append_column_editable(_("multithread"), DB::g_ModelAuditoriums.multithread);
+	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelAuditoriums.name);
+	m_pTreeView->append_column_int_editable(_("capacity"), DB::g_ModelAuditoriums.capacity);
+	m_pTreeView->append_column_bool_editable(_("multithread"), DB::g_ModelAuditoriums.multithread);
 	m_pTreeView->append_column_foreign_editable(_("building"), DB::g_ModelAuditoriums.building, DB::g_ModelBuildings, DB::g_ModelBuildings.name);
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelAuditoriums.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
 	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::ScheduleAuditoriumExpose));
 
 	m_pTreeView = AddListView("TreeViewAuditoriumTypes", DB::g_ModelAuditoriumTypes);
-	m_pTreeView->append_column_editable(_("property"), DB::g_ModelAuditoriumTypes.name);
+	m_pTreeView->append_column_text_editable(_("property"), DB::g_ModelAuditoriumTypes.name);
 
 	m_pTreeView = AddListView("TreeViewBranchCategory", DB::g_ModelBranchCategory);
-	m_pTreeView->append_column_editable(_("name"), DB::g_ModelBranchCategory.name);
+	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelBranchCategory.name);
 	m_pTreeView->get_selection()->set_mode(Gtk::SELECTION_SINGLE);
 
 	m_pTreeView = AddListView("TreeViewBranch", DB::g_ModelBranch);
-	m_pTreeView->append_column_editable(_("name"), DB::g_ModelBranch.name);
-	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelBranch.abbr);
+	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelBranch.name);
+	m_pTreeView->append_column_text_editable(_("abbreviation"), DB::g_ModelBranch.abbr);
 	m_pTreeView->append_column_foreign_editable(_("category"), DB::g_ModelBranch.category, DB::g_ModelBranchCategory, DB::g_ModelBranchCategory.name);
 
 	m_pTreeView = AddListView("TreeViewLessonType", DB::g_ModelLessonType);
-	m_pTreeView->append_column_editable(_("name"), DB::g_ModelLessonType.name);
-	m_pTreeView->append_column_editable(_("abbreviation"), DB::g_ModelLessonType.abbr);
+	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelLessonType.name);
+	m_pTreeView->append_column_text_editable(_("abbreviation"), DB::g_ModelLessonType.abbr);
 	m_pTreeView->append_column_foreign_editable(_("before"), DB::g_ModelLessonType.before, DB::g_ModelLessonType, DB::g_ModelLessonType.abbr);
-	m_pTreeView->append_column_editable(_("multithread"), DB::g_ModelLessonType.multithread);
+	m_pTreeView->append_column_bool_editable(_("multithread"), DB::g_ModelLessonType.multithread);
 
 	// Days -> Weeks
 	
