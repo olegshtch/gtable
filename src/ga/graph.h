@@ -12,13 +12,11 @@ public:
 		long int t; // преподаватель
 		long int l; // занятие
 		bool m; // многопоточность
-		long int a; // аудитория
 
 		ItemTLM(long int t_, long int l_, bool m_)
 			:t(t_),
 			l(l_),
-			m(m_),
-			a(-1)
+			m(m_) 
 		{
 		}
 	};
@@ -35,6 +33,20 @@ public:
 			h(h_),
 			am(am_),
 			as(as_)
+		{
+		}
+	};
+
+	struct ItemColoring
+	{
+		long int a; // аудитория
+		int color; //цвет
+		bool mark; //метка
+
+		ItemColoring(long int a_, int color_, bool mark_)
+			:a(a_),
+			color(color_),
+			mark(mark_)
 		{
 		}
 	};

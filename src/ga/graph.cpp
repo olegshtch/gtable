@@ -109,7 +109,9 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 		}
 	}
 
-	std::vector<std::pair<int, bool> > coloring(m_Items.size(), std::make_pair(-1, false)); // цвет, метка(соседствует с ракрашенной текущим цветом)
+	// данные загружены
+
+	std::vector<ItemColoring> coloring(m_Items.size(), ItemColoring(-1, -1, false)); // цвет, метка(соседствует с ракрашенной текущим цветом)
 
 	// coloring time
 	size_t color_index = 0;
@@ -120,12 +122,12 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 		for(row = 0; row < m_Items.size(); ++ row)
 		{
 			size_t sum = 0;
-			if(coloring[row].first == -1)
+			if(coloring[row].color == -1)
 			{
 				// незакрашена
 				for(size_t col = 0; col < m_Items.size(); ++ col)
 				{
-					if((coloring[col].first == -1) && m_Links[row][col]) // исключая закрашенные вершины
+					if((coloring[col].color == -1) && m_Links[row][col]) // исключая закрашенные вершины
 					{
 						sum += 1;
 					}
@@ -150,8 +152,8 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 		{
 			std::cout << link_count[i].first << "," << link_count[i].second << std::endl;
 			const size_t index = link_count[i].second; // индекс вершины
-			if((! coloring[index].second)
-				&& (coloring[index].first == -1)
+			if((! coloring[index].mark)
+				&& (coloring[index].color == -1)
 				&& (! item_holydays.count(std::make_pair(index, color_index))))
 			{
 				// не отмечена и не закрашена
@@ -160,7 +162,7 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 					if(colors[color_index].am > 0)
 					{
 						-- colors[color_index].am;
-						coloring[index].first = color_index;
+						coloring[index].color = color_index;
 						std::cout << "Color " << index << " by " << color_index << std::endl;
 					}
 				}
@@ -169,18 +171,18 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 					if(colors[color_index].as > 0)
 					{
 						-- colors[color_index].as;
-						coloring[index].first = color_index;
+						coloring[index].color = color_index;
 						std::cout << "Color " << index << " by " << color_index << std::endl;
 					}
 				}
-				if(coloring[index].first == color_index)
+				if(coloring[index].color == color_index)
 				{
 					// если закрасили, отметим соседние
 					for(size_t j = 0; j < m_Items.size(); ++ j)
 					{
 						if(m_Links[index][j])
 						{
-							coloring[j].second = true;
+							coloring[j].mark = true;
 						}
 					}
 				}
@@ -189,17 +191,17 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 		// убираем отметки и распределяем аудитории
 		for(size_t j = 0; j < m_Items.size(); ++ j)
 		{
-			coloring[j].second = false;
-			if(coloring[j].first == color_index)
+			coloring[j].mark = false;
+			if(coloring[j].color == color_index)
 			{
 				if(m_Items[j].m)
 				{
-					m_Items[j].a = multi_aud[colors[color_index].am];
+					coloring[j].a = multi_aud[colors[color_index].am];
 					colors[color_index].am ++;
 				}
 				else
 				{
-					m_Items[j].a = single_aud[colors[color_index].as];
+					coloring[j].a = single_aud[colors[color_index].as];
 					colors[color_index].as ++;					
 				}
 			}
@@ -214,14 +216,14 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 	db.CleanTimeTable();
 	for(size_t i = 0; i < m_Items.size() ; ++ i)
 	{
-		if(coloring[i].first != -1)
+		if(coloring[i].color != -1)
 		{
 			if(m_Items[i].m)
 			{
 				// поиск свободной многопоточной аудитории
 				for(size_t a = 0; a < multi_aud.size(); a ++)
 				{
-					if(db.SetLessonIntoTimetable(m_Items[i].l, multi_aud[a], colors[coloring[i].first].d, colors[coloring[i].first].h))
+					if(db.SetLessonIntoTimetable(m_Items[i].l, multi_aud[a], colors[coloring[i].color].d, colors[coloring[i].color].h))
 					{
 						break;
 					}
@@ -232,7 +234,7 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 				// поиск свободной однопоточной аудитории
 				for(size_t a = 0; a < single_aud.size(); a ++)
 				{
-					if(db.SetLessonIntoTimetable(m_Items[i].l, single_aud[a], colors[coloring[i].first].d, colors[coloring[i].first].h))
+					if(db.SetLessonIntoTimetable(m_Items[i].l, single_aud[a], colors[coloring[i].color].d, colors[coloring[i].color].h))
 					{
 						break;
 					}
