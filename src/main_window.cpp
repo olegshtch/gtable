@@ -16,6 +16,7 @@
 MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& builder)
 	:Gtk::Window(cobject),
 	m_refBuilder(builder),
+	m_refMainContext(Glib::MainContext::get_default()),
 	m_HolydaysCategory(NULL),
 	m_HolydaysObjectList(NULL),
 	m_HolydaysCategoryList(ORM::Data::create(DB::g_IdTextScheme)),
@@ -314,10 +315,20 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	show_all_children();
 
 	Glib::add_exception_handler(sigc::mem_fun(*this, &MainWindow::OnException));
+
+	m_SolvingDispatcher.connect(sigc::mem_fun(*this, &MainWindow::OnSolvingEmit));
 }
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::OnSolvingEmit()
+{
+	ScheduleGroupChanged();
+	ScheduleTeacherChanged();
+	ScheduleAuditoriumChanged();
+	m_StatusBar->push(_("Solved."));
 }
 
 void MainWindow::OnNew()
@@ -1062,7 +1073,13 @@ void MainWindow::OnScheduleDelete()
 
 void MainWindow::OnScheduleRun()
 {
-	GraphForTime graph;
+	m_StatusBar->push(_("Solving..."));
+	Glib::Thread::create(sigc::mem_fun(*this, &MainWindow::Solving), false);
+}
+
+void MainWindow::Solving()
+{
+	GraphForTime graph(m_SolvingDispatcher);
 }
 
 void MainWindow::OnException()

@@ -4,7 +4,7 @@
 #include "../db/db.h"
 #include "logbuf.h"
 
-GraphForTime::GraphForTime()
+GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 {
 	std::vector<ItemColor> colors;
 	std::vector<long int> multi_aud;
@@ -241,5 +241,6 @@ GraphForTime::GraphForTime()
 			}
 		}
 	}
+	dispatcher.emit();
 }
 

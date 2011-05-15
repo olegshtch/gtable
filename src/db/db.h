@@ -45,7 +45,6 @@ namespace DB
 		void ListEntity(const ORM::Table& ent, Glib::RefPtr<ORM::Data> &list_store);
 		void ListEntitiesText(const ORM::Table& ent, const ORM::Expr<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data);
 		void ListIDs(const ORM::Table& ent, Glib::RefPtr<ORM::Data> &data);
-		void EditEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
 		template<class T> void EditEntityField(const ORM::Table& ent, ORM::PrimaryKey id, const ORM::Field<T>& field, const T& value)
 		{
 			m_Connection.Update(ent)->Set(field, value)->Where(ORM::Eq(ent.fId, id));

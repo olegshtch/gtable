@@ -49,16 +49,6 @@ void DataBase::ListEntity(const ORM::Table& ent,Glib::RefPtr<ORM::Data> &list_st
 	m_Connection.Select(list_store)->From(ent);
 }
 
-void DataBase::EditEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
-{
-	LogBuf::Enable(true);
-	for(size_t i = 1; i < ent.size(); ++ i)
-	{
-		m_Connection.Update(ent)->Set(ent.GetField(i), row)->Where(ORM::Eq(ent.fId, row));
-	}
-	LogBuf::Enable(false);
-}
-
 Glib::ustring DataBase::GetTextById(const ORM::Table& ent, const ORM::Expr<Glib::ustring>& field, long id)
 {
 	ORM::Scheme scheme;

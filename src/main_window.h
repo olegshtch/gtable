@@ -8,6 +8,7 @@
 #include <gtkmm/actiongroup.h>
 #include <gtkmm/builder.h>
 #include <gtkmm/comboboxentry.h>
+#include <glibmm/dispatcher.h>
 #include "db/id_text_scheme.h"
 #include "listview.h"
 #include "sheet.h"
@@ -22,6 +23,10 @@ public:
 	virtual ~MainWindow();
 private:
 	Glib::RefPtr<Gtk::Builder> m_refBuilder;
+	Glib::RefPtr<Glib::MainContext> m_refMainContext;
+	Glib::Dispatcher m_SolvingDispatcher;
+
+	void OnSolvingEmit();
 
 	void OnNew();
 	void OnOpen();
@@ -39,6 +44,8 @@ private:
 	void OnScheduleCopy();
 	void OnScheduleDelete();
 	void OnScheduleRun();
+
+	void Solving();
 
 	void OnException();
 

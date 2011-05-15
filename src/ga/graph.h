@@ -2,6 +2,7 @@
 #define _GA_GRAPH_H_
 
 #include <vector>
+#include <glibmm/dispatcher.h>
 
 class GraphForTime
 {
@@ -38,7 +39,7 @@ public:
 		}
 	};
 
-	GraphForTime();
+	GraphForTime(Glib::Dispatcher &dispatcher);
 	~GraphForTime()
 	{
 	}
