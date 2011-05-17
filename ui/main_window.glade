@@ -57,11 +57,32 @@
                     <child>
                       <object class="GtkImageMenuItem" id="imagemenuitem5">
                         <property name="visible">True</property>
-                        <property name="related_action">FileQuit</property>
+                        <property name="related_action">ActionImport</property>
                         <property name="use_action_appearance">True</property>
-                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <property name="always_show_image">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem6">
+                        <property name="visible">True</property>
+                        <property name="related_action">ActionExport</property>
+                        <property name="use_action_appearance">True</property>
+                        <property name="use_stock">True</property>
+                        <property name="always_show_image">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="menuitem7">
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="menuitem8">
+                        <property name="visible">True</property>
+                        <property name="related_action">FileQuit</property>
+                        <property name="use_action_appearance">True</property>
+                        <property name="use_stock">True</property>
                       </object>
                     </child>
                   </object>
@@ -1572,5 +1593,15 @@
   <object class="GtkAction" id="ScheduleRun">
     <property name="label">&#x421;&#x43E;&#x441;&#x442;&#x430;&#x432;&#x438;&#x442;&#x44C;</property>
     <property name="stock_id">gtk-media-play</property>
+  </object>
+  <object class="GtkAction" id="ActionImport">
+    <property name="label">&#x418;&#x43C;&#x43F;&#x43E;&#x440;&#x442;</property>
+    <property name="stock_id">gtk-floppy</property>
+    <property name="always_show_image">True</property>
+  </object>
+  <object class="GtkAction" id="ActionExport">
+    <property name="label">&#x42D;&#x43A;&#x441;&#x43F;&#x43E;&#x440;&#x442;</property>
+    <property name="stock_id">gtk-save-as</property>
+    <property name="always_show_image">True</property>
   </object>
 </interface>

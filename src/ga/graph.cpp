@@ -17,10 +17,12 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 		ORM::Scheme items_scheme;
 		ORM::Field<long int> t("t");
 		ORM::Field<long int> l("l");
+		ORM::Field<long int> lt("lt");
 		ORM::Field<long int> h("h");
 		ORM::Field<bool> m("m");
 		items_scheme.add(t);
 		items_scheme.add(l);
+		items_scheme.add(lt);
 		items_scheme.add(h);
 		items_scheme.add(m);
 		Glib::RefPtr<ORM::Data> data = ORM::Data::create(items_scheme);
@@ -33,10 +35,8 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 			{
 				m_Items.push_back(ItemTLM(iter->get_value(t)
 					, iter->get_value(l)
+					, iter->get_value(lt)
 					, iter->get_value(m)));
-				std::cout << "t=" << iter->get_value(t)
-					<< "l=" << iter->get_value(l)
-					<< "m=" << iter->get_value(m) << std::endl;
 			}
 		}
 
@@ -63,7 +63,7 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 
 		//getting auditoriums
 		Glib::RefPtr<ORM::Data> list_aud = ORM::Data::create(DB::g_ModelAuditoriums);
-		db.ListEntity(DB::g_ModelAuditoriums, list_aud);
+		db.ListEntityOrdered(DB::g_ModelAuditoriums, list_aud, DB::g_ModelAuditoriums.fId);
 		for(Gtk::TreeIter aud = list_aud->children().begin(); aud != list_aud->children().end(); ++ aud)
 		{
 			if(aud->get_value(DB::g_ModelAuditoriums.multithread))
@@ -117,7 +117,6 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 	size_t color_index = 0;
 	do
 	{
-		std::cout << "Coloring step " << color_index << std::endl;
 		std::vector<std::pair<size_t, size_t> > link_count; // список пар сумма и индекс
 		for(row = 0; row < m_Items.size(); ++ row)
 		{
@@ -138,7 +137,6 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 					if(item_holydays.count(std::make_pair(row, c)))
 					{
 						sum += 1;
-						std::cout << "holyday item=" << row << " color=" << c << std::endl;
 					}
 				}
 			}
@@ -163,7 +161,6 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 					{
 						-- colors[color_index].am;
 						coloring[index].color = color_index;
-						std::cout << "Color " << index << " by " << color_index << std::endl;
 					}
 				}
 				else // однопоточное занятие
@@ -172,7 +169,6 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 					{
 						-- colors[color_index].as;
 						coloring[index].color = color_index;
-						std::cout << "Color " << index << " by " << color_index << std::endl;
 					}
 				}
 				if(coloring[index].color == color_index)
@@ -211,6 +207,8 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 
 	} // конец шага закраски
 	while(color_index < colors.size());	
+
+	// генетические алгоритмы (std::vector<ItemColoring> - особь)
 	
 	// сохранить расписание
 	db.CleanTimeTable();
@@ -241,6 +239,10 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 				}
 
 			}
+		}
+		else
+		{
+			std::cout << "Timetable doesn't fill" << std::endl;
 		}
 	}
 	dispatcher.emit();

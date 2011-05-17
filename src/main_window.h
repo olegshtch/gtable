@@ -31,6 +31,10 @@ private:
 	void OnNew();
 	void OnOpen();
 	void OnSave();
+
+	void OnImport();
+	void OnExport();
+
 	void OnQuit();
 	void OnAbout();
 
@@ -54,7 +58,7 @@ private:
 	bool OnFocusIn(GdkEventFocus* event, LineEditable *line_editor);
 	bool OnFocusOut(GdkEventFocus* event);
 
-	ListView* AddListView(const Glib::ustring& name, const ORM::Table& scheme);
+	ListView* AddListView(const Glib::ustring& name, const ORM::Table& scheme, const ORM::ExprBase& sort);
 
 	// Days -> Double week
 	Gtk::CheckButton *m_DoubleWeek;

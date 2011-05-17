@@ -44,9 +44,11 @@ void DataBase::AppendEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
 	m_Connection.InsertInto(ent)->Values(row);
 }
 
-void DataBase::ListEntity(const ORM::Table& ent,Glib::RefPtr<ORM::Data> &list_store)
+void DataBase::ListEntityOrdered(const ORM::Table& ent,Glib::RefPtr<ORM::Data> &list_store, const ORM::ExprBase& sort_expr)
 {
-	m_Connection.Select(list_store)->From(ent);
+	m_Connection.Select(list_store)
+		->From(ent)
+		->OrderBy(sort_expr);
 }
 
 Glib::ustring DataBase::GetTextById(const ORM::Table& ent, const ORM::Expr<Glib::ustring>& field, long id)
@@ -63,9 +65,22 @@ Glib::ustring DataBase::GetTextById(const ORM::Table& ent, const ORM::Expr<Glib:
 	return "{null}";
 }
 
-void DataBase::ListEntitiesText(const ORM::Table& ent, const ORM::Expr<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data)
+void DataBase::ListEntitiesTextOrdered(const ORM::Table& ent, const ORM::Expr<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data)
 {
-	m_Connection.Select(data, ORM::Expr<ORM::PrimaryKey>(ent.fId), field)->From(ent);
+	m_Connection.Select(data
+		, ORM::Expr<ORM::PrimaryKey>(ent.fId)
+		, field)
+		->From(ent)
+		->OrderBy(field);
+}
+
+void DataBase::ListEntitiesTextOrderedID(const ORM::Table& ent, const ORM::Expr<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data)
+{
+	m_Connection.Select(data
+		, ORM::Expr<ORM::PrimaryKey>(ent.fId)
+		, field)
+		->From(ent)
+		->OrderBy(ent.fId);
 }
 
 void DataBase::ListIDs(const ORM::Table& ent, Glib::RefPtr<ORM::Data> &data)
@@ -189,12 +204,29 @@ void DataBase::SetWeeks(bool weeks)
 
 void DataBase::GetTeachingBranch(Glib::RefPtr<ORM::Data> &data, long int id_speciality)
 {
-	m_Connection.Select(data, g_ModelTeachingBranch.fId, g_ModelBranch.name)->From(g_ModelTeachingBranch, g_ModelBranch)->Where(ORM::Eq(g_ModelTeachingBranch.speciality, ORM::ForeignKey(id_speciality)) && ORM::Eq(g_ModelTeachingBranch.branch, g_ModelBranch.fId));
+	m_Connection.Select(data
+		, g_ModelTeachingBranch.fId
+		, g_ModelBranch.name)
+		->From(g_ModelTeachingBranch, g_ModelBranch)
+		->Where(ORM::Eq(g_ModelTeachingBranch.speciality, ORM::ForeignKey(id_speciality))
+			&& ORM::Eq(g_ModelTeachingBranch.branch, g_ModelBranch.fId))
+		->OrderBy(g_ModelBranch.name);
 }
 
 void DataBase::ListNewBranchForSpeciality(Glib::RefPtr<ORM::Data> &data, long int id_speciality)
 {
-	m_Connection.Select(data, g_ModelBranch.fId, g_ModelBranch.name)->From(g_ModelBranch);
+	ORM::Subquery subquery;
+	subquery.Select(data
+		, g_ModelTeachingBranch.branch)
+		->From(g_ModelTeachingBranch)
+		->Where(ORM::Eq(g_ModelTeachingBranch.speciality, ORM::ForeignKey(id_speciality)));
+
+	m_Connection.Select(data
+		, g_ModelBranch.fId
+		, g_ModelBranch.name)
+		->From(g_ModelBranch)
+		->Where(ORM::NotIn(g_ModelBranch.fId, subquery))
+		->OrderBy(g_ModelBranch.name);
 }
 
 void DataBase::AppendNewBranchForSpeciality(long int id_speciality, long int id_branch)
@@ -209,6 +241,13 @@ void DataBase::AppendNewBranchForSpeciality(long int id_speciality, long int id_
 		, g_ModelTeachingBranch.speciality
 		, g_ModelTeachingBranch.term)
 		->Values(iter);
+}
+
+void DataBase::RemoveBranchForSpeciality(ORM::ForeignKey id_speciality, ORM::PrimaryKey id_branch)
+{
+	m_Connection.DeleteFrom(g_ModelTeachingBranch)
+		->Where(ORM::Eq(g_ModelTeachingBranch.speciality, id_speciality)
+			&& ORM::Eq(g_ModelTeachingBranch.fId, id_branch));
 }
 
 long DataBase::GetTeachingPlanHours(long int id_teaching_branch, long int id_lesson_type)
@@ -434,7 +473,7 @@ void DataBase::ListGroupOtherLessons(long int id_group, Glib::RefPtr<ORM::Data>&
 	m_Connection.Select(lesson_list
 		, g_ModelLessons.fId
 		, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + ORM::substr(DB::g_ModelTeachers.firstname, 1, 1) + ". " + ORM::substr(DB::g_ModelTeachers.thirdname, 1, 1) + "."
-		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name
+		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.abbr
 		, g_ModelTeachingPlan.hours)
 		->From(g_ModelLessons, g_ModelGroupCategory, g_ModelLessonSubgroup)
 		->NaturalJoin(g_ModelTeachingPlan)
@@ -662,7 +701,7 @@ Glib::ustring DataBase::GetTimeTableLessonGroupText(ORM::ForeignKey id_group, OR
 		, g_ModelSchedule.fId
 		, g_ModelAuditoriums.name
 		, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + ORM::substr(DB::g_ModelTeachers.firstname, 1, 1) + ". " + ORM::substr(DB::g_ModelTeachers.thirdname, 1, 1) + "."
-		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name)
+		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.abbr)
 		->From(g_ModelSchedule, g_ModelSpecialities, g_ModelTeachingPlan, g_ModelTeachers, g_ModelAuditoriums)
 		->NaturalJoin(g_ModelLessons)
 		->NaturalJoin(g_ModelLessonType)
@@ -742,7 +781,7 @@ void DataBase::ListTeacherOtherLessons(long int id_teacher, Glib::RefPtr<ORM::Da
 	m_Connection.Select(lesson_list
 		, g_ModelLessons.fId
 		, ORM::group_concat(g_ModelGroups.name)
-		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name
+		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.abbr
 		, g_ModelTeachingPlan.hours)
 		->From(g_ModelLessons, g_ModelGroupCategory, g_ModelLessonSubgroup)
 		->NaturalJoin(g_ModelTeachingPlan)
@@ -805,7 +844,7 @@ Glib::ustring DataBase::GetTimeTableLessonTeacherText(ORM::ForeignKey id_teacher
 		, g_ModelSchedule.fId
 		, g_ModelAuditoriums.name
 		, ORM::group_concat(g_ModelGroups.name)
-		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name)
+		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.abbr)
 		->From(g_ModelSchedule, g_ModelSpecialities, g_ModelTeachingPlan, g_ModelTeachers, g_ModelAuditoriums)
 		->NaturalJoin(g_ModelLessons)
 		->NaturalJoin(g_ModelLessonType)
@@ -882,7 +921,7 @@ void DataBase::ListAuditoriumOtherLessons(long int id_aud, Glib::RefPtr<ORM::Dat
 		, g_ModelLessons.fId
 		, ORM::group_concat(g_ModelGroups.name)
 		, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + ORM::substr(DB::g_ModelTeachers.firstname, 1, 1) + ". " + ORM::substr(DB::g_ModelTeachers.thirdname, 1, 1) + "."
-		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name
+		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.abbr
 		, g_ModelTeachingPlan.hours)
 		->From(g_ModelLessons, g_ModelGroupCategory, g_ModelLessonSubgroup, g_ModelAuditoriums, g_ModelTeachers)
 		->NaturalJoin(g_ModelTeachingPlan)
@@ -947,7 +986,7 @@ Glib::ustring DataBase::GetTimeTableLessonAuditoriumText(ORM::ForeignKey id_aud,
 		, g_ModelSchedule.fId
 		, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + ORM::substr(DB::g_ModelTeachers.firstname, 1, 1) + ". " + ORM::substr(DB::g_ModelTeachers.thirdname, 1, 1) + "."
 		, ORM::group_concat(g_ModelGroups.name)
-		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.name)
+		, ORM::Expr<Glib::ustring>(DB::g_ModelBranch.name) + "\\" + DB::g_ModelLessonType.abbr)
 		->From(g_ModelSchedule, g_ModelSpecialities, g_ModelTeachingPlan, g_ModelTeachers)
 		->NaturalJoin(g_ModelLessons)
 		->NaturalJoin(g_ModelLessonType)
@@ -1005,6 +1044,7 @@ void DataBase::ListTLHM(Glib::RefPtr<ORM::Data>& data)
 	m_Connection.SelectDistinct(data
 		, g_ModelLessons.teacher
 		, g_ModelLessons.fId
+		, g_ModelLessons.lesson_type
 		, g_ModelTeachingPlan.hours
 		, g_ModelLessonType.multithread)
 		->From(g_ModelLessons, g_ModelGroupCategory, g_ModelTeachingPlan)

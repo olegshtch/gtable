@@ -11,11 +11,13 @@ public:
 	{
 		long int t; // преподаватель
 		long int l; // занятие
+		long int lt; // тип занятия
 		bool m; // многопоточность
 
-		ItemTLM(long int t_, long int l_, bool m_)
+		ItemTLM(long int t_, long int l_, long int lt_, bool m_)
 			:t(t_),
 			l(l_),
+			lt(lt_),
 			m(m_) 
 		{
 		}

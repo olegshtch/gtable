@@ -96,6 +96,10 @@ namespace ORM
 		{
 			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, f1.GetQuery() + "," + f2.GetQuery() + "," + f3.GetQuery() + "," + f4.GetQuery(), true));
 		}
+		std::auto_ptr<SelectBase> SelectDistinct(Glib::RefPtr<Data> &data, const ExprBase& f1, const ExprBase& f2, const ExprBase& f3, const ExprBase& f4, const ExprBase &f5)
+		{
+			return std::auto_ptr<SelectBase>(new SelectBase(*this, data, f1.GetQuery() + "," + f2.GetQuery() + "," + f3.GetQuery() + "," + f4.GetQuery() + "," + f5.GetQuery(), true));
+		}
 
 
 		// Insert family

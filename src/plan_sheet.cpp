@@ -15,7 +15,7 @@ PlanSheet::PlanSheet(GtkTreeView *cobject, const Glib::RefPtr<Gtk::Builder> &bui
 	get_selection()->set_mode(Gtk::SELECTION_SINGLE);
 	
 	m_BranchRenderer.signal_edited().connect(sigc::mem_fun(*this, &PlanSheet::BranchEdited));
-	m_BranchRenderer.property_editable() = true;
+	m_BranchRenderer.property_editable() = false;
 }
 
 PlanSheet::~PlanSheet()
@@ -46,12 +46,17 @@ void PlanSheet::add_empty_line()
 
 void PlanSheet::remove_line()
 {
+	Gtk::TreeIter iter = get_selection()->get_selected();
+	if(iter)
+	{
+		DB::DataBase::Instance().RemoveBranchForSpeciality(m_IdSpeciality, iter->get_value(DB::g_IdTextScheme.fId));
+	}
 }
 
 void PlanSheet::update_model()
 {
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
-	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelLessonType, DB::g_ModelLessonType.abbr, data);
+	DB::DataBase::Instance().ListEntitiesTextOrdered(DB::g_ModelLessonType, DB::g_ModelLessonType.abbr, data);
 	set_horz_model(data);
 
 	data = ORM::Data::create(DB::g_IdTextScheme);

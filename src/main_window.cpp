@@ -67,50 +67,52 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ScheduleCopy")),sigc::mem_fun(*this, &MainWindow::OnScheduleCopy));
 	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ScheduleDelete")),sigc::mem_fun(*this, &MainWindow::OnScheduleDelete));
 	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ScheduleRun")),sigc::mem_fun(*this, &MainWindow::OnScheduleRun));
+	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ActionImport")), sigc::mem_fun(*this, &MainWindow::OnImport));
+	m_refActionGroup->add(Glib::RefPtr<Gtk::Action>::cast_dynamic(m_refBuilder->get_object("ActionExport")), sigc::mem_fun(*this, &MainWindow::OnExport));
 
 	// connect Lists
 	
-	ListView* m_pTreeView = AddListView("TreeViewHours", DB::g_ModelHours);
+	ListView* m_pTreeView = AddListView("TreeViewHours", DB::g_ModelHours, DB::g_ModelHours.fId);
 	m_pTreeView->append_column_text_editable(_("start"), DB::g_ModelHours.start);
 	m_pTreeView->append_column_text_editable(_("finish"), DB::g_ModelHours.finish);
 
-	m_pTreeView = AddListView("TreeViewDays", DB::g_ModelDays);
+	m_pTreeView = AddListView("TreeViewDays", DB::g_ModelDays, DB::g_ModelDays.fId);
 	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelDays.name);
 
-	m_pTreeView = AddListView("TreeViewFaculty", DB::g_ModelFaculties);
+	m_pTreeView = AddListView("TreeViewFaculty", DB::g_ModelFaculties, DB::g_ModelFaculties.name);
 	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelFaculties.name);
 	m_pTreeView->append_column_text_editable(_("abbreviation"), DB::g_ModelFaculties.abbr);
 
-	m_pTreeView = AddListView("TreeViewChairs", DB::g_ModelChairs);
+	m_pTreeView = AddListView("TreeViewChairs", DB::g_ModelChairs, DB::g_ModelChairs.name);
 	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelChairs.name);
 	m_pTreeView->append_column_text_editable(_("abbreviation"), DB::g_ModelChairs.abbr);
 	m_pTreeView->append_column_foreign_editable(_("faculty"), DB::g_ModelChairs.faculty, DB::g_ModelFaculties, DB::g_ModelFaculties.abbr);
 
-	m_pTreeView = AddListView("TreeViewTeachers", DB::g_ModelTeachers);
+	m_pTreeView = AddListView("TreeViewTeachers", DB::g_ModelTeachers, DB::g_ModelTeachers.secondname);
 	m_pTreeView->append_column_text_editable(_("secondname"), DB::g_ModelTeachers.secondname);
 	m_pTreeView->append_column_text_editable(_("firstname"), DB::g_ModelTeachers.firstname);
 	m_pTreeView->append_column_text_editable(_("thirdname"), DB::g_ModelTeachers.thirdname);
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelTeachers.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
 	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::ScheduleTeacherExpose));
 
-	m_pTreeView = AddListView("TreeViewSpecialities", DB::g_ModelSpecialities);
+	m_pTreeView = AddListView("TreeViewSpecialities", DB::g_ModelSpecialities, DB::g_ModelSpecialities.name);
 	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelSpecialities.name);
 	m_pTreeView->append_column_text_editable(_("abbreviation"), DB::g_ModelSpecialities.abbr);
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelSpecialities.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
 	m_pTreeView->append_column_int_editable(_("terms"), DB::g_ModelSpecialities.terms);
 	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::PlanSpecialitiesExpose));
 
-	m_pTreeView = AddListView("TreeViewGroups", DB::g_ModelGroups);
+	m_pTreeView = AddListView("TreeViewGroups", DB::g_ModelGroups, DB::g_ModelGroups.name);
 	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelGroups.name);
 	m_pTreeView->append_column_foreign_editable(_("speciality"), DB::g_ModelGroups.speciality, DB::g_ModelSpecialities, DB::g_ModelSpecialities.abbr);
 	m_pTreeView->append_column_int_editable(_("term"), DB::g_ModelGroups.term);
 	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::TeachingLessonGroupExpose));
 	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::ScheduleGroupExpose));
 
-	m_pTreeView = AddListView("TreeViewBuildings", DB::g_ModelBuildings);
+	m_pTreeView = AddListView("TreeViewBuildings", DB::g_ModelBuildings, DB::g_ModelBuildings.name);
 	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelBuildings.name);
 
-	m_pTreeView = AddListView("TreeViewAuditoriums", DB::g_ModelAuditoriums);
+	m_pTreeView = AddListView("TreeViewAuditoriums", DB::g_ModelAuditoriums, DB::g_ModelAuditoriums.name);
 	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelAuditoriums.name);
 	m_pTreeView->append_column_int_editable(_("capacity"), DB::g_ModelAuditoriums.capacity);
 	m_pTreeView->append_column_bool_editable(_("multithread"), DB::g_ModelAuditoriums.multithread);
@@ -118,19 +120,19 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 	m_pTreeView->append_column_foreign_editable(_("chair"), DB::g_ModelAuditoriums.chair, DB::g_ModelChairs, DB::g_ModelChairs.abbr);
 	m_pTreeView->signal_list_edited().connect(sigc::mem_fun(*this, &MainWindow::ScheduleAuditoriumExpose));
 
-	m_pTreeView = AddListView("TreeViewAuditoriumTypes", DB::g_ModelAuditoriumTypes);
+	m_pTreeView = AddListView("TreeViewAuditoriumTypes", DB::g_ModelAuditoriumTypes, DB::g_ModelAuditoriumTypes.name);
 	m_pTreeView->append_column_text_editable(_("property"), DB::g_ModelAuditoriumTypes.name);
 
-	m_pTreeView = AddListView("TreeViewBranchCategory", DB::g_ModelBranchCategory);
+	m_pTreeView = AddListView("TreeViewBranchCategory", DB::g_ModelBranchCategory, DB::g_ModelBranchCategory.name);
 	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelBranchCategory.name);
 	m_pTreeView->get_selection()->set_mode(Gtk::SELECTION_SINGLE);
 
-	m_pTreeView = AddListView("TreeViewBranch", DB::g_ModelBranch);
+	m_pTreeView = AddListView("TreeViewBranch", DB::g_ModelBranch, DB::g_ModelBranch.name);
 	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelBranch.name);
 	m_pTreeView->append_column_text_editable(_("abbreviation"), DB::g_ModelBranch.abbr);
 	m_pTreeView->append_column_foreign_editable(_("category"), DB::g_ModelBranch.category, DB::g_ModelBranchCategory, DB::g_ModelBranchCategory.name);
 
-	m_pTreeView = AddListView("TreeViewLessonType", DB::g_ModelLessonType);
+	m_pTreeView = AddListView("TreeViewLessonType", DB::g_ModelLessonType, DB::g_ModelLessonType.name);
 	m_pTreeView->append_column_text_editable(_("name"), DB::g_ModelLessonType.name);
 	m_pTreeView->append_column_text_editable(_("abbreviation"), DB::g_ModelLessonType.abbr);
 	m_pTreeView->append_column_foreign_editable(_("before"), DB::g_ModelLessonType.before, DB::g_ModelLessonType, DB::g_ModelLessonType.abbr);
@@ -222,7 +224,7 @@ MainWindow::MainWindow(GtkWindow *cobject, const Glib::RefPtr<Gtk::Builder>& bui
 
 	// Loadings -> Auditorium Lessons
 	
-	m_pTreeView = AddListView("TreeViewAllAuditoriumTypes", DB::g_ModelAuditoriumTypes);
+	m_pTreeView = AddListView("TreeViewAllAuditoriumTypes", DB::g_ModelAuditoriumTypes, DB::g_ModelAuditoriumTypes.name);
 	m_pTreeView->append_column_editable(_("property"), DB::g_ModelAuditoriumTypes.name);
 
 	// Schedule -> Group
@@ -429,6 +431,14 @@ void MainWindow::OnSave()
 #endif
 }
 
+void MainWindow::OnImport()
+{
+}
+
+void MainWindow::OnExport()
+{
+}
+
 void MainWindow::OnQuit()
 {
 	hide();
@@ -480,7 +490,7 @@ bool MainWindow::OnFocusOut(GdkEventFocus* event)
 	return false;
 }
 
-ListView* MainWindow::AddListView(const Glib::ustring& name, const ORM::Table& scheme)
+ListView* MainWindow::AddListView(const Glib::ustring& name, const ORM::Table& scheme, const ORM::ExprBase& sort)
 {
 	ListView *res = 0;
 	m_refBuilder->get_widget_derived(name, res);
@@ -488,7 +498,7 @@ ListView* MainWindow::AddListView(const Glib::ustring& name, const ORM::Table& s
 	{
 		throw Glib::Error(1, 0, "Cann't load " + name);
 	}
-	res->set_scheme(scheme);
+	res->set_scheme(scheme, sort);
 	res->append_column(_("id"), scheme.fId);
 	m_LineEditors.push_back(res);
 	res->signal_focus_in_event().connect(sigc::bind(sigc::mem_fun(*this, &MainWindow::OnFocusIn), static_cast<LineEditable*>(res)));
@@ -498,7 +508,6 @@ ListView* MainWindow::AddListView(const Glib::ustring& name, const ORM::Table& s
 
 void MainWindow::SwitchHolydayCategory()
 {
-	std::clog << "MainWindow::SwitchHolydayCategory" << std::endl;
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
 	Gtk::TreeIter iter = m_HolydaysCategory->get_active();
 	if(iter)
@@ -509,18 +518,18 @@ void MainWindow::SwitchHolydayCategory()
 	{
 	case 1:
 		// fill HolydayObjectList by teachers
-		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelTeachers, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + DB::g_ModelTeachers.firstname + " " + DB::g_ModelTeachers.thirdname, data);
+		DB::DataBase::Instance().ListEntitiesTextOrdered(DB::g_ModelTeachers, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + DB::g_ModelTeachers.firstname + " " + DB::g_ModelTeachers.thirdname, data);
 		m_HolydaysObjectList->set_model(data);
 		m_HolydaysObjectList->set_text_column(DB::g_IdTextScheme.fText);
 		break;
 	case 2:
 		// fill HolydayObjectList by groups
-		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelGroups, DB::g_ModelGroups.name, data);
+		DB::DataBase::Instance().ListEntitiesTextOrdered(DB::g_ModelGroups, DB::g_ModelGroups.name, data);
 		m_HolydaysObjectList->set_model(data);
 		m_HolydaysObjectList->set_text_column(DB::g_IdTextScheme.fText);
 		break;
 	case 3:
-		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelAuditoriums, DB::g_ModelAuditoriums.name, data);
+		DB::DataBase::Instance().ListEntitiesTextOrdered(DB::g_ModelAuditoriums, DB::g_ModelAuditoriums.name, data);
 		m_HolydaysObjectList->set_model(data);
 		m_HolydaysObjectList->set_text_column(DB::g_IdTextScheme.fText);
 		break;
@@ -535,8 +544,8 @@ void MainWindow::SwitchHolydayObject()
 	//long value = m_HolydaysObjectList->get_active()->get_value(m_ComboScheme.fId);
 	Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(DB::g_IdTextScheme);
 	Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(DB::g_IdTextScheme);
-	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
-	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
+	DB::DataBase::Instance().ListEntitiesTextOrderedID(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
+	DB::DataBase::Instance().ListEntitiesTextOrderedID(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
 	m_SheetHolydays->set_vert_model(vert_data);
 	m_SheetHolydays->set_horz_model(horz_data);
 	
@@ -616,7 +625,7 @@ void MainWindow::WeekToggle()
 void MainWindow::PlanSpecialitiesExpose()
 {
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
-	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelSpecialities, DB::g_ModelSpecialities.name, data);
+	DB::DataBase::Instance().ListEntitiesTextOrdered(DB::g_ModelSpecialities, DB::g_ModelSpecialities.name, data);
 	m_ComboBoxPlanSpeciality->set_model(data);
 }
 
@@ -662,7 +671,7 @@ void MainWindow::PlanSpecialitiesButtonRelease(long int id_teaching_branch, long
 void MainWindow::ScheduleGroupExpose()
 {
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
-	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelGroups, DB::g_ModelGroups.name, data);
+	DB::DataBase::Instance().ListEntitiesTextOrdered(DB::g_ModelGroups, DB::g_ModelGroups.name, data);
 	m_ComboBoxScheduleGroup->set_model(data);
 }
 
@@ -677,8 +686,8 @@ void MainWindow::ScheduleGroupChanged()
 	{
 		Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(DB::g_IdTextScheme);
 		Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(DB::g_IdTextScheme);
-		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
-		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
+		DB::DataBase::Instance().ListEntitiesTextOrderedID(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
+		DB::DataBase::Instance().ListEntitiesTextOrderedID(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
 		m_ScheduleGroup->set_vert_model(vert_data);
 		m_ScheduleGroup->set_horz_model(horz_data);
 
@@ -826,7 +835,7 @@ void MainWindow::ScheduleGroupRemoveLesson(long int lesson_id)
 void MainWindow::ScheduleTeacherExpose()
 {
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
-	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelTeachers, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + DB::g_ModelTeachers.firstname + " " + DB::g_ModelTeachers.thirdname, data);
+	DB::DataBase::Instance().ListEntitiesTextOrdered(DB::g_ModelTeachers, ORM::Expr<Glib::ustring>(DB::g_ModelTeachers.secondname) + " " + DB::g_ModelTeachers.firstname + " " + DB::g_ModelTeachers.thirdname, data);
 	m_ComboBoxScheduleTeacher->set_model(data);
 }
 
@@ -841,8 +850,8 @@ void MainWindow::ScheduleTeacherChanged()
 	{
 		Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(DB::g_IdTextScheme);
 		Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(DB::g_IdTextScheme);
-		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
-		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
+		DB::DataBase::Instance().ListEntitiesTextOrderedID(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
+		DB::DataBase::Instance().ListEntitiesTextOrderedID(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
 		m_ScheduleTeacher->set_vert_model(vert_data);
 		m_ScheduleTeacher->set_horz_model(horz_data);
 
@@ -970,7 +979,7 @@ void MainWindow::ScheduleTeacherRemoveLesson(long int lesson_id)
 void MainWindow::ScheduleAuditoriumExpose()
 {
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
-	DB::DataBase::Instance().ListEntitiesText(DB::g_ModelAuditoriums, DB::g_ModelAuditoriums.name, data);
+	DB::DataBase::Instance().ListEntitiesTextOrdered(DB::g_ModelAuditoriums, DB::g_ModelAuditoriums.name, data);
 	m_ComboBoxScheduleAuditorium->set_model(data);
 }
 
@@ -985,8 +994,8 @@ void MainWindow::ScheduleAuditoriumChanged()
 	{
 		Glib::RefPtr<ORM::Data> vert_data = ORM::Data::create(DB::g_IdTextScheme);
 		Glib::RefPtr<ORM::Data> horz_data = ORM::Data::create(DB::g_IdTextScheme);
-		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
-		DB::DataBase::Instance().ListEntitiesText(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
+		DB::DataBase::Instance().ListEntitiesTextOrderedID(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), vert_data);
+		DB::DataBase::Instance().ListEntitiesTextOrderedID(DB::g_ModelDays, DB::g_ModelDays.name, horz_data);
 		m_ScheduleAuditorium->set_vert_model(vert_data);
 		m_ScheduleAuditorium->set_horz_model(horz_data);
 

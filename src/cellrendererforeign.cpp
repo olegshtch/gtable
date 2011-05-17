@@ -4,8 +4,7 @@
 
 Gtk::CellEditable* CellRendererForeign::start_editing_vfunc(GdkEvent* event, Gtk::Widget& widget, const Glib::ustring& path, const Gdk::Rectangle& background_area, const Gdk::Rectangle& cell_area, Gtk::CellRendererState flags)
 {
-	std::cout << "CellRendererForeign::start_editing_vfunc" << std::endl;
-	DB::DataBase::Instance().ListEntitiesText(m_ForeignTable, m_ForeignField, m_ComboData);
+	DB::DataBase::Instance().ListEntitiesTextOrdered(m_ForeignTable, m_ForeignField, m_ComboData);
 	m_Editable = Gtk::manage(new CellEditableForeign(path, m_ComboData, DB::g_IdTextScheme.fText));
 	m_Editable->signal_editing_done().connect(sigc::mem_fun(*this, &CellRendererForeign::on_editing_done));
 	m_Editable->show();
