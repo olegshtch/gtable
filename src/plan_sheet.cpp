@@ -50,13 +50,14 @@ void PlanSheet::remove_line()
 	if(iter)
 	{
 		DB::DataBase::Instance().RemoveBranchForSpeciality(m_IdSpeciality, iter->get_value(DB::g_IdTextScheme.fId));
+		update_model();
 	}
 }
 
 void PlanSheet::update_model()
 {
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(DB::g_IdTextScheme);
-	DB::DataBase::Instance().ListEntitiesTextOrdered(DB::g_ModelLessonType, DB::g_ModelLessonType.abbr, data);
+	DB::DataBase::Instance().ListEntitiesTextOrderedID(DB::g_ModelLessonType, DB::g_ModelLessonType.abbr, data);
 	set_horz_model(data);
 
 	data = ORM::Data::create(DB::g_IdTextScheme);
