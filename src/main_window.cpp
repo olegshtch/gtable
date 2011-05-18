@@ -347,25 +347,14 @@ void MainWindow::OnNew()
 void MainWindow::OnOpen()
 {
 #if WIN32
-	wchar_t filename[256];
-	filename[0]=L'\0';
-	if(Win32_OpenFileDialog(filename, 256))
-	{
-		gunichar2 const* utf16 = reinterpret_cast<gunichar2 const*>(filename);
-		gchar* utf8 = g_utf16_to_utf8(utf16, -1, 0, 0, 0);
-		Glib::ustring u(utf8);
-		g_free(utf8);
-		DB::DataBase::Instance().Open(u);
-		set_title(u + " " + _("Schedule"));
-		m_DoubleWeek->property_active() = DB::DataBase::Instance().GetWeeks();
-		for(std::vector<LineEditable*>::iterator it = m_LineEditors.begin(); it !=	m_LineEditors.end(); ++ it)
-		{
-			(*it)->update_model();
-		}
-	}
+	Win32FileDialog dialog(_("Choose file for opening database:"),
+		Gtk::FILE_CHOOSER_ACTION_OPEN);
+	dialog.add_filter(_("TimeTable"), "*.tbl");
+	dialog.add_filter(_("All"), "*");
+	dialog.set_def_ext("tbl");
 #else
 	Gtk::FileChooserDialog dialog(*this,_("Choose file for opening database:"),
-		Gtk::FILE_CHOOSER_ACTION_SAVE);
+		Gtk::FILE_CHOOSER_ACTION_OPEN);
 	dialog.add_button(Gtk::Stock::CANCEL,Gtk::RESPONSE_CANCEL);
 	dialog.add_button(Gtk::Stock::OPEN,Gtk::RESPONSE_YES);
 	Gtk::FileFilter filter_tbl;
@@ -376,36 +365,27 @@ void MainWindow::OnOpen()
 	filter_all.set_name(_("All files"));
 	filter_all.add_pattern("*");
 	dialog.add_filter(filter_all);
+#endif
 	if(dialog.run()==Gtk::RESPONSE_YES)
 	{
 		DB::DataBase::Instance().Open(dialog.get_filename());
+		set_title(dialog.get_filename() + " " + _("Schedule"));
 		m_DoubleWeek->property_active() = DB::DataBase::Instance().GetWeeks();
 		for(std::vector<LineEditable*>::iterator it = m_LineEditors.begin(); it !=	m_LineEditors.end(); ++ it)
 		{
 			(*it)->update_model();
 		}
 	}
-#endif
 }
 
 void MainWindow::OnSave()
 {
 #if WIN32
-	wchar_t filename[256];
-	filename[0]=L'\0';
-	if(Win32_SaveFileDialog(filename, 256))
-	{
-		gunichar2 const* utf16 = reinterpret_cast<gunichar2 const*>(filename);
-		gchar* utf8 = g_utf16_to_utf8(utf16, -1, 0, 0, 0);
-		Glib::ustring u(utf8);
-		g_free(utf8);
-		if(u.substr(u.length() - 4, 4) != ".tbl")
-		{
-			u += ".tbl";
-		}
-		DB::DataBase::Instance().Save(u);
-		set_title(u + " " + _("Schedule"));
-	}
+	Win32FileDialog dialog(_("Choose file for saving database:"),
+		Gtk::FILE_CHOOSER_ACTION_SAVE);
+	dialog.add_filter(_("TimeTable"), "*.tbl");
+	dialog.add_filter(_("All"), "*");
+	dialog.set_def_ext("tbl");
 #else
 	Gtk::FileChooserDialog dialog(*this,_("Choose file for saving database:"),
 	Gtk::FILE_CHOOSER_ACTION_SAVE);
@@ -419,6 +399,7 @@ void MainWindow::OnSave()
 	filter_all.set_name(_("All files"));
 	filter_all.add_pattern("*");
 	dialog.add_filter(filter_all);
+#endif
 	if(dialog.run()==Gtk::RESPONSE_YES)
 	{
 		Glib::ustring filename = dialog.get_filename();
@@ -427,8 +408,8 @@ void MainWindow::OnSave()
 			filename += ".tbl";
 		}
 		DB::DataBase::Instance().Save(filename);
+		set_title(filename + " " + _("Schedule"));
 	}
-#endif
 }
 
 void MainWindow::OnImport()

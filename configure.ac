@@ -65,6 +65,7 @@ AC_CONFIG_FILES([
     Makefile
     docs/Makefile
     src/Makefile
+    src/3rd_party/Makefile
     src/db/Makefile
     src/ga/Makefile
     src/orm/Makefile

@@ -1,6 +1,11 @@
-SUBDIRS = db ga orm
+SUBDIRS = 3rd_party \
+	  db \
+	  ga \
+	  orm
 bin_PROGRAMS = table
-table_SOURCES = ga/fitness.cpp \
+table_SOURCES = 3rd_party/BasicExcel.cpp \
+		3rd_party/ExcelFormat.cpp \
+		ga/fitness.cpp \
 		ga/ga.cpp \
 		ga/graph.cpp \
 		ga/individual.cpp \
