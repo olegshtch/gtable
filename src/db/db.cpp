@@ -676,6 +676,114 @@ bool DataBase::SetLessonIntoTimetable(long int id_lesson, ORM::ForeignKey id_aud
 	return false;
 }
 
+bool DataBase::CheckLessonIntoTimetable(long int id_lesson, ORM::ForeignKey day_id, ORM::ForeignKey hour_id)
+{
+	ORM::Scheme scheme;
+	ORM::Field<long int> id("");
+	scheme.add(id);
+	Glib::RefPtr<ORM::Data> fake_data = ORM::Data::create(scheme);
+
+	//checks for free auditorium
+	ORM::Subquery subquery_free_aud;
+	subquery_free_aud.Select(fake_data
+		, g_ModelAuditoriumHolydays.auditorium)
+		->From(g_ModelAuditoriumHolydays)
+		->Where(ORM::Eq(g_ModelAuditoriumHolydays.day, day_id)
+			&& ORM::Eq(g_ModelAuditoriumHolydays.hour, hour_id));
+
+	//checks for busy auditorium
+	ORM::Subquery subquery_busy_aud;
+	subquery_busy_aud.Select(fake_data
+		, g_ModelSchedule.auditorium)
+		->From(g_ModelSchedule)
+		->Where(ORM::Eq(g_ModelSchedule.day, day_id)
+			&& ORM::Eq(g_ModelSchedule.hour, hour_id));
+
+	//check for unappropriate auditorium
+	ORM::Subquery subquery_unapp_aud;
+	subquery_unapp_aud.Select(fake_data
+		, g_ModelAuditoriums.fId)
+		->From(g_ModelAuditoriums)
+		->NaturalJoin(g_ModelLessons)
+		->NaturalJoin(g_ModelLessonType)
+		->Where(ORM::Eq(g_ModelLessons.fId, ORM::PrimaryKey(id_lesson))
+			&& ORM::NonEq(g_ModelAuditoriums.multithread, g_ModelLessonType.multithread));
+
+	m_Connection.Select(fake_data
+		, g_ModelAuditoriums.fId)
+		->From(g_ModelAuditoriums)
+		->Where(ORM::NotIn(g_ModelAuditoriums.fId, subquery_free_aud)
+			&& ORM::NotIn(g_ModelAuditoriums.fId, subquery_busy_aud)
+			&& ORM::NotIn(g_ModelAuditoriums.fId, subquery_unapp_aud));
+	if(fake_data->children().size() <= 0)
+	{
+		return false;
+	}
+
+	//checks for busy groups
+	ORM::Subquery subquery_busy_grp;
+	subquery_busy_grp.Select(fake_data
+		, g_ModelGroupCategory.group)
+		->From(g_ModelSchedule)
+		->NaturalJoin(g_ModelLessons)
+		->NaturalJoin(g_ModelLessonSubgroup)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelGroupCategory)
+		->Where(ORM::Eq(g_ModelSchedule.day, day_id)
+			&& ORM::Eq(g_ModelSchedule.hour, hour_id));
+
+	//checks for free group
+	ORM::Subquery subquery_free_grp;
+	subquery_free_grp.Select(fake_data
+		, g_ModelGroupHolydays.group)
+		->From(g_ModelGroupHolydays)
+		->Where(ORM::Eq(g_ModelGroupHolydays.day, day_id)
+			&& ORM::Eq(g_ModelGroupHolydays.hour, hour_id));
+
+	m_Connection.Select(fake_data
+		, g_ModelGroups.fId)
+		->From(g_ModelGroups)
+		->NaturalJoin(g_ModelGroupCategory)
+		->NaturalJoin(g_ModelSubgroups)
+		->NaturalJoin(g_ModelLessonSubgroup)
+		->Where(ORM::Eq(g_ModelLessonSubgroup.lesson, ORM::ForeignKey(id_lesson))
+			&& (ORM::In(g_ModelGroups.fId, subquery_busy_grp)
+			|| ORM::In(g_ModelGroups.fId, subquery_free_grp)));
+	if(fake_data->children().size() > 0)
+	{
+		return false;
+	}
+
+	//checks for busy teacher
+	ORM::Subquery subquery_busy_tch;
+	subquery_busy_tch.Select(fake_data
+		, g_ModelLessons.teacher)
+		->From(g_ModelSchedule)
+		->NaturalJoin(g_ModelLessons)
+		->Where(ORM::Eq(g_ModelSchedule.day, day_id)
+			&& ORM::Eq(g_ModelSchedule.hour, hour_id));
+
+	//checks for free teacher
+	ORM::Subquery subquery_free_tch;
+	subquery_free_tch.Select(fake_data
+		, g_ModelTeacherHolydays.teacher)
+		->From(g_ModelTeacherHolydays)
+		->Where(ORM::Eq(g_ModelTeacherHolydays.day, day_id)
+			&& ORM::Eq(g_ModelTeacherHolydays.hour, hour_id));
+	m_Connection.Select(fake_data
+		, g_ModelTeachers.fId)
+		->From(g_ModelTeachers)
+		->NaturalJoin(g_ModelLessons)
+		->Where(ORM::Eq(g_ModelLessons.fId, ORM::PrimaryKey(id_lesson))
+			&& (ORM::In(g_ModelTeachers.fId, subquery_busy_tch)
+			|| ORM::In(g_ModelTeachers.fId, subquery_free_tch)));
+	if(fake_data->children().size() > 0)
+	{
+		return false;
+	}
+	return true;
+}
+
 void DataBase::RemoveLessonFromTimetable(long int id_lesson, long int id_day, long int id_hour)
 {
 	m_Connection.DeleteFrom(g_ModelSchedule)
@@ -684,7 +792,7 @@ void DataBase::RemoveLessonFromTimetable(long int id_lesson, long int id_day, lo
 			&& ORM::Eq(g_ModelSchedule.hour, ORM::ForeignKey(id_hour)));
 }
 
-Glib::ustring DataBase::GetTimeTableLessonGroupText(ORM::ForeignKey id_group, ORM::ForeignKey id_hour, ORM::ForeignKey id_day)
+Glib::ustring DataBase::GetTimeTableLessonGroupText(ORM::ForeignKey id_group, ORM::ForeignKey id_hour, ORM::ForeignKey id_day, bool show_auditorium)
 {
 	ORM::Scheme scheme;
 	ORM::Field<ORM::PrimaryKey> id;
@@ -716,13 +824,15 @@ Glib::ustring DataBase::GetTimeTableLessonGroupText(ORM::ForeignKey id_group, OR
 
 	if(data->children().size() == 0)
 	{
-		return "---";
+		return " ";
 	}
 	else if(data->children().size() == 1)
 	{
-		return data->children()[0].get_value(lesson_name) + "\n" +
+		return show_auditorium ? (data->children()[0].get_value(lesson_name) + "\n" +
 			data->children()[0].get_value(teacher_name) + "\n" +
-			data->children()[0].get_value(auditory_name);
+			data->children()[0].get_value(auditory_name))
+			: (data->children()[0].get_value(lesson_name) + "\n" +
+			data->children()[0].get_value(teacher_name));
 	}
 	std::cout << "DataBase::GetTimeTableLessonGroupText too many lessons" << std::endl;
 	return "!!!";
@@ -861,7 +971,7 @@ Glib::ustring DataBase::GetTimeTableLessonTeacherText(ORM::ForeignKey id_teacher
 
 	if(data->children().size() == 0)
 	{
-		return "---";
+		return " ";
 	}
 	else if(data->children().size() == 1)
 	{
@@ -1002,7 +1112,7 @@ Glib::ustring DataBase::GetTimeTableLessonAuditoriumText(ORM::ForeignKey id_aud,
 
 	if(data->children().size() == 0)
 	{
-		return "---";
+		return " ";
 	}
 	else if(data->children().size() == 1)
 	{

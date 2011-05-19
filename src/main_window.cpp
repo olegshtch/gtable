@@ -3,6 +3,7 @@
 #include <iostream>
 #include "main_window.h"
 #include "shared.h"
+#include "export_dialog.h"
 #include "ga/graph.h"
 #include "orm/data.h"
 #include "orm/expr.h"
@@ -350,7 +351,7 @@ void MainWindow::OnOpen()
 	Win32FileDialog dialog(_("Choose file for opening database:"),
 		Gtk::FILE_CHOOSER_ACTION_OPEN);
 	dialog.add_filter(_("TimeTable"), "*.tbl");
-	dialog.add_filter(_("All"), "*");
+	dialog.add_filter(_("All files"), "*");
 	dialog.set_def_ext("tbl");
 #else
 	Gtk::FileChooserDialog dialog(*this,_("Choose file for opening database:"),
@@ -358,7 +359,7 @@ void MainWindow::OnOpen()
 	dialog.add_button(Gtk::Stock::CANCEL,Gtk::RESPONSE_CANCEL);
 	dialog.add_button(Gtk::Stock::OPEN,Gtk::RESPONSE_YES);
 	Gtk::FileFilter filter_tbl;
-	filter_tbl.set_name(_("TimeTable"));
+	filter_tbl.set_name(_("Timetable"));
 	filter_tbl.add_pattern("*.tbl");
 	dialog.add_filter(filter_tbl);
 	Gtk::FileFilter filter_all;
@@ -383,8 +384,8 @@ void MainWindow::OnSave()
 #if WIN32
 	Win32FileDialog dialog(_("Choose file for saving database:"),
 		Gtk::FILE_CHOOSER_ACTION_SAVE);
-	dialog.add_filter(_("TimeTable"), "*.tbl");
-	dialog.add_filter(_("All"), "*");
+	dialog.add_filter(_("Timetable"), "*.tbl");
+	dialog.add_filter(_("All files"), "*");
 	dialog.set_def_ext("tbl");
 #else
 	Gtk::FileChooserDialog dialog(*this,_("Choose file for saving database:"),
@@ -418,6 +419,12 @@ void MainWindow::OnImport()
 
 void MainWindow::OnExport()
 {
+	ExportDialog *ref_dialog = NULL;
+	m_refBuilder->get_widget_derived("ExportDialog", ref_dialog);
+	if(ref_dialog)
+	{
+		ref_dialog->run();
+	}
 }
 
 void MainWindow::OnQuit()
@@ -428,7 +435,10 @@ void MainWindow::OnQuit()
 void MainWindow::OnAbout()
 {
 	Glib::RefPtr<Gtk::Dialog> ref_dialog = Glib::RefPtr<Gtk::Dialog>::cast_dynamic(m_refBuilder->get_object("AboutDialog"));
-	ref_dialog->run();
+	if(ref_dialog)
+	{
+		ref_dialog->run();
+	}
 }
 
 void MainWindow::OnRun()
@@ -688,13 +698,21 @@ void MainWindow::ScheduleGroupCellData(Gtk::CellRenderer* cell, long int id_hour
 	}
 	else
 	{
-		renderer->property_background_gdk() = Gdk::Color("white");
+		if(m_ScheduleGroupSelectedOther && (! DB::DataBase::Instance().CheckLessonIntoTimetable(m_ScheduleGroupSelectedOther->get_value(DB::g_IdTextScheme.fId), id_day, id_hour)))
+		{
+			renderer->property_background_gdk() = Gdk::Color("yellow");
+		}
+		else
+		{
+			renderer->property_background_gdk() = Gdk::Color("white");
+		}
 	}
 }
 
 void MainWindow::ScheduleGroupSelectedOther()
 {
 	m_ScheduleGroupSelectedOther = m_ScheduleGroupOther->get_selection()->get_selected();
+	//ScheduleGroupChanged();
 }
 
 void MainWindow::ScheduleGroupCellButtonRelease(long int id_hour, long int id_day, GdkEventButton* event)
@@ -852,13 +870,22 @@ void MainWindow::ScheduleTeacherCellData(Gtk::CellRenderer* cell, long int id_ho
 	}
 	else
 	{
-		renderer->property_background_gdk() = Gdk::Color("white");
+		if(m_ScheduleTeacherSelectedOther && (! DB::DataBase::Instance().CheckLessonIntoTimetable(m_ScheduleTeacherSelectedOther->get_value(DB::g_IdTextScheme.fId), id_day, id_hour)))
+		{
+			renderer->property_background_gdk() = Gdk::Color("yellow");
+		}
+		else
+		{
+			renderer->property_background_gdk() = Gdk::Color("white");
+		}
+
 	}
 }
 
 void MainWindow::ScheduleTeacherSelectedOther()
 {
 	m_ScheduleTeacherSelectedOther = m_ScheduleTeacherOther->get_selection()->get_selected();
+	//ScheduleTeacherChanged();
 }
 
 void MainWindow::ScheduleTeacherCellButtonRelease(long int id_hour, long int id_day, GdkEventButton* event)
@@ -996,13 +1023,22 @@ void MainWindow::ScheduleAuditoriumCellData(Gtk::CellRenderer* cell, long int id
 	}
 	else
 	{
-		renderer->property_background_gdk() = Gdk::Color("white");
+		if(m_ScheduleAuditoriumSelectedOther && (! DB::DataBase::Instance().CheckLessonIntoTimetable(m_ScheduleAuditoriumSelectedOther->get_value(DB::g_IdTextScheme.fId), id_day, id_hour)))
+		{
+			renderer->property_background_gdk() = Gdk::Color("yellow");
+		}
+		else
+		{
+			renderer->property_background_gdk() = Gdk::Color("white");
+		}
+
 	}
 }
 
 void MainWindow::ScheduleAuditoriumSelectedOther()
 {
 	m_ScheduleAuditoriumSelectedOther = m_ScheduleAuditoriumOther->get_selection()->get_selected();
+	//ScheduleAuditoriumChanged();
 }
 
 void MainWindow::ScheduleAuditoriumCellButtonRelease(long int id_hour, long int id_day, GdkEventButton* event)

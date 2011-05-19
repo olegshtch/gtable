@@ -59,6 +59,7 @@
                         <property name="visible">True</property>
                         <property name="related_action">ActionImport</property>
                         <property name="use_action_appearance">True</property>
+                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <property name="always_show_image">True</property>
                       </object>
@@ -68,6 +69,7 @@
                         <property name="visible">True</property>
                         <property name="related_action">ActionExport</property>
                         <property name="use_action_appearance">True</property>
+                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <property name="always_show_image">True</property>
                       </object>
@@ -82,6 +84,7 @@
                         <property name="visible">True</property>
                         <property name="related_action">FileQuit</property>
                         <property name="use_action_appearance">True</property>
+                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                       </object>
                     </child>
@@ -1595,13 +1598,102 @@
     <property name="stock_id">gtk-media-play</property>
   </object>
   <object class="GtkAction" id="ActionImport">
-    <property name="label">&#x418;&#x43C;&#x43F;&#x43E;&#x440;&#x442;</property>
+    <property name="label">&#x418;&#x43C;&#x43F;&#x43E;&#x440;&#x442;...</property>
     <property name="stock_id">gtk-floppy</property>
     <property name="always_show_image">True</property>
   </object>
   <object class="GtkAction" id="ActionExport">
-    <property name="label">&#x42D;&#x43A;&#x441;&#x43F;&#x43E;&#x440;&#x442;</property>
+    <property name="label">&#x42D;&#x43A;&#x441;&#x43F;&#x43E;&#x440;&#x442;...</property>
     <property name="stock_id">gtk-save-as</property>
     <property name="always_show_image">True</property>
+  </object>
+  <object class="GtkDialog" id="ExportDialog">
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">&#x42D;&#x43A;&#x441;&#x43F;&#x43E;&#x440;&#x442; &#x440;&#x430;&#x441;&#x43F;&#x438;&#x441;&#x430;&#x43D;&#x438;&#x44F;</property>
+    <property name="modal">True</property>
+    <property name="type_hint">normal</property>
+    <property name="has_separator">True</property>
+    <child internal-child="vbox">
+      <object class="GtkVBox" id="dialog-vbox2">
+        <property name="visible">True</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child>
+          <object class="GtkComboBox" id="ExportCategory">
+            <property name="visible">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkFrame" id="frame2">
+            <property name="visible">True</property>
+            <property name="label_xalign">0</property>
+            <property name="shadow_type">none</property>
+            <child>
+              <object class="GtkAlignment" id="alignment2">
+                <property name="visible">True</property>
+                <property name="left_padding">12</property>
+                <child>
+                  <object class="GtkScrolledWindow" id="scrolledwindow21">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">automatic</property>
+                    <property name="vscrollbar_policy">automatic</property>
+                    <child>
+                      <object class="GtkTreeView" id="TreeViewExportedObjects">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child type="label">
+              <object class="GtkLabel" id="LabelObjectCategory">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Groups</property>
+                <property name="use_markup">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="CheckShowAuditorium">
+            <property name="label" translatable="yes">Show auditorium</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="draw_indicator">True</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">4</property>
+          </packing>
+        </child>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area2">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+    </child>
   </object>
 </interface>

@@ -11,6 +11,7 @@ table_SOURCES = 3rd_party/BasicExcel.cpp \
 		ga/individual.cpp \
 		celleditableforeign.cpp \
 		cellrendererforeign.cpp \
+		export_dialog.cpp \
 		listview.cpp \
 		logbuf.cpp \
 		main.cpp \
@@ -20,6 +21,7 @@ table_SOURCES = 3rd_party/BasicExcel.cpp \
 		teaching_lesson.cpp
 noinst_HEADERS = celleditableforeign.h \
 		 cellrendererforeign.h \
+		 export_dialog.h \
 		 line_editable.h \
 		 listview.h \
 		 logbuf.h \
