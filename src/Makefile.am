@@ -5,7 +5,6 @@ SUBDIRS = 3rd_party \
 bin_PROGRAMS = table
 table_SOURCES = 3rd_party/BasicExcel.cpp \
 		3rd_party/ExcelFormat.cpp \
-		ga/fitness.cpp \
 		ga/ga.cpp \
 		ga/graph.cpp \
 		ga/individual.cpp \

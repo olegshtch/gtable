@@ -95,13 +95,13 @@ namespace DB
 		Glib::ustring GetTimeTableLessonAuditoriumText(ORM::ForeignKey id_aud, ORM::ForeignKey id_hour, ORM::ForeignKey id_day);
 		long int GetTimeTableLessonAuditorium(ORM::ForeignKey id_aud, ORM::ForeignKey id_hour, ORM::ForeignKey id_day);
 
-		void ListTLHM(Glib::RefPtr<ORM::Data>& data);
+		void ListTLBHM(Glib::RefPtr<ORM::Data>& data);
 		size_t CountAuditoriums(bool multithread, ORM::ForeignKey id_day, ORM::ForeignKey id_hour);
 
 		bool GetLessonHolydays(long int lesson_id, long int day_id, long int hour_id);
 
 		void MoveLessons(long int id_lesson_from, long int id_lesson_to);
-		bool InterseptLessons(long int id_lesson1, long int id_lesson2);
+		bool InterseptGroups(long int id_lesson1, long int id_lesson2);
 		Glib::ustring GetStreamByLesson(ORM::ForeignKey id_lesson);
 		bool IsGroupsInStream(long int id_lesson, long int id_subgroup);
 		void RemoveSubgroupFromLesson(long int id_lesson, long int id_subgroup);

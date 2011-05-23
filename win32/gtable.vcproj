@@ -383,7 +383,11 @@
 			>
 		</File>
 		<File
-			RelativePath="..\src\id_text_scheme.h"
+			RelativePath="..\src\export_dialog.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\src\export_dialog.h"
 			>
 		</File>
 		<File

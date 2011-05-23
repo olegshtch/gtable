@@ -557,8 +557,8 @@ bool DataBase::SetLessonIntoTimetable(long int id_lesson, ORM::ForeignKey id_aud
 	scheme.add(id);
 	Glib::RefPtr<ORM::Data> fake_data = ORM::Data::create(scheme);
 
+	std::cout << "DataBase::SetLessonIntoTimetable. l=" << id_lesson << " a=" << id_aud << " d=" << day_id << " h=" << hour_id << std::endl;
 	//LogBuf::Enable(true);
-	std::cout << "DataBase::SetLessonIntoTimetable" << std::endl;
 	//checks for free auditorium
 	ORM::Subquery subquery_free_aud;
 	subquery_free_aud.Select(fake_data
@@ -595,6 +595,7 @@ bool DataBase::SetLessonIntoTimetable(long int id_lesson, ORM::ForeignKey id_aud
 			|| ORM::In(g_ModelAuditoriums.fId, subquery_unapp_aud)));
 	if(fake_data->children().size() > 0)
 	{
+		std::cout << "DataBase::SetLessonIntoTimetable. No free auditorium" << std::endl;
 		return false;
 	}
 
@@ -629,6 +630,7 @@ bool DataBase::SetLessonIntoTimetable(long int id_lesson, ORM::ForeignKey id_aud
 			|| ORM::In(g_ModelGroups.fId, subquery_free_grp)));
 	if(fake_data->children().size() > 0)
 	{
+		std::cout << "DataBase::SetLessonIntoTimetable. No free groups" << std::endl;
 		return false;
 	}
 
@@ -657,6 +659,7 @@ bool DataBase::SetLessonIntoTimetable(long int id_lesson, ORM::ForeignKey id_aud
 			|| ORM::In(g_ModelTeachers.fId, subquery_free_tch)));
 	if(fake_data->children().size() > 0)
 	{
+		std::cout << "DataBase::SetLessonIntoTimetable. No free teachers" << std::endl;
 		return false;
 	}
 
@@ -1149,12 +1152,13 @@ long int DataBase::GetTimeTableLessonAuditorium(ORM::ForeignKey id_aud, ORM::For
 	return -1;
 }
 
-void DataBase::ListTLHM(Glib::RefPtr<ORM::Data>& data)
+void DataBase::ListTLBHM(Glib::RefPtr<ORM::Data>& data)
 {
 	m_Connection.SelectDistinct(data
 		, g_ModelLessons.teacher
 		, g_ModelLessons.fId
 		, g_ModelLessons.lesson_type
+		, g_ModelLessons.branch
 		, g_ModelTeachingPlan.hours
 		, g_ModelLessonType.multithread)
 		->From(g_ModelLessons, g_ModelGroupCategory, g_ModelTeachingPlan)
@@ -1240,7 +1244,7 @@ void DataBase::MoveLessons(long int id_lesson_from, long int id_lesson_to)
 	m_Connection.DeleteFrom(g_ModelLessons)->Where(ORM::Eq(g_ModelLessons.fId, ORM::PrimaryKey(id_lesson_from)));
 }
 
-bool DataBase::InterseptLessons(long int id_lesson1, long int id_lesson2)
+bool DataBase::InterseptGroups(long int id_lesson1, long int id_lesson2)
 {
 	ORM::Subquery groups1;
 	Glib::RefPtr<ORM::Data> fake_data;

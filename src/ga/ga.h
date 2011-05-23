@@ -8,6 +8,9 @@ typedef unsigned char uint8_t;
 #endif
 #include <vector>
 
+#include "graph.h"
+#include "individual.h"
+
 // Занятие
 struct Task
 {
@@ -22,28 +25,22 @@ struct Task
 	}
 };
 
-class Individual;
-class ADH;
-
 class GA
 {
-	friend class Individual;
-	friend class ADH;
 public:
 	GA();
 	~GA()
 	{
 	}
 
-	//void Solve(DB::DataBase &db);
-	bool Loop(std::vector<Individual> *population);
+	bool Loop();
+
 private:
-	std::vector<bool> less_aud; // адресация [l * A + a]
-	std::vector<Task> tasks;
-	std::vector<std::vector<Task>::const_iterator> table_base;
-	std::vector<bool> multi_aud;
-	static size_t A, D, H, G, T, L;
-	std::vector<size_t> ids_a, ids_d, ids_h, ids_g, ids_t, ids_l;
+	void CheckPopulation(const std::vector<Individual>& population);
+
+	const GraphForTime m_Graph;
+	std::vector<Individual> m_Population;
+	size_t m_StaySteps;
 };
 
 #endif

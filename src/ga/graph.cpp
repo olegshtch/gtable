@@ -4,13 +4,8 @@
 #include "../db/db.h"
 #include "logbuf.h"
 
-GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
+GraphForTime::GraphForTime()
 {
-	std::vector<ItemColor> colors;
-	std::vector<long int> multi_aud;
-	std::vector<long int> single_aud;
-	std::set<std::pair<size_t, size_t> > item_holydays; //item, color;
-
 	DB::DataBase &db = DB::DataBase::Instance();
 	{
 		//getting all items
@@ -18,24 +13,28 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 		ORM::Field<long int> t("t");
 		ORM::Field<long int> l("l");
 		ORM::Field<long int> lt("lt");
+		ORM::Field<long int> b("b");
 		ORM::Field<long int> h("h");
 		ORM::Field<bool> m("m");
 		items_scheme.add(t);
 		items_scheme.add(l);
 		items_scheme.add(lt);
+		items_scheme.add(b);
 		items_scheme.add(h);
 		items_scheme.add(m);
+		
 		Glib::RefPtr<ORM::Data> data = ORM::Data::create(items_scheme);
 
-		db.ListTLHM(data);
+		db.ListTLBHM(data);
 
 		for(Gtk::TreeIter iter = data->children().begin(); iter != data->children().end(); ++ iter)
 		{
 			for(long int hours = iter->get_value(h); hours > 0; -- hours)
 			{
-				m_Items.push_back(ItemTLM(iter->get_value(t)
+				m_Items.push_back(ItemTLBM(iter->get_value(t)
 					, iter->get_value(l)
 					, iter->get_value(lt)
+					, iter->get_value(b)
 					, iter->get_value(m)));
 			}
 		}
@@ -57,7 +56,7 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 				//count non-holyday auditorium for day, hour
 				const size_t am_count = db.CountAuditoriums(true, day->get_value(id), hour->get_value(id));
 				const size_t as_count = db.CountAuditoriums(false, day->get_value(id), hour->get_value(id));
-				colors.push_back(ItemColor(day->get_value(id), hour->get_value(id), am_count, as_count));
+				m_Colors.push_back(ItemColor(day->get_value(id), hour->get_value(id), am_count, as_count));
 			}
 		}
 
@@ -68,22 +67,22 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 		{
 			if(aud->get_value(DB::g_ModelAuditoriums.multithread))
 			{
-				multi_aud.push_back(aud->get_value(DB::g_ModelAuditoriums.fId));
+				m_MultiAuds.push_back(aud->get_value(DB::g_ModelAuditoriums.fId));
 			}
 			else
 			{
-				single_aud.push_back(aud->get_value(DB::g_ModelAuditoriums.fId));
+				m_SingleAuds.push_back(aud->get_value(DB::g_ModelAuditoriums.fId));
 			}
 		}
 
 		// fill item holydays
 		for(size_t i = 0; i < m_Items.size(); ++ i)
 		{
-			for(size_t c = 0; c < colors.size(); ++ c)
+			for(size_t c = 0; c < m_Colors.size(); ++ c)
 			{
-				if(db.GetLessonHolydays(m_Items[i].l, colors[c].d, colors[c].h))
+				if(db.GetLessonHolydays(m_Items[i].l, m_Colors[c].d, m_Colors[c].h))
 				{
-					item_holydays.insert(std::make_pair(i, c));
+					m_Holydays.insert(std::make_pair(i, c));
 				}
 			}
 		}
@@ -99,7 +98,7 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 	{
 		for(size_t col = row + 1; col < m_Items.size(); ++ col)
 		{
-			const bool link = (m_Items[row].t == m_Items[col].t) || (m_Items[row].l == m_Items[col].l) || db.InterseptLessons(m_Items[row].l, m_Items[col].l);
+			const bool link = (m_Items[row].t == m_Items[col].t) || (m_Items[row].l == m_Items[col].l) || db.InterseptGroups(m_Items[row].l, m_Items[col].l);
 			/*if(link)
 			{
 				std::cout << "link row=" << row << " col=" << col << std::endl;
@@ -110,13 +109,29 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 	}
 
 	// данные загружены
+	
+	//std::vector<GraphForTime::ItemColoring> coloring = Coloring();
 
-	std::vector<ItemColoring> coloring(m_Items.size(), ItemColoring(-1, -1, false)); // цвет, метка(соседствует с ракрашенной текущим цветом)
+	// генетические алгоритмы (std::vector<ItemColoring> - особь)
+	
+	//StoreTimetable(coloring);
+}
+
+std::vector<GraphForTime::ItemColoring> GraphForTime::Coloring(std::vector<size_t> *p_multi_aud_count, std::vector<size_t> *p_single_aud_count) const
+{
+	size_t row;
+	std::vector<ItemColoring> coloring(m_Items.size(), ItemColoring(-1, -1, false));
+
+	std::vector<size_t> multi_aud_count(m_Colors.size(), 0);
+	std::vector<size_t> single_aud_count(m_Colors.size(), 0);
 
 	// coloring time
 	size_t color_index = 0;
 	do
 	{
+		multi_aud_count[color_index] = m_Colors[color_index].am;
+		single_aud_count[color_index] = m_Colors[color_index].as;
+
 		std::vector<std::pair<size_t, size_t> > link_count; // список пар сумма и индекс
 		for(row = 0; row < m_Items.size(); ++ row)
 		{
@@ -132,9 +147,9 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 					}
 				}
 				// подсчёт связей для выходных (todo: или только для текущего цвета)
-				for(size_t c = 0; c < colors.size(); ++ c)
+				for(size_t c = 0; c < m_Colors.size(); ++ c)
 				{
-					if(item_holydays.count(std::make_pair(row, c)))
+					if(m_Holydays.count(std::make_pair(row, c)))
 					{
 						sum += 1;
 					}
@@ -148,26 +163,26 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 
 		for(size_t i = 0; i < link_count.size(); ++ i)
 		{
-			std::cout << link_count[i].first << "," << link_count[i].second << std::endl;
+			//std::cout << link_count[i].first << "," << link_count[i].second << std::endl;
 			const size_t index = link_count[i].second; // индекс вершины
 			if((! coloring[index].mark)
 				&& (coloring[index].color == -1)
-				&& (! item_holydays.count(std::make_pair(index, color_index))))
+				&& (! m_Holydays.count(std::make_pair(index, color_index))))
 			{
 				// не отмечена и не закрашена
 				if(m_Items[index].m) // многопоточное занятие
 				{
-					if(colors[color_index].am > 0)
+					if(multi_aud_count[color_index] > 0)
 					{
-						-- colors[color_index].am;
+						-- multi_aud_count[color_index];
 						coloring[index].color = color_index;
 					}
 				}
 				else // однопоточное занятие
 				{
-					if(colors[color_index].as > 0)
+					if(single_aud_count[color_index] > 0)
 					{
-						-- colors[color_index].as;
+						-- single_aud_count[color_index];
 						coloring[index].color = color_index;
 					}
 				}
@@ -184,32 +199,155 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 				}
 			}
 		}
-		// убираем отметки и распределяем аудитории
+		// убираем отметки
 		for(size_t j = 0; j < m_Items.size(); ++ j)
 		{
 			coloring[j].mark = false;
-			if(coloring[j].color == color_index)
-			{
-				if(m_Items[j].m)
-				{
-					coloring[j].a = multi_aud[colors[color_index].am];
-					colors[color_index].am ++;
-				}
-				else
-				{
-					coloring[j].a = single_aud[colors[color_index].as];
-					colors[color_index].as ++;					
-				}
-			}
 		}
 
 		color_index ++;
 
 	} // конец шага закраски
-	while(color_index < colors.size());	
+	while(color_index < m_Colors.size());
 
-	// генетические алгоритмы (std::vector<ItemColoring> - особь)
-	
+	if(p_multi_aud_count)
+	{
+		(*p_multi_aud_count) = multi_aud_count;
+	}
+	if(p_single_aud_count)
+	{
+		(*p_single_aud_count) = single_aud_count;
+	}
+
+	return coloring;
+}
+
+std::vector<GraphForTime::ItemColoring> GraphForTime::Coloring(const std::vector<GraphForTime::ItemColoring>& coloring_, std::vector<size_t> *p_multi_aud_count, std::vector<size_t> *p_single_aud_count) const
+{
+	size_t row;
+	std::vector<ItemColoring> coloring(coloring_);
+
+	std::vector<size_t> multi_aud_count(m_Colors.size(), 0);
+	std::vector<size_t> single_aud_count(m_Colors.size(), 0);
+
+	// coloring time
+	size_t color_index = 0;
+	do
+	{
+		multi_aud_count[color_index] = m_Colors[color_index].am;
+		single_aud_count[color_index] = m_Colors[color_index].as;
+
+		//проверка на текущий цвет и расстановка меток
+		std::vector<std::pair<size_t, size_t> > link_count; // список пар сумма и индекс
+		for(row = 0; row < m_Items.size(); ++ row)
+		{
+			size_t sum = 0;
+			if(coloring[row].color == -1)
+			{
+				// незакрашена
+				for(size_t col = 0; col < m_Items.size(); ++ col)
+				{
+					if((coloring[col].color == -1) && m_Links[row][col]) // исключая закрашенные вершины
+					{
+						sum += 1;
+					}
+				}
+				// подсчёт связей для выходных (todo: или только для текущего цвета)
+				for(size_t c = 0; c < m_Colors.size(); ++ c)
+				{
+					sum += m_Holydays.count(std::make_pair(row, c));
+				}
+			}
+			else if(coloring[row].color == color_index)
+			{
+				for(size_t col = 0; col < m_Items.size(); ++ col)
+				{
+					if(m_Links[row][col])
+					{
+						coloring[col].mark = true; // помечаем связанные
+					}
+				}
+
+				// учитываем загрузку аудиторий
+				if(m_Items[row].m)
+				{
+					-- multi_aud_count[color_index];
+				}
+				else
+				{
+					-- single_aud_count[color_index];
+				}
+			}
+			link_count.push_back(std::make_pair(sum, row));
+		}
+		std::sort(link_count.begin(), link_count.end(), std::greater<std::pair<size_t, size_t> >());
+
+		// отсортировано в порядке убывания
+
+		for(size_t i = 0; i < link_count.size(); ++ i)
+		{
+			//std::cout << link_count[i].first << "," << link_count[i].second << std::endl;
+			const size_t index = link_count[i].second; // индекс вершины
+			if((! coloring[index].mark)
+				&& (coloring[index].color == -1)
+				&& (! m_Holydays.count(std::make_pair(index, color_index))))
+			{
+				// не отмечена и не закрашена
+				if(m_Items[index].m) // многопоточное занятие
+				{
+					if(multi_aud_count[color_index] > 0)
+					{
+						-- multi_aud_count[color_index];
+						coloring[index].color = color_index;
+					}
+				}
+				else // однопоточное занятие
+				{
+					if(single_aud_count[color_index] > 0)
+					{
+						-- single_aud_count[color_index];
+						coloring[index].color = color_index;
+					}
+				}
+				if(coloring[index].color == color_index)
+				{
+					// если закрасили, отметим соседние
+					for(size_t j = 0; j < m_Items.size(); ++ j)
+					{
+						if(m_Links[index][j])
+						{
+							coloring[j].mark = true;
+						}
+					}
+				}
+			}
+		}
+		// убираем отметки
+		for(size_t j = 0; j < m_Items.size(); ++ j)
+		{
+			coloring[j].mark = false;
+		}
+
+		color_index ++;
+
+	} // конец шага закраски
+	while(color_index < m_Colors.size());
+
+	if(p_multi_aud_count)
+	{
+		(*p_multi_aud_count) = multi_aud_count;
+	}
+	if(p_single_aud_count)
+	{
+		(*p_single_aud_count) = single_aud_count;
+	}
+
+	return coloring;
+}
+
+void GraphForTime::StoreTimetable(const std::vector<GraphForTime::ItemColoring>& coloring) const
+{
+	DB::DataBase &db = DB::DataBase::Instance();
 	// сохранить расписание
 	db.CleanTimeTable();
 	for(size_t i = 0; i < m_Items.size() ; ++ i)
@@ -219,9 +357,9 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 			if(m_Items[i].m)
 			{
 				// поиск свободной многопоточной аудитории
-				for(size_t a = 0; a < multi_aud.size(); a ++)
+				for(size_t a = 0; a < m_MultiAuds.size(); a ++)
 				{
-					if(db.SetLessonIntoTimetable(m_Items[i].l, multi_aud[a], colors[coloring[i].color].d, colors[coloring[i].color].h))
+					if(db.SetLessonIntoTimetable(m_Items[i].l, m_MultiAuds[a], m_Colors[coloring[i].color].d, m_Colors[coloring[i].color].h))
 					{
 						break;
 					}
@@ -230,9 +368,9 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 			else
 			{
 				// поиск свободной однопоточной аудитории
-				for(size_t a = 0; a < single_aud.size(); a ++)
+				for(size_t a = 0; a < m_SingleAuds.size(); a ++)
 				{
-					if(db.SetLessonIntoTimetable(m_Items[i].l, single_aud[a], colors[coloring[i].color].d, colors[coloring[i].color].h))
+					if(db.SetLessonIntoTimetable(m_Items[i].l, m_SingleAuds[a], m_Colors[coloring[i].color].d, m_Colors[coloring[i].color].h))
 					{
 						break;
 					}
@@ -245,6 +383,5 @@ GraphForTime::GraphForTime(Glib::Dispatcher &dispatcher)
 			std::cout << "Timetable doesn't fill" << std::endl;
 		}
 	}
-	dispatcher.emit();
 }
 

@@ -52,14 +52,14 @@ ExportDialog::ExportDialog(GtkDialog *cobject, const Glib::RefPtr<Gtk::Builder>&
 	m_ExportCategory->pack_start(DB::g_IdTextScheme.fText);
 	Gtk::TreeIter iter = m_refCategory->append();
 	iter->set_value(DB::g_IdTextScheme.fId, 1l);
-	iter->set_value(DB::g_IdTextScheme.fText, Glib::ustring(_("Groups")));
+	iter->set_value(DB::g_IdTextScheme.fText, Glib::ustring(_("Группы")));
 	m_ExportCategory->set_active(iter);
-	iter = m_refCategory->append();
+	/*iter = m_refCategory->append();
 	iter->set_value(DB::g_IdTextScheme.fId, 2l);
 	iter->set_value(DB::g_IdTextScheme.fText, Glib::ustring(_("Teachers")));
 	iter = m_refCategory->append();
 	iter->set_value(DB::g_IdTextScheme.fId, 3l);
-	iter->set_value(DB::g_IdTextScheme.fText, Glib::ustring(_("Auditoriums")));
+	iter->set_value(DB::g_IdTextScheme.fText, Glib::ustring(_("Auditoriums")));*/
 	m_ExportCategory->signal_changed().connect(sigc::mem_fun(*this, &ExportDialog::OnExportChanged));
 
 	m_ExportedObjects->set_headers_visible(false);
@@ -90,10 +90,10 @@ void ExportDialog::on_response(int response_id)
 	if(response_id == Gtk::RESPONSE_YES)
 	{
 #if WIN32
-		Win32FileDialog dialog(_("Choose file for exporting timetable:"),
+		Win32FileDialog dialog(_("Выбрать файл для экспорта расписания:"),
 			Gtk::FILE_CHOOSER_ACTION_SAVE);
 		dialog.add_filter(_("Microsoft Excel"), "*.xls");
-		dialog.add_filter(_("All files"), "*");
+		dialog.add_filter(_("Все файлы"), "*");
 		dialog.set_def_ext("xls");
 #else
 		Gtk::FileChooserDialog dialog(*this, _("Choose file for exporting timetable:"),
@@ -128,18 +128,27 @@ void ExportDialog::Export(const Glib::ustring& filename)
 	{
 		throw Glib::Error(1, 0, "Cann't get worksheet");
 	}
-	worksheet->Rename(WChar(_("Timetable")));
+	worksheet->Rename(WChar(_("Расписание")));
 	ExcelFormat::XLSFormatManager format_manager(xls);
 	ExcelFormat::CellFormat cell_format(format_manager);
 	cell_format.set_alignment(ExcelFormat::EXCEL_VALIGN_CENTRED | ExcelFormat::EXCEL_HALIGN_CENTRED);
+	cell_format.set_wrapping(false);
+	cell_format.set_borderlines(ExcelFormat::EXCEL_LS_THICK
+		, ExcelFormat::EXCEL_LS_THICK
+		, ExcelFormat::EXCEL_LS_THICK
+		, ExcelFormat::EXCEL_LS_THICK
+		, 0
+		, 0);
 	YExcel::BasicExcelCell *cell = worksheet->Cell(1, 0);
-	cell->Set(WChar(_("Day")));
+	cell->Set(WChar(_("День")));
 	cell->SetFormat(cell_format);
+	worksheet->SetColWidth(0, 5000);
 	cell = worksheet->Cell(1, 1);
-	cell->Set(WChar(_("Hour")));
+	cell->Set(WChar(_("Час")));
 	cell->SetFormat(cell_format);
+	worksheet->SetColWidth(1, 5000);
 	cell = worksheet->Cell(0, 2);
-	cell->Set(WChar(_("Groups")));
+	cell->Set(WChar(_("Группы")));
 	cell->SetFormat(cell_format);
 
 	//заполнить группами
@@ -150,7 +159,6 @@ void ExportDialog::Export(const Glib::ustring& filename)
 		if(iter->get_value(m_ChooseModel.fChoose))
 		{
 			groups_list.push_back(std::make_pair(iter->get_value(m_ChooseModel.fId), iter->get_value(m_ChooseModel.fText)));
-			std::cout << "Add " << iter->get_value(m_ChooseModel.fText) << std::endl;
 		}
 	}
 
@@ -160,12 +168,39 @@ void ExportDialog::Export(const Glib::ustring& filename)
 		cell = worksheet->Cell(1, i + 2);
 		cell->Set(WChar(groups_list[i].second));
 		cell->SetFormat(cell_format);
+		cell = worksheet->Cell(0, i + 2);
+		cell->SetFormat(cell_format);
+		worksheet->SetColWidth(i + 2, 5000);
 	}
 
 	Glib::RefPtr<ORM::Data> days_list = ORM::Data::create(DB::g_IdTextScheme);
 	Glib::RefPtr<ORM::Data> hours_list = ORM::Data::create(DB::g_IdTextScheme);
 	DB::DataBase::Instance().ListEntitiesTextOrderedID(DB::g_ModelDays, DB::g_ModelDays.name, days_list);
 	DB::DataBase::Instance().ListEntitiesTextOrderedID(DB::g_ModelHours, ORM::Expr<Glib::ustring>(ORM::Expr<Glib::ustring>(DB::g_ModelHours.start) + "-" + DB::g_ModelHours.finish), hours_list);
+
+	ExcelFormat::CellFormat cell_top(format_manager);
+	cell_top.set_borderlines(ExcelFormat::EXCEL_LS_THICK
+		, ExcelFormat::EXCEL_LS_THICK
+		, ExcelFormat::EXCEL_LS_THICK
+		, ExcelFormat::EXCEL_LS_NO_LINE
+		, 0
+		, 0);
+
+	ExcelFormat::CellFormat cell_bottom(format_manager);
+	cell_bottom.set_borderlines(ExcelFormat::EXCEL_LS_THICK
+		, ExcelFormat::EXCEL_LS_THICK
+		, ExcelFormat::EXCEL_LS_NO_LINE
+		, ExcelFormat::EXCEL_LS_THICK
+		, 0
+		, 0);
+
+	ExcelFormat::CellFormat cell_middle(format_manager);
+	cell_middle.set_borderlines(ExcelFormat::EXCEL_LS_THICK
+		, ExcelFormat::EXCEL_LS_THICK
+		, ExcelFormat::EXCEL_LS_NO_LINE
+		, ExcelFormat::EXCEL_LS_NO_LINE
+		, 0
+		, 0);
 
 	size_t row = 2;
 	for(Gtk::TreeIter day = days_list->children().begin(); day != days_list->children().end(); ++ day)
@@ -182,17 +217,33 @@ void ExportDialog::Export(const Glib::ustring& filename)
 			cell->SetFormat(cell_format);
 			for(size_t i = 0; i < groups_list.size(); ++ i)
 			{
-				cell = worksheet->Cell(row, i + 2);
-				cell->SetMergedRows(merged_lines);
 				Glib::ustring timetablestr = DB::DataBase::Instance().GetTimeTableLessonGroupText(groups_list[i].first, hour->get_value(DB::g_IdTextScheme.fId), day->get_value(DB::g_IdTextScheme.fId), m_ShowAuditorium->get_active());
-				cell->Set(WChar(timetablestr));
+				Glib::ustring::size_type index_start = 0;
+				for(size_t j = 0; j < merged_lines; ++ j)
+				{
+					cell = worksheet->Cell(row + j, 0);
+					cell->SetFormat(cell_format);
+					cell = worksheet->Cell(row + j, 1);
+					cell->SetFormat(cell_format);
+
+					cell = worksheet->Cell(row + j, i + 2);
+					cell->SetFormat(cell_middle);
+					Glib::ustring::size_type index_end = timetablestr.find('\n', index_start);
+					cell->SetWString(WChar(timetablestr.substr(index_start, index_end)));
+					index_start = index_end + 1;
+					if(j == 0)
+					{
+						cell->SetFormat(cell_top);
+					}
+					else if(j == (merged_lines - 1))
+					{
+						cell->SetFormat(cell_bottom);
+					}
+				}
 			}
 		}
 	}
 
 	xls.SaveAs(WChar(filename));
-#ifdef WIN32
-	ShellExecuteW(0, NULL, WChar(filename), NULL, NULL, SW_NORMAL);
-#endif
 }
 

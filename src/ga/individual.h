@@ -4,106 +4,77 @@
 #include <vector>
 #include <iostream>
 #include <cstdlib>
-#include "ga.h"
-
-struct ADH
-{
-public:
-	ADH(long adh)
-	{
-		a = adh % GA::A;
-		adh /= GA::A;
-		d = adh % GA::D;
-		adh /= GA::D;
-		h = adh;
-	}
-	size_t a, d, h;
-/*
-	static void SetSizes(size_t A_, size_t D_, size_t H_)
-	{
-		A = A_;
-		D = D_;
-		H = H_;
-	}
-private:
-	static size_t A, D, H;*/
-};
+#include "graph.h"
 
 // особь
 class Individual
 {
 public:
-	Individual(size_t gtl, size_t adh)
+	Individual(const GraphForTime& graph, const std::vector<GraphForTime::ItemColoring>& coloring, const std::vector<size_t> &multi_aud_count, const std::vector<size_t>& single_aud_count)
+		:m_Graph(graph)
+		,m_Coloring(coloring)
+		,m_MultiAudCount(multi_aud_count)
+		,m_SingleAudCount(single_aud_count)
 	{
-		table.resize(gtl, -1);
-		busy.resize(adh, 0);
+		m_Fitness = FitnessCalculate();
 	}
+
+	Individual(const Individual& ind)
+		:m_Graph(ind.m_Graph)
+		,m_Coloring(ind.m_Coloring)
+		,m_MultiAudCount(ind.m_MultiAudCount)
+		,m_SingleAudCount(ind.m_SingleAudCount)
+		,m_Fitness(ind.m_Fitness)
+	{
+		//ind.CheckSelf();
+		//m_Coloring = ind.m_Coloring;
+		//m_MultiAudCount = ind.m_MultiAudCount;
+		//m_SingleAudCount = ind.m_SingleAudCount;
+		//m_Fitness = ind.m_Fitness;
+		//ind.CheckSelf();
+		//CheckSelf();
+	}
+
 	~Individual()
 	{
 	}
 
-	bool SetTable(size_t index_gtl, long adh_value)
+	Individual& operator=(const Individual& ind)
 	{
-		//check
-		if((adh_value != -1) && (busy[adh_value] > 0) && (! ga->multi_aud[ADH(adh_value).a]))
+		if(this != &ind)
 		{
-			return false;
+			m_Coloring = ind.m_Coloring;
+			m_MultiAudCount = ind.m_MultiAudCount;
+			m_SingleAudCount = ind.m_SingleAudCount;
+			m_Fitness = ind.m_Fitness;
 		}
-
-		if(table[index_gtl] != -1)
-		{
-			busy[table[index_gtl]] --;
-		}
-		table[index_gtl] = adh_value;
-		if(table[index_gtl] != -1)
-		{
-			busy[table[index_gtl]] ++;
-		}
-		return true;
+		return *this;
 	}
 
-	const std::vector<signed long>& GetTable() const
+	bool operator<(const Individual& ind) const
 	{
-		return table;
+		return m_Fitness < ind.m_Fitness;
 	}
-
-	const std::vector<signed long>& GetBusy() const
+	
+	long GetFitness() const
 	{
-		return busy;
+		return m_Fitness;
 	}
 
-	void Mutation()
-	{
-		size_t i1 = rand() % table.size();
-		size_t i2 = rand() % table.size();
-		signed long swap = table[i1];
-		table[i1] = table[i2];
-		table[i2] = swap;
-	}
+	bool Mutation();
+	bool Crossover(const Individual& ind);
 
-	void Crossover(const Individual& other)
-	{
-		for(size_t i = 0; i < table.size() ; i ++)
-		{
-			if(rand() % 2)
-			{
-				SetTable(i, other.table[i]);
-			}
-		}
-	}
+	void Output() const;
 
-	static void SetGA(GA *ga_)
-	{
-		ga = ga_;
-	}
-
-	void Output(std::ostream &os) const;
+	void CheckSelf() const;
 private:
-	std::vector<signed long> table; // вектор соответствия занятий и времени с аудиторией.
-	std::vector<signed long> busy; // занятие соответствующих аудиторий и времени
-	//std::vector<bool> busy_gdh; // занятость групп
-	//std::vector<bool> busy_tdh; // занятость преподавателей
-	static GA *ga;
+	long FitnessCalculate() const;
+
+	const GraphForTime& m_Graph;
+	std::vector<GraphForTime::ItemColoring> m_Coloring;
+	std::vector<size_t> m_MultiAudCount; // по индексу цвета
+	std::vector<size_t> m_SingleAudCount; // по индексу цвета
+	long m_Fitness;
 };
 
 

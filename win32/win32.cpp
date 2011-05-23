@@ -14,9 +14,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 Win32FileDialog::Win32FileDialog(const Glib::ustring& title, Gtk::FileChooserAction action)
 	:m_lpTitle(NULL)
 	,m_lpDefExt(NULL)
+	,m_Action(action)
 {
-	set_action(action);
-
 	m_lpTitle = g_utf8_to_utf16(title.c_str(), -1, 0, 0, 0);
 
 	m_Filename[0] = L'\0';
@@ -103,13 +102,13 @@ int Win32FileDialog::run()
 
 	BOOL res;
 
-	if(get_action() == Gtk::FILE_CHOOSER_ACTION_OPEN)
+	if(m_Action == Gtk::FILE_CHOOSER_ACTION_SAVE)
 	{
-		res = GetOpenFileNameW(&m_ofnw);
+		res = GetSaveFileNameW(&m_ofnw);
 	}
 	else
 	{
-		res = GetSaveFileNameW(&m_ofnw);
+		res = GetOpenFileNameW(&m_ofnw);
 	}
 
 	if(res)

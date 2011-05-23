@@ -1,5 +1,4 @@
-noinst_HEADERS = fitness.h \
-	ga.h \
+noinst_HEADERS = ga.h \
 	graph.h \
 	individual.h
 

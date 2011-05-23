@@ -27,6 +27,7 @@ private:
 	gunichar2 *m_lpTitle;
 	gunichar2 *m_lpDefExt;
 	std::vector<wchar_t> m_Filter;
+	Gtk::FileChooserAction m_Action;
 };
 
 BOOL Win32_OpenFileDialog(LPTSTR filename, DWORD maxname);

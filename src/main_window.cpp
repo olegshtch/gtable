@@ -4,7 +4,7 @@
 #include "main_window.h"
 #include "shared.h"
 #include "export_dialog.h"
-#include "ga/graph.h"
+#include "ga/ga.h"
 #include "orm/data.h"
 #include "orm/expr.h"
 #include "db/models.h"
@@ -337,7 +337,7 @@ void MainWindow::OnSolvingEmit()
 void MainWindow::OnNew()
 {
 	DB::DataBase::Instance().New();
-	set_title(_("Schedule"));
+	set_title(_("Timetable"));
 	m_DoubleWeek->property_active() = DB::DataBase::Instance().GetWeeks();
 	for(std::vector<LineEditable*>::iterator it = m_LineEditors.begin(); it !=	m_LineEditors.end(); ++ it)
 	{
@@ -370,7 +370,7 @@ void MainWindow::OnOpen()
 	if(dialog.run()==Gtk::RESPONSE_YES)
 	{
 		DB::DataBase::Instance().Open(dialog.get_filename());
-		set_title(dialog.get_filename() + " " + _("Schedule"));
+		set_title(dialog.get_filename() + " " + _("Timetable"));
 		m_DoubleWeek->property_active() = DB::DataBase::Instance().GetWeeks();
 		for(std::vector<LineEditable*>::iterator it = m_LineEditors.begin(); it !=	m_LineEditors.end(); ++ it)
 		{
@@ -409,7 +409,7 @@ void MainWindow::OnSave()
 			filename += ".tbl";
 		}
 		DB::DataBase::Instance().Save(filename);
-		set_title(filename + " " + _("Schedule"));
+		set_title(filename + " " + _("Timetable"));
 	}
 }
 
@@ -1105,7 +1105,12 @@ void MainWindow::OnScheduleRun()
 
 void MainWindow::Solving()
 {
-	GraphForTime graph(m_SolvingDispatcher);
+	GA ga;
+	while(ga.Loop())
+	{
+		std::cout << "GA step." << std::endl;
+	}
+	m_SolvingDispatcher.emit();
 }
 
 void MainWindow::OnException()

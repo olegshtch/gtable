@@ -7,6 +7,14 @@
 
 #include <glibmm/ustring.h>
 #include <glib/gi18n.h>
+#include <glibmm/refptr.h>
+#include <stdexcept>
+
+/* nice compile-time debug strings */
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define AT __FILE__ ":" TOSTRING(__LINE__)
+#define THROW(a) throw std::runtime_error(a " at " AT)
 
 #define G__FUNCTION__ static_cast<const char*>(__FUNCTION__)
 #define G__FILE__ static_cast<const char*>(__FILE__)
