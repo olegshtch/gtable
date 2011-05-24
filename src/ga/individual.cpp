@@ -138,7 +138,8 @@ long Individual::FitnessCalculate() const
 		{
 			for(size_t j = 0; j < m_Graph.Items().size(); ++ j) //индекс другого занятия
 			{
-				if((m_Coloring[j].color > 0)
+				if(m_Graph.LinksGroup()[i][j]
+					&& (m_Coloring[j].color > 0)
 					&& (m_Coloring[i].color < m_Coloring[j].color)
 					&& (m_Graph.Items()[i].b == m_Graph.Items()[j].b)
 					&& (m_Graph.Items()[i].lt > m_Graph.Items()[j].lt))

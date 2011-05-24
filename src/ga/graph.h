@@ -76,6 +76,10 @@ public:
 	{
 		return m_Links;
 	}
+	const std::vector<std::vector<char> >& LinksGroup() const
+	{
+		return m_LinksGroup;
+	}
 	const std::vector<ItemColor>& Colors() const
 	{
 		return m_Colors;
@@ -87,6 +91,7 @@ public:
 private:
 	std::vector<ItemTLBM> m_Items;
 	std::vector<std::vector<char> > m_Links;
+	std::vector<std::vector<char> > m_LinksGroup;
 	std::vector<ItemColor> m_Colors;
 	std::vector<long int> m_MultiAuds;
 	std::vector<long int> m_SingleAuds;

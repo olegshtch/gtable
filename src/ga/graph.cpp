@@ -89,22 +89,27 @@ GraphForTime::GraphForTime()
 	}
 	
 	m_Links.resize(m_Items.size());
+	m_LinksGroup.resize(m_Items.size());
 	size_t row;
 	for(row = 0; row < m_Items.size(); ++ row)
 	{
 		m_Links[row].resize(m_Items.size());
+		m_LinksGroup[row].resize(m_Items.size());
 	}
 	for(row = 0; row < m_Items.size(); ++ row)
 	{
 		for(size_t col = row + 1; col < m_Items.size(); ++ col)
 		{
-			const bool link = (m_Items[row].t == m_Items[col].t) || (m_Items[row].l == m_Items[col].l) || db.InterseptGroups(m_Items[row].l, m_Items[col].l);
+			const bool link_group = db.InterseptGroups(m_Items[row].l, m_Items[col].l);
+			const bool link = (m_Items[row].t == m_Items[col].t) || (m_Items[row].l == m_Items[col].l) || link_group;
 			/*if(link)
 			{
 				std::cout << "link row=" << row << " col=" << col << std::endl;
 			}*/
 			m_Links[row][col] = link;
 			m_Links[col][row] = link;
+			m_LinksGroup[row][col] = link_group;
+			m_LinksGroup[col][row] = link_group;
 		}
 	}
 
