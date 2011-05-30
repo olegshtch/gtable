@@ -44,6 +44,37 @@ void DataBase::AppendEntity(const ORM::Table& ent, const Gtk::TreeIter& row)
 	m_Connection.InsertInto(ent)->Values(row);
 }
 
+long int DataBase::AppendEntityByName(const DB::ModelFaculties& ent, const Glib::ustring& name)
+{
+	Glib::RefPtr<ORM::Data> data = ORM::Data::create(ent);
+	Gtk::TreeIter iter = data->append();
+	if(iter)
+	{
+		iter->set_value(ent.name, name);
+		iter->set_value(ent.abbr, name);
+		try
+		{
+			m_Connection.InsertInto(ent)->Values(iter);
+		}
+		catch(Glib::Error &e)
+		{
+			std::cout << "AppendEntityByName " << e.what() << std::endl;
+		}
+	}
+	m_Connection.Select(data)
+		->From(ent)
+		->Where(ORM::Eq(ent.name, name));
+	if(data->children().size() == 1)
+	{
+		return data->children()[0].get_value(ent.fId);
+	}
+	else
+	{
+		std::cout << "AppendEntityByName name=" << name << std::endl;
+		return -1l;
+	}
+}
+
 void DataBase::ListEntityOrdered(const ORM::Table& ent,Glib::RefPtr<ORM::Data> &list_store, const ORM::ExprBase& sort_expr)
 {
 	m_Connection.Select(list_store)
@@ -229,7 +260,7 @@ void DataBase::ListNewBranchForSpeciality(Glib::RefPtr<ORM::Data> &data, long in
 		->OrderBy(g_ModelBranch.name);
 }
 
-void DataBase::AppendNewBranchForSpeciality(long int id_speciality, long int id_branch)
+long int DataBase::AppendNewBranchForSpeciality(long int id_speciality, long int id_branch)
 {
 	Glib::RefPtr<ORM::Data> data = ORM::Data::create(g_ModelTeachingBranch);
 	Gtk::TreeIter iter = data->append();
@@ -241,6 +272,19 @@ void DataBase::AppendNewBranchForSpeciality(long int id_speciality, long int id_
 		, g_ModelTeachingBranch.speciality
 		, g_ModelTeachingBranch.term)
 		->Values(iter);
+
+	m_Connection.Select(data)
+		->From(g_ModelTeachingBranch)
+		->Where(ORM::Eq(g_ModelTeachingBranch.branch, ORM::ForeignKey(id_branch))
+			&& ORM::Eq(g_ModelTeachingBranch.speciality, ORM::ForeignKey(id_speciality)));
+	if(data->children().size() == 1)
+	{
+		return data->children()[0].get_value(g_ModelTeachingBranch.fId);
+	}
+	else
+	{
+		return -1;
+	}
 }
 
 void DataBase::RemoveBranchForSpeciality(ORM::ForeignKey id_speciality, ORM::PrimaryKey id_branch)

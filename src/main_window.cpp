@@ -4,6 +4,7 @@
 #include "main_window.h"
 #include "shared.h"
 #include "export_dialog.h"
+#include "import_dialog.h"
 #include "ga/ga.h"
 #include "orm/data.h"
 #include "orm/expr.h"
@@ -415,6 +416,12 @@ void MainWindow::OnSave()
 
 void MainWindow::OnImport()
 {
+	ImportDialog *p_dialog = NULL;
+	m_refBuilder->get_widget_derived("ImportDialog", p_dialog);
+	if(p_dialog)
+	{
+		p_dialog->run();
+	}
 }
 
 void MainWindow::OnExport()

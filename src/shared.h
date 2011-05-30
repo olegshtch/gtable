@@ -75,5 +75,31 @@ private:
 	wchar_t *m_Data;
 };
 
+template <int= sizeof(wchar_t)> struct w2ustring_select;
+
+template <> struct w2ustring_select<2>
+{
+  typedef gunichar2 const* gunistr_t;
+  gchar* (*fun)(gunistr_t, glong, glong*, glong*, GError**);
+  w2ustring_select(): fun(g_utf16_to_utf8){}
+};
+
+template <> struct w2ustring_select<4>
+{
+  typedef gunichar const * gunistr_t;
+  gchar* (*fun)(gunistr_t, glong, glong*, glong*, GError**);
+  w2ustring_select(): fun(g_ucs4_to_utf8){}
+};
+
+Glib::ustring inline w2ustring(const wchar_t *w)
+{
+  static w2ustring_select<> which;
+  typedef w2ustring_select<>::gunistr_t whichstr_t;
+  whichstr_t whatever= reinterpret_cast<whichstr_t>(w);
+  gchar* utf8= which.fun(whatever, -1, 0, 0, 0);
+  Glib::ustring u(utf8); g_free(utf8);
+  return u;
+}
+
 #endif
 

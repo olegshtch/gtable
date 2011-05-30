@@ -42,6 +42,7 @@ namespace DB
 		}
 
 		void AppendEntity(const ORM::Table& ent, const Gtk::TreeIter& row);
+		long int AppendEntityByName(const DB::ModelFaculties& ent, const Glib::ustring& name);
 		void ListEntityOrdered(const ORM::Table& ent, Glib::RefPtr<ORM::Data> &list_store, const ORM::ExprBase& sort_expr);
 		void ListEntitiesTextOrdered(const ORM::Table& ent, const ORM::Expr<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data);
 		void ListEntitiesTextOrderedID(const ORM::Table& ent, const ORM::Expr<Glib::ustring> field, Glib::RefPtr<ORM::Data> &data);
@@ -67,7 +68,10 @@ namespace DB
 
 		void GetTeachingBranch(Glib::RefPtr<ORM::Data> &data, long int id_speciality);
 		void ListNewBranchForSpeciality(Glib::RefPtr<ORM::Data> &data, long int id_speciality);
-		void AppendNewBranchForSpeciality(long int id_speciality, long int id_branch);
+
+		/// \return TeachingBranch;
+		long int AppendNewBranchForSpeciality(long int id_speciality, long int id_branch);
+
 		void RemoveBranchForSpeciality(ORM::ForeignKey id_speciality, ORM::PrimaryKey id_branch);
 
 		long GetTeachingPlanHours(long int id_teaching_branch, long int id_lesson_type);

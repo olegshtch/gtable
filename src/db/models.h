@@ -26,20 +26,35 @@ namespace DB
 	extern const ModelEntity g_ModelDays;
 	extern const ModelEntity g_ModelBranchCategory;
 
-	class ModelBranch : public ModelEntity
+	// id - идентификатор факультета
+	// name - название
+	// abbr - сокращение
+	class ModelFaculties : public ModelEntity
 	{
 	public:
 		ORM::Field<Glib::ustring> abbr;
+
+		ModelFaculties(const Glib::ustring& table_name)
+			:ModelEntity(table_name),
+			abbr("abbr")
+		{
+			add(abbr);
+			Unique(abbr);
+		}
+	};
+
+	extern const ModelFaculties g_ModelFaculties;
+
+	class ModelBranch : public ModelFaculties
+	{
+	public:
 		ORM::Field<ORM::ForeignKey> category;
 
 		ModelBranch(const Glib::ustring& table_name)
-			:ModelEntity(table_name),
-			abbr("abbr"),
+			:ModelFaculties(table_name),
 			category(g_ModelBranchCategory)
 		{
-			add(abbr);
 			add(category);
-			Unique(abbr);
 		}
 	};
 
@@ -69,25 +84,6 @@ namespace DB
 
 	extern const ModelEntity g_ModelBuildings;
 	
-	// id - идентификатор факультета
-	// name - название
-	// abbr - сокращение
-	class ModelFaculties : public ModelEntity
-	{
-	public:
-		ORM::Field<Glib::ustring> abbr;
-
-		ModelFaculties(const Glib::ustring& table_name)
-			:ModelEntity(table_name),
-			abbr("abbr")
-		{
-			add(abbr);
-			Unique(abbr);
-		}
-	};
-
-	extern const ModelFaculties g_ModelFaculties;
-
 	// id - идентификатор кафедры
 	// name - название
 	// abbr - сокращение

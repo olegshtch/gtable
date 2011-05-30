@@ -37,7 +37,7 @@ bool GA::Loop()
 			new_population.push_back(ind);
 		}
 	}
-#if 0
+#if 1
 	// заполнение результатами скрещивания
 	for(i = new_population.size(); i < (POPULATION_SIZE - 1); ++ i)
 	{

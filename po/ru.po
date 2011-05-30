@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Table 0.0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-19 11:45+0400\n"
-"PO-Revision-Date: 2011-05-19 11:45+0300\n"
+"POT-Creation-Date: 2011-05-30 13:29+0400\n"
+"PO-Revision-Date: 2011-05-30 13:30+0300\n"
 "Last-Translator: Oleg Shchelykal'nov <O01eg@yandex.ru>\n"
 "Language-Team: Russian\n"
 "Language: \n"
@@ -18,28 +18,13 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
 
 #: ../src/export_dialog.cpp:55
-#: ../src/export_dialog.cpp:142
-#: ../src/main_window.cpp:164
-#: ../ui/main_window.glade.h:15
-msgid "Groups"
+#: ../src/export_dialog.cpp:151
+msgid "Группы"
 msgstr "Группы"
 
-#: ../src/export_dialog.cpp:59
-#: ../src/main_window.cpp:161
-#: ../ui/main_window.glade.h:30
-msgid "Teachers"
-msgstr "Преподаватели"
-
-#: ../src/export_dialog.cpp:62
-#: ../src/main_window.cpp:167
-#: ../ui/main_window.glade.h:5
-msgid "Auditoriums"
-msgstr "Аудитории"
-
 #: ../src/export_dialog.cpp:93
-#: ../src/export_dialog.cpp:99
-msgid "Choose file for exporting timetable:"
-msgstr "Выберите файл для экспорта расписания:"
+msgid "Выбрать файл для экспорта расписания:"
+msgstr "Выбрать файл для экспорта расписания:"
 
 #: ../src/export_dialog.cpp:95
 #: ../src/export_dialog.cpp:104
@@ -47,155 +32,188 @@ msgid "Microsoft Excel"
 msgstr "Microsoft Excel"
 
 #: ../src/export_dialog.cpp:96
+msgid "Все файлы"
+msgstr "Все файлы"
+
+#: ../src/export_dialog.cpp:99
+msgid "Choose file for exporting timetable:"
+msgstr "Выберите файл для экспорта расписания:"
+
 #: ../src/export_dialog.cpp:108
-#: ../src/main_window.cpp:354
-#: ../src/main_window.cpp:366
-#: ../src/main_window.cpp:388
-#: ../src/main_window.cpp:400
+#: ../src/import_dialog.cpp:27
+#: ../src/import_dialog.cpp:39
+#: ../src/main_window.cpp:355
+#: ../src/main_window.cpp:367
+#: ../src/main_window.cpp:389
+#: ../src/main_window.cpp:401
 msgid "All files"
 msgstr "Все файлы"
 
 #: ../src/export_dialog.cpp:131
-#: ../src/main_window.cpp:362
-#: ../src/main_window.cpp:387
-msgid "Timetable"
+msgid "Расписание"
 msgstr "Расписание"
 
-#: ../src/export_dialog.cpp:136
-msgid "Day"
+#: ../src/export_dialog.cpp:143
+msgid "День"
 msgstr "День"
 
-#: ../src/export_dialog.cpp:139
-msgid "Hour"
+#: ../src/export_dialog.cpp:147
+msgid "Час"
 msgstr "Час"
 
-#: ../src/main_window.cpp:77
+#: ../src/import_dialog.cpp:24
+#: ../src/import_dialog.cpp:30
+msgid "Choose file for import:"
+msgstr "Выберите файл для импорта учебного плана:"
+
+#: ../src/import_dialog.cpp:26
+#: ../src/import_dialog.cpp:35
+msgid "MS Excel"
+msgstr "MS Excel"
+
+#: ../src/main_window.cpp:78
 msgid "start"
 msgstr "Начало"
 
-#: ../src/main_window.cpp:78
+#: ../src/main_window.cpp:79
 msgid "finish"
 msgstr "Окончание"
 
-#: ../src/main_window.cpp:81
-#: ../src/main_window.cpp:84
-#: ../src/main_window.cpp:88
-#: ../src/main_window.cpp:100
-#: ../src/main_window.cpp:107
-#: ../src/main_window.cpp:114
-#: ../src/main_window.cpp:117
-#: ../src/main_window.cpp:128
-#: ../src/main_window.cpp:132
-#: ../src/main_window.cpp:137
-msgid "name"
-msgstr "Название"
-
+#: ../src/main_window.cpp:82
 #: ../src/main_window.cpp:85
 #: ../src/main_window.cpp:89
 #: ../src/main_window.cpp:101
+#: ../src/main_window.cpp:108
+#: ../src/main_window.cpp:115
+#: ../src/main_window.cpp:118
+#: ../src/main_window.cpp:129
 #: ../src/main_window.cpp:133
 #: ../src/main_window.cpp:138
+msgid "name"
+msgstr "Название"
+
+#: ../src/main_window.cpp:86
+#: ../src/main_window.cpp:90
+#: ../src/main_window.cpp:102
+#: ../src/main_window.cpp:134
+#: ../src/main_window.cpp:139
 msgid "abbreviation"
 msgstr "Сокращение"
 
-#: ../src/main_window.cpp:90
+#: ../src/main_window.cpp:91
 msgid "faculty"
 msgstr "Факультет"
 
-#: ../src/main_window.cpp:93
+#: ../src/main_window.cpp:94
 msgid "secondname"
 msgstr "Фамилия"
 
-#: ../src/main_window.cpp:94
+#: ../src/main_window.cpp:95
 msgid "firstname"
 msgstr "Имя"
 
-#: ../src/main_window.cpp:95
+#: ../src/main_window.cpp:96
 msgid "thirdname"
 msgstr "Отчество"
 
-#: ../src/main_window.cpp:96
-#: ../src/main_window.cpp:102
-#: ../src/main_window.cpp:121
+#: ../src/main_window.cpp:97
+#: ../src/main_window.cpp:103
+#: ../src/main_window.cpp:122
 msgid "chair"
 msgstr "Кафедра"
 
-#: ../src/main_window.cpp:103
+#: ../src/main_window.cpp:104
 msgid "terms"
 msgstr "Семестры"
 
-#: ../src/main_window.cpp:108
+#: ../src/main_window.cpp:109
 msgid "speciality"
 msgstr "Специальность"
 
-#: ../src/main_window.cpp:109
+#: ../src/main_window.cpp:110
 msgid "term"
 msgstr "Семестр"
 
-#: ../src/main_window.cpp:118
+#: ../src/main_window.cpp:119
 msgid "capacity"
 msgstr "Вместимость"
 
-#: ../src/main_window.cpp:119
-#: ../src/main_window.cpp:140
+#: ../src/main_window.cpp:120
+#: ../src/main_window.cpp:141
 msgid "multithread"
 msgstr "Многопоточность"
 
-#: ../src/main_window.cpp:120
+#: ../src/main_window.cpp:121
 msgid "building"
 msgstr "Корпус"
 
-#: ../src/main_window.cpp:125
-#: ../src/main_window.cpp:229
+#: ../src/main_window.cpp:126
+#: ../src/main_window.cpp:230
 msgid "property"
 msgstr "Свойства"
 
-#: ../src/main_window.cpp:134
+#: ../src/main_window.cpp:135
 msgid "category"
 msgstr "Категория"
 
-#: ../src/main_window.cpp:139
+#: ../src/main_window.cpp:140
 msgid "before"
 msgstr "До"
 
-#: ../src/main_window.cpp:334
+#: ../src/main_window.cpp:162
+#: ../ui/main_window.glade.h:31
+msgid "Teachers"
+msgstr "Преподаватели"
+
+#: ../src/main_window.cpp:165
+#: ../ui/main_window.glade.h:15
+msgid "Groups"
+msgstr "Группы"
+
+#: ../src/main_window.cpp:168
+#: ../ui/main_window.glade.h:5
+msgid "Auditoriums"
+msgstr "Аудитории"
+
+#: ../src/main_window.cpp:335
 msgid "Solved."
 msgstr "Составлено."
 
-#: ../src/main_window.cpp:340
-#: ../src/main_window.cpp:373
-#: ../src/main_window.cpp:412
-#: ../ui/main_window.glade.h:23
-msgid "Schedule"
+#: ../src/main_window.cpp:341
+#: ../src/main_window.cpp:363
+#: ../src/main_window.cpp:374
+#: ../src/main_window.cpp:388
+#: ../src/main_window.cpp:413
+msgid "Timetable"
 msgstr "Расписание"
 
-#: ../src/main_window.cpp:351
-#: ../src/main_window.cpp:357
+#: ../src/main_window.cpp:352
+#: ../src/main_window.cpp:358
 msgid "Choose file for opening database:"
 msgstr "Выберите файл содержащий базу данных:"
 
-#: ../src/main_window.cpp:353
-#: ../src/main_window.cpp:396
+#: ../src/main_window.cpp:354
+#: ../src/main_window.cpp:397
 msgid "TimeTable"
 msgstr "Расписание"
 
-#: ../src/main_window.cpp:385
-#: ../src/main_window.cpp:391
+#: ../src/main_window.cpp:386
+#: ../src/main_window.cpp:392
 msgid "Choose file for saving database:"
 msgstr "Выберите файл для хранения базы данных:"
 
-#: ../src/main_window.cpp:493
+#: ../src/main_window.cpp:500
 #: ../src/teaching_lesson.cpp:14
 msgid "id"
 msgstr "id"
 
 #. add remove item
-#: ../src/main_window.cpp:771
-#: ../src/main_window.cpp:935
+#: ../src/main_window.cpp:786
+#: ../src/main_window.cpp:959
 msgid "Delete"
 msgstr "Удалить"
 
-#: ../src/main_window.cpp:1076
+#: ../src/main_window.cpp:1109
 msgid "Solving..."
 msgstr "Составление..."
 
@@ -211,11 +229,11 @@ msgstr "Поток"
 msgid "lesson"
 msgstr "Занятие"
 
-#: ../src/teaching_lesson.cpp:66
+#: ../src/teaching_lesson.cpp:65
 msgid "Add to stream"
 msgstr "Добавить в поток к"
 
-#: ../src/teaching_lesson.cpp:84
+#: ../src/teaching_lesson.cpp:83
 msgid "Delete from stream"
 msgstr "Удалить из потока"
 
@@ -299,81 +317,95 @@ msgstr "Нагрузки"
 msgid "Other lessons"
 msgstr "Нераспределённые занятия"
 
+#: ../ui/main_window.glade.h:23
+msgid "Schedule"
+msgstr "Расписание"
+
 #: ../ui/main_window.glade.h:24
+msgid "Sheet"
+msgstr "Лист"
+
+#: ../ui/main_window.glade.h:25
 msgid "Show auditorium"
 msgstr "Показывать аудитории"
 
-#: ../ui/main_window.glade.h:25
+#: ../ui/main_window.glade.h:26
 msgid "Specialities"
 msgstr "Специальности"
 
-#: ../ui/main_window.glade.h:26
+#: ../ui/main_window.glade.h:27
 msgid "Speciality"
 msgstr "Специальность"
 
-#: ../ui/main_window.glade.h:27
+#: ../ui/main_window.glade.h:28
 msgid "Table"
 msgstr "Расписание"
 
-#: ../ui/main_window.glade.h:28
+#: ../ui/main_window.glade.h:29
 msgid "Teached Lessons"
 msgstr "Преподаваемые занятия"
 
-#: ../ui/main_window.glade.h:29
+#: ../ui/main_window.glade.h:30
 msgid "Teacher"
 msgstr "Преподаватель"
 
-#: ../ui/main_window.glade.h:31
+#: ../ui/main_window.glade.h:32
 msgid "Teaching Plan"
 msgstr "Учебный план"
 
-#: ../ui/main_window.glade.h:32
+#: ../ui/main_window.glade.h:33
 msgid "_File"
 msgstr "_Файл"
 
-#: ../ui/main_window.glade.h:33
+#: ../ui/main_window.glade.h:34
 msgid "_Help"
 msgstr "_Помощь"
 
-#: ../ui/main_window.glade.h:34
+#: ../ui/main_window.glade.h:35
 msgid "_Schedule"
 msgstr "_Расписание"
 
-#: ../ui/main_window.glade.h:35
+#: ../ui/main_window.glade.h:36
 msgid "toolbutton1"
 msgstr "toolbutton1"
 
-#: ../ui/main_window.glade.h:36
+#: ../ui/main_window.glade.h:37
 msgid "toolbutton10"
 msgstr "toolbutton10"
 
-#: ../ui/main_window.glade.h:37
+#: ../ui/main_window.glade.h:38
 msgid "toolbutton2"
 msgstr "toolbutton2"
 
-#: ../ui/main_window.glade.h:38
+#: ../ui/main_window.glade.h:39
 msgid "toolbutton3"
 msgstr "toolbutton3"
 
-#: ../ui/main_window.glade.h:39
+#: ../ui/main_window.glade.h:40
 msgid "toolbutton5"
 msgstr "toolbutton5"
 
-#: ../ui/main_window.glade.h:40
+#: ../ui/main_window.glade.h:41
 msgid "toolbutton6"
 msgstr "toolbutton6"
 
-#: ../ui/main_window.glade.h:41
+#: ../ui/main_window.glade.h:42
 msgid "toolbutton7"
 msgstr "toolbutton7"
 
-#: ../ui/main_window.glade.h:42
+#: ../ui/main_window.glade.h:43
 msgid "toolbutton8"
 msgstr "toolbutton8"
 
-#: ../ui/main_window.glade.h:43
+#: ../ui/main_window.glade.h:44
 msgid "toolbutton9"
 msgstr "toolbutton9"
+
+#~ msgid "Day"
+#~ msgstr "День"
+
+#~ msgid "Hour"
+#~ msgstr "Час"
 
 #~ msgid "All"
 #~ msgstr "Все"
