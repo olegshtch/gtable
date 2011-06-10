@@ -229,7 +229,7 @@ void ExportDialog::Export(const Glib::ustring& filename)
 					cell = worksheet->Cell(row + j, i + 2);
 					cell->SetFormat(cell_middle);
 					Glib::ustring::size_type index_end = timetablestr.find('\n', index_start);
-					cell->SetWString(WChar(timetablestr.substr(index_start, index_end)));
+					cell->SetWString(WChar(timetablestr.substr(index_start, index_end - index_start)));
 					index_start = index_end + 1;
 					if(j == 0)
 					{
