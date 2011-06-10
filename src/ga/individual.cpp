@@ -48,7 +48,10 @@ bool Individual::Mutation()
 			}
 #endif
 			//соседняя вершина
-			possible_colors[m_Coloring[i].color] = false;
+			if(m_Coloring[i].color >= 0)
+			{
+				possible_colors[m_Coloring[i].color] = false;
+			}
 		}
 	}
 	std::vector<int> colors_list;
